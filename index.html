@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global BookShelf — Project Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#07070e;--ink2:#10101a;--ink3:#181823;
+  --pg:#f4ede0;--pg3:rgba(244,237,224,.68);--pg4:rgba(244,237,224,.36);--pg5:rgba(244,237,224,.1);--pg6:rgba(244,237,224,.05);
+  --gold:#c8a44a;--gold2:#e6c560;--goldd:rgba(200,164,74,.14);
+  --teal:#36b4ac;--coral:#de5848;--violet:#8b78d6;--sage:#68a878;--amber:#c97e32;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+html,body{width:100%;min-height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.wrap{max-width:1000px;margin:0 auto;padding:80px 2rem;position:relative;z-index:1}
+
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.eyebrow::before,.eyebrow::after{content:'';width:24px;height:1px;background:var(--gold);opacity:.5}
+.main-title{font-family:var(--serif);font-size:clamp(40px,6vw,76px);font-weight:300;line-height:1.05;
+  color:var(--pg);margin-bottom:14px;letter-spacing:-.01em;text-align:center}
+.main-title em{font-style:italic;color:var(--gold)}
+.main-sub{font-size:15px;font-weight:300;color:var(--pg3);text-align:center;max-width:520px;
+  margin:0 auto 60px;line-height:1.7}
+
+.pages-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:60px}
+.page-card{background:var(--ink2);border:1px solid var(--pg5);border-radius:12px;overflow:hidden;
+  text-decoration:none;display:flex;flex-direction:column;transition:all .25s;position:relative;
+  animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.page-card:hover{transform:translateY(-4px);border-color:rgba(200,164,74,.25);
+  box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.page-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--page-color,var(--gold))}
+.page-banner{height:120px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden}
+.page-banner-glow{position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(200,164,74,.08) 0%,transparent 70%)}
+.page-icon{font-size:40px;position:relative;z-index:1}
+.page-body{padding:20px}
+.page-num{font-family:var(--mono);font-size:10px;color:var(--pg4);letter-spacing:.08em;margin-bottom:8px}
+.page-title{font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:6px;line-height:1.2}
+.page-desc{font-size:12px;color:var(--pg3);line-height:1.65;margin-bottom:14px;font-weight:300}
+.page-features{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.pf{font-size:11px;color:var(--pg4);display:flex;align-items:center;gap:6px}
+.pf::before{content:'✓';color:var(--page-color,var(--gold));font-size:10px}
+.page-cta{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;
+  color:var(--page-color,var(--gold));letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 16px;border:1px solid var(--page-color,var(--gold));border-radius:6px;
+  transition:all .2s;background:transparent;cursor:pointer;font-family:var(--sans)}
+.page-cta:hover{background:rgba(200,164,74,.1)}
+
+/* Schema card - full width */
+.schema-card{grid-column:1/-1}
+
+/* Status bar */
+.status-bar{background:var(--ink2);border:1px solid var(--pg5);border-radius:12px;padding:24px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:60px;animation:fadeUp .5s ease .5s both}
+.st-item{text-align:center}
+.st-n{font-family:var(--serif);font-size:28px;color:var(--pg)}
+.st-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg4);margin-top:4px}
+.st-bar{height:3px;border-radius:2px;margin-top:8px}
+
+/* Next up section */
+.next-section{margin-top:60px}
+.next-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.next-item{background:var(--ink2);border:1px solid var(--pg5);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s}
+.next-item:hover{border-color:rgba(200,164,74,.2);transform:translateY(-2px)}
+.ni-num{font-family:var(--mono);font-size:10px;color:var(--pg4);margin-bottom:6px}
+.ni-title{font-size:14px;color:var(--pg);margin-bottom:4px;font-weight:400}
+.ni-desc{font-size:11px;color:var(--pg4);line-height:1.5}
+
+/* Footer */
+.project-footer{border-top:1px solid var(--pg5);margin-top:60px;padding-top:32px;
+  display:flex;align-items:center;justify-content:space-between}
+.pf-logo{font-family:var(--serif);font-size:20px;color:var(--pg3)}
+.pf-logo em{color:var(--gold);font-style:italic}
+.pf-copy{font-size:11px;color:rgba(244,237,224,.2);letter-spacing:.05em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="text-align:center;margin-bottom:8px;animation:fadeUp .4s ease both">
+    <div class="eyebrow">Global BookShelf · Build Log</div>
+    <h1 class="main-title">The Wonder of<br>the <em>World</em></h1>
+    <p class="main-sub">Five production-grade pages built. The architecture is live. Every page links to the next. Click any card to open it.</p>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="st-item"><div class="st-n" style="color:var(--gold)">5</div><div class="st-l">Pages built</div><div class="st-bar" style="background:var(--gold)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--teal)">29</div><div class="st-l">DB tables</div><div class="st-bar" style="background:var(--teal)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--violet)">62</div><div class="st-l">DB indexes</div><div class="st-bar" style="background:var(--violet)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--coral)">4</div><div class="st-l">AI features</div><div class="st-bar" style="background:var(--coral)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--sage)">∞</div><div class="st-l">Ambition</div><div class="st-bar" style="background:var(--sage)"></div></div>
+  </div>
+
+  <!-- PAGES GRID -->
+  <div class="pages-grid">
+
+    <!-- Homepage -->
+    <a href="global-bookshelf.html" class="page-card" style="--page-color:var(--gold);animation-delay:.06s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow"></div>
+        <span class="page-icon">🌍</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 01 — HOMEPAGE</div>
+        <div class="page-title">The Living World Map</div>
+        <div class="page-desc">The showstopper. A cinematic dark globe with animated book pins, live reader pulses, time-travel slider, and real-time reader stats.</div>
+        <div class="page-features">
+          <div class="pf">3D world map with 12 book pins</div>
+          <div class="pf">Live reader count (JS animated)</div>
+          <div class="pf">Genre filter chips + time era slider</div>
+          <div class="pf">Live marquee feed of global activity</div>
+          <div class="pf">"Pinned This Hour" book shelf</div>
+        </div>
+        <div class="page-cta">Open page →</div>
+      </div>
+    </a>
+
+    <!-- AI Soul -->
+    <a href="ai-reading-soul.html" class="page-card" style="--page-color:var(--coral);animation-delay:.1s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(222,88,72,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">✦</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 02 — AI READING SOUL</div>
+        <div class="page-title">The Reading Soul Onboarding</div>
+        <div class="page-desc">A 5-screen quiz experience that learns who you are — then builds your complete Soul Profile with archetype, dimensions, and book matches.</div>
+        <div class="page-features">
+          <div class="pf">6-card emotional need selector</div>
+          <div class="pf">Passage resonance screen (6 real quotes)</div>
+          <div class="pf">6 animated reading dial sliders</div>
+          <div class="pf">Reading ritual cards</div>
+          <div class="pf">Animated soul analysis + full dashboard</div>
+        </div>
+        <div class="page-cta" style="color:var(--coral);border-color:var(--coral)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Author Universe -->
+    <a href="author-universe.html" class="page-card" style="--page-color:var(--amber);animation-delay:.14s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(201,126,50,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">✍️</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 03 — AUTHOR UNIVERSE</div>
+        <div class="page-title">Author Profile + Earnings</div>
+        <div class="page-desc">Full author profile for Adaeze Okonkwo — bio, writing-in-public with live cursor, earnings dashboard, patronage tiers, reader Q&A, and world readership map.</div>
+        <div class="page-features">
+          <div class="pf">Cinematic hero with live stats</div>
+          <div class="pf">Writing-in-public with blinking cursor</div>
+          <div class="pf">Earnings bar chart + income breakdown</div>
+          <div class="pf">3 patron tiers with live patron counts</div>
+          <div class="pf">Q&A inbox with author answers</div>
+        </div>
+        <div class="page-cta" style="color:var(--amber);border-color:var(--amber)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Book Detail -->
+    <a href="book-detail.html" class="page-card" style="--page-color:var(--teal);animation-delay:.18s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(54,180,172,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">📖</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 04 — BOOK DETAIL</div>
+        <div class="page-title">Immersive Book Experience</div>
+        <div class="page-desc">The God of Small Things — full detail page with 3D cover, immersive reader with ambient mode, character relationship SVG map, live annotations, and endings debate room.</div>
+        <div class="page-features">
+          <div class="pf">3D rotating book cover</div>
+          <div class="pf">Ambient reading mode (🌧 rain overlay)</div>
+          <div class="pf">SVG character relationship map (clickable)</div>
+          <div class="pf">Live reader annotations with popups</div>
+          <div class="pf">Endings debate room with live voting</div>
+        </div>
+        <div class="page-cta" style="color:var(--teal);border-color:var(--teal)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Community -->
+    <a href="community-hub.html" class="page-card" style="--page-color:var(--sage);animation-delay:.22s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(104,168,120,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">👥</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 05 — COMMUNITY HUB</div>
+        <div class="page-title">Cross-World Book Clubs</div>
+        <div class="page-desc">Soul-matched club discovery, 4 live reading rooms in session, clubs grid across 6 cultures, generational reading chains, translation volunteer calls, and a global live activity feed.</div>
+        <div class="page-features">
+          <div class="pf">3 soul-matched club recommendations</div>
+          <div class="pf">4 live reading rooms with topics</div>
+          <div class="pf">6 club cards with join flow</div>
+          <div class="pf">Create-a-club form (functional)</div>
+          <div class="pf">Generational reading chain feature</div>
+        </div>
+        <div class="page-cta" style="color:var(--sage);border-color:var(--sage)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Database -->
+    <a href="schema-explorer.html" class="page-card schema-card" style="--page-color:var(--violet);animation-delay:.26s">
+      <div style="display:flex;align-items:stretch;min-height:160px">
+        <div class="page-banner" style="background:var(--ink3);width:200px;flex-shrink:0;flex-direction:column;gap:6px">
+          <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(139,120,214,.12) 0%,transparent 70%)"></div>
+          <span class="page-icon" style="position:relative;z-index:1">🗄</span>
+          <div style="font-family:var(--mono);font-size:9px;color:rgba(139,120,214,.7);position:relative;z-index:1;letter-spacing:.08em">PostgreSQL 15</div>
+        </div>
+        <div class="page-body" style="flex:1;display:flex;gap:32px;align-items:flex-start">
+          <div style="flex:1">
+            <div class="page-num">INFRASTRUCTURE — DATABASE</div>
+            <div class="page-title">Interactive Schema Explorer + Production SQL</div>
+            <div class="page-desc">29 tables, 62 indexes, 11 triggers, 4 views, row-level security, pgvector for AI matching, partitioned analytics, and full design decision documentation.</div>
+            <div class="page-cta" style="color:var(--violet);border-color:var(--violet)">Explore schema →</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex-shrink:0">
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">29</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Tables</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">62</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Indexes</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">11</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Triggers</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">4</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Views</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--teal)">✓</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">pgvector</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--teal)">✓</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">RLS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /pages-grid -->
+
+  <!-- NEXT UP -->
+  <div class="next-section">
+    <div style="margin-bottom:4px">
+      <div class="eyebrow" style="justify-content:flex-start">What we build next</div>
+      <div style="font-family:var(--serif);font-size:clamp(22px,3vw,32px);font-weight:300;color:var(--pg)">Still to come — <em style="color:var(--gold)">tell me which to build</em></div>
+    </div>
+    <div class="next-grid">
+      <div class="next-item" style="animation-delay:.3s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Backend API (Node.js + Express)</div>
+        <div class="ni-desc">Full REST API connecting all pages to the database. Auth, patronage endpoints, soul matching, real-time websockets for live readers.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.35s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Mobile app (React Native)</div>
+        <div class="ni-desc">iOS + Android app with offline reading, push notifications for chapter releases, and the world map in your pocket.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.4s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Admin Dashboard</div>
+        <div class="ni-desc">Moderator tools, author earnings analytics, content flagging, community health metrics, and growth dashboards.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.45s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Payment integration (Stripe)</div>
+        <div class="ni-desc">Stripe Connect for author payouts, subscription billing, tip system, and the platform fee engine.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.5s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">AI Soul engine (Python)</div>
+        <div class="ni-desc">The actual ML pipeline: embedding generation with OpenAI, HNSW search, soul score computation, and the recommendation batch job.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.55s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Search + Discovery layer</div>
+        <div class="ni-desc">Combined pgvector semantic search + pg_trgm text search + faceted genre/language/year filtering powering every search box.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="project-footer">
+    <div class="pf-logo">Global <em>BookShelf</em></div>
+    <div style="font-size:12px;color:var(--pg4);font-family:var(--serif);font-style:italic">"The Wonder of the World — built page by page"</div>
+    <div class="pf-copy">© 2025 · All files in /outputs/</div>
+  </div>
+
+</div>
+</body>
+</html>

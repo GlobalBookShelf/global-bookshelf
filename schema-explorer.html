@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global BookShelf — Database Schema</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#08080f;--ink2:#111119;--ink3:#181824;--ink4:#20202e;
+  --pg:#f4ede0;--pg2:#ede4d0;--pg3:rgba(244,237,224,.7);--pg4:rgba(244,237,224,.35);--pg5:rgba(244,237,224,.1);--pg6:rgba(244,237,224,.05);
+  --gold:#c8a44a;--goldd:rgba(200,164,74,.14);--goldb:rgba(200,164,74,.3);
+  --teal:#36b4ac;--teald:rgba(54,180,172,.13);
+  --coral:#de5848;--corald:rgba(222,88,72,.12);
+  --violet:#8b78d6;--violetd:rgba(139,120,214,.12);
+  --sage:#68a878;--saged:rgba(104,168,120,.12);
+  --amber:#c97e32;--ambd:rgba(201,126,50,.12);
+  --pink:#c46890;--pinkd:rgba(196,104,144,.12);
+  --blue:#4a8fd4;--blued:rgba(74,143,212,.12);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+html,body{width:100%;height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow:hidden}
+
+/* ── TOP BAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:500;height:56px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+  background:rgba(8,8,15,.97);border-bottom:1px solid var(--pg5)}
+.topbar-logo{font-family:var(--serif);font-size:16px;color:var(--pg3)}
+.topbar-logo em{color:var(--gold);font-style:italic}
+.topbar-title{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px}
+.topbar-title::before,.topbar-title::after{content:'';width:20px;height:1px;background:var(--gold);opacity:.4}
+.topbar-meta{display:flex;align-items:center;gap:16px}
+.topbar-stat{font-size:11px;color:var(--pg4)}
+.topbar-stat span{color:var(--pg);font-family:var(--mono)}
+
+/* ── LEGEND ── */
+.legend{position:fixed;top:70px;left:16px;z-index:400;background:rgba(17,17,25,.92);
+  border:1px solid var(--pg5);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(10px)}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--pg4)}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── FILTER BAR ── */
+.filterbar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:400;
+  display:flex;gap:6px;background:rgba(17,17,25,.92);border:1px solid var(--pg5);border-radius:24px;
+  padding:8px 12px;backdrop-filter:blur(10px)}
+.filter-btn{padding:5px 14px;border-radius:16px;font-size:11px;letter-spacing:.04em;
+  border:1px solid transparent;cursor:pointer;transition:all .2s;font-family:var(--sans);color:var(--pg4);background:transparent}
+.filter-btn:hover{color:var(--pg)}
+.filter-btn.active{color:var(--ink);border-color:transparent}
+
+/* ── CANVAS ── */
+#canvas-wrap{position:fixed;inset:0;top:56px;overflow:auto;cursor:grab}
+#canvas-wrap:active{cursor:grabbing}
+#canvas{position:relative;width:3200px;height:2200px}
+
+/* ── SVG LINES ── */
+#rel-svg{position:absolute;inset:0;pointer-events:none;z-index:1}
+
+/* ── TABLE NODES ── */
+.tnode{position:absolute;z-index:10;width:240px;border-radius:10px;overflow:hidden;
+  border:1px solid var(--pg5);background:var(--ink2);transition:box-shadow .2s,transform .2s;cursor:pointer}
+.tnode:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.tnode.highlighted{box-shadow:0 0 0 2px var(--node-color,var(--gold)),0 8px 32px rgba(0,0,0,.6)}
+
+.tnode-head{padding:10px 13px;border-bottom:1px solid var(--pg5);display:flex;align-items:center;gap:8px}
+.tnode-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.tnode-name{font-size:12px;font-weight:500;color:var(--pg);letter-spacing:.03em;flex:1}
+.tnode-count{font-size:10px;color:var(--pg4);font-family:var(--mono)}
+.tnode-top-accent{height:3px;width:100%}
+
+.tnode-fields{padding:6px 0}
+.tfield{display:flex;align-items:center;gap:0;padding:3px 13px;transition:background .15s;cursor:pointer}
+.tfield:hover{background:var(--pg6)}
+.field-key{width:14px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-right:7px;font-weight:500}
+.field-name{font-family:var(--mono);font-size:10.5px;color:var(--pg3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.field-type{font-family:var(--mono);font-size:9px;color:var(--pg4)}
+.tnode-more{padding:4px 13px 8px;font-size:10px;color:var(--pg4);cursor:pointer;letter-spacing:.04em}
+.tnode-more:hover{color:var(--gold)}
+
+/* ── DETAIL PANEL ── */
+.detail-panel{position:fixed;right:0;top:56px;bottom:0;width:360px;z-index:300;
+  background:rgba(17,17,25,.97);border-left:1px solid var(--pg5);backdrop-filter:blur(16px);
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);overflow-y:auto;padding:0}
+.detail-panel.open{transform:translateX(0)}
+.dp-head{padding:20px 22px 16px;border-bottom:1px solid var(--pg5);position:sticky;top:0;background:rgba(17,17,25,.98);z-index:1}
+.dp-close{position:absolute;top:18px;right:18px;width:28px;height:28px;border-radius:6px;
+  border:1px solid var(--pg5);background:transparent;color:var(--pg4);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.dp-close:hover{border-color:var(--pg3);color:var(--pg)}
+.dp-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.dp-table-name{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--pg);margin-bottom:3px}
+.dp-desc{font-size:12px;color:var(--pg3);line-height:1.6}
+.dp-body{padding:18px 22px}
+.dp-section{margin-bottom:22px}
+.dp-section-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--pg5)}
+.dp-field-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--pg6)}
+.dp-field-row:last-child{border-bottom:none}
+.dp-field-key{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;font-weight:500;margin-top:1px}
+.dp-field-name{font-family:var(--mono);font-size:12px;color:var(--pg);flex:1}
+.dp-field-type{font-family:var(--mono);font-size:10px;color:var(--pg4)}
+.dp-field-note{font-size:10px;color:var(--teal);margin-top:1px}
+.dp-rel-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--pg6);cursor:pointer}
+.dp-rel-row:last-child{border-bottom:none}
+.dp-rel-row:hover .dp-rel-table{color:var(--gold)}
+.dp-rel-arrow{font-size:12px;color:var(--pg4)}
+.dp-rel-table{font-family:var(--mono);font-size:12px;color:var(--pg3)}
+.dp-rel-desc{font-size:10px;color:var(--pg4)}
+.dp-insight{background:var(--goldd);border:1px solid var(--goldb);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.dp-insight p{font-size:12px;color:var(--pg3);line-height:1.6}
+.dp-insight strong{color:var(--pg);font-weight:500}
+.dp-row-estimate{font-family:var(--mono);font-size:24px;color:var(--pg);margin-bottom:2px}
+.dp-row-label{font-size:10px;color:var(--pg4);letter-spacing:.08em}
+
+/* ── MINI MAP ── */
+.minimap{position:fixed;bottom:70px;left:16px;z-index:400;
+  width:160px;height:110px;border-radius:6px;border:1px solid var(--pg5);
+  background:rgba(17,17,25,.9);overflow:hidden;backdrop-filter:blur(6px)}
+.minimap-viewport{position:absolute;border:1px solid rgba(200,164,74,.5);background:rgba(200,164,74,.05);pointer-events:none}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(200,164,74,.2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">Global <em>BookShelf</em></div>
+  <div class="topbar-title">Database Schema</div>
+  <div class="topbar-meta">
+    <div class="topbar-stat">Tables <span id="tcount">29</span></div>
+    <div class="topbar-stat">Indexes <span>62</span></div>
+    <div class="topbar-stat">Triggers <span>11</span></div>
+    <div class="topbar-stat">Views <span>4</span></div>
+    <div class="topbar-stat">Engine <span>PostgreSQL 15</span></div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Domain</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c8a44a"></div>Users & Auth</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#36b4ac"></div>Books & Content</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8b78d6"></div>Reading & Shelves</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#de5848"></div>AI Soul</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#68a878"></div>Community</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c97e32"></div>Patronage & Pay</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c46890"></div>Analytics & Mod</div>
+</div>
+
+<!-- CANVAS -->
+<div id="canvas-wrap">
+  <div id="canvas">
+    <svg id="rel-svg" width="3200" height="2200"></svg>
+    <div id="nodes-layer"></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filterbar">
+  <div class="filter-btn active" style="background:var(--gold);color:var(--ink)" onclick="filterDomain(this,'all')">All</div>
+  <div class="filter-btn" onclick="filterDomain(this,'users')">Users</div>
+  <div class="filter-btn" onclick="filterDomain(this,'books')">Books</div>
+  <div class="filter-btn" onclick="filterDomain(this,'reading')">Reading</div>
+  <div class="filter-btn" onclick="filterDomain(this,'soul')">AI Soul</div>
+  <div class="filter-btn" onclick="filterDomain(this,'community')">Community</div>
+  <div class="filter-btn" onclick="filterDomain(this,'payments')">Payments</div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-head">
+    <button class="dp-close" onclick="closePanel()">✕</button>
+    <div class="dp-icon" id="dpIcon"></div>
+    <div class="dp-table-name" id="dpName"></div>
+    <div class="dp-desc" id="dpDesc"></div>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
+<!-- MINI MAP -->
+<div class="minimap" id="minimap">
+  <div class="minimap-viewport" id="minimapVP"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  SCHEMA DATA
+// ═══════════════════════════════════════════════════
+const TABLES = [
+  // USERS domain
+  {id:'users', label:'users', domain:'users', icon:'👤', color:'#c8a44a',
+   x:140, y:100,
+   desc:'The core identity table. Every human on the platform — reader, author, moderator, admin.',
+   rows:'50M+', rowLabel:'at scale',
+   fields:[
+     {key:'PK',name:'id',type:'uuid',note:'uuid_generate_v4()'},
+     {key:'UK',name:'email',type:'text NOT NULL'},
+     {key:'UK',name:'username',type:'text',note:'regex: ^[a-z0-9_]{3,32}$'},
+     {name:'display_name',type:'text'},
+     {name:'bio',type:'text',note:'≤2000 chars'},
+     {name:'role',type:'user_role',note:'enum: reader|author|moderator|admin'},
+     {name:'country_code',type:'char(2)',note:'ISO 3166-1'},
+     {name:'preferred_languages',type:'text[]',note:'ISO 639-1 array'},
+     {name:'is_author',type:'boolean'},
+     {name:'is_verified',type:'boolean'},
+     {name:'soul_embedding',type:'vector(1536)',note:'pgvector — AI soul'},
+     {name:'deleted_at',type:'timestamptz',note:'soft delete'},
+   ],
+   relations:[
+     {table:'author_profiles',desc:'1:1 extended profile for authors'},
+     {table:'follows',desc:'M:M self-referential via follower/followee'},
+     {table:'shelf_books',desc:'Reading activity through shelves'},
+     {table:'soul_profiles',desc:'1:1 AI reading soul'},
+   ],
+   insights:['Soft-deleted rows kept 90 days for audit, then purged by pg_cron','RLS: users can update only their own row','Full-text GIN index on display_name + bio for search']
+  },
+
+  {id:'author_profiles', label:'author_profiles', domain:'users', icon:'✍️', color:'#c8a44a',
+   x:430, y:100,
+   desc:'Extended profile for users who are authors. 1:1 with users where is_author=TRUE.',
+   rows:'500k', rowLabel:'projected year 1',
+   fields:[
+     {key:'PK/FK',name:'user_id',type:'uuid',note:'→ users.id'},
+     {name:'pen_name',type:'text'},
+     {name:'born_country',type:'char(2)'},
+     {name:'languages_written',type:'text[]'},
+     {name:'awards',type:'jsonb',note:'[{name,year,body}]'},
+     {name:'total_followers',type:'integer',note:'denormalised'},
+     {name:'total_patron_revenue',type:'numeric(12,2)'},
+     {name:'writing_streak_days',type:'integer'},
+     {name:'patron_enabled',type:'boolean'},
+     {name:'payout_account_id',type:'text',note:'Stripe Connect'},
+   ],
+   relations:[{table:'users',desc:'1:1 user identity'},{table:'patron_tiers',desc:'Author defines their tiers'}],
+   insights:['Separated from users to keep the main table lean','payout_account_id = Stripe Connect ID for direct payouts','writing_streak_days updated nightly by scheduled job']
+  },
+
+  {id:'follows', label:'follows', domain:'users', icon:'↔', color:'#c8a44a',
+   x:140, y:420,
+   desc:'Self-referential M:M for reader→author and reader→reader follows.',
+   rows:'200M+', rowLabel:'social graph at scale',
+   fields:[
+     {key:'PK',name:'follower_id',type:'uuid',note:'→ users.id'},
+     {key:'PK',name:'followee_id',type:'uuid',note:'→ users.id'},
+     {name:'created_at',type:'timestamptz'},
+   ],
+   relations:[{table:'users',desc:'Both follower and followee'}],
+   insights:['Composite PK prevents duplicate follows','CHECK follower_id ≠ followee_id','Index on followee_id for fast "followers of author X" queries']
+  },
+
+  // BOOKS domain
+  {id:'books', label:'books', domain:'books', icon:'📖', color:'#36b4ac',
+   x:800, y:100,
+   desc:'The central content record. Every book in the platform — public domain, published, author drafts.',
+   rows:'4.2M', rowLabel:'at launch',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'UK',name:'isbn',type:'text',note:'ISBN-13'},
+     {name:'title',type:'text NOT NULL'},
+     {key:'UK',name:'slug',type:'text'},
+     {name:'status',type:'book_status',note:'draft|published|archived|banned'},
+     {name:'original_language',type:'char(2)'},
+     {name:'origin_country',type:'char(2)'},
+     {name:'genres',type:'text[]',note:'GIN indexed'},
+     {name:'themes',type:'text[]',note:'GIN indexed'},
+     {name:'soul_embedding',type:'vector(1536)',note:'HNSW index — AI match'},
+     {name:'reader_count',type:'integer',note:'denormalised counter'},
+     {name:'rating_sum / rating_count',type:'numeric',note:'trigger-synced'},
+     {name:'is_public_domain',type:'boolean'},
+   ],
+   relations:[
+     {table:'book_authors',desc:'M:M authors (may have co-authors)'},
+     {table:'chapters',desc:'1:M serialised chapters'},
+     {table:'book_translations',desc:'1:M language translations'},
+     {table:'book_pins',desc:'1:M geo pins on world map'},
+     {table:'shelf_books',desc:'M:M readers tracking this book'},
+   ],
+   insights:[
+     'soul_embedding powers the AI Reading Soul — cosine similarity against reader profiles',
+     'HNSW index gives <10ms similarity search across 4M books',
+     'reader_count synced by trigger on shelf_books INSERT/DELETE',
+     'GIN indexes on genres[] and themes[] for fast filter queries'
+   ]
+  },
+
+  {id:'book_authors', label:'book_authors', domain:'books', icon:'🔗', color:'#36b4ac',
+   x:1090, y:100,
+   desc:'M:M junction between books and author users. Supports roles: author, co-author, translator, editor.',
+   rows:'6M', rowLabel:'1.4× books avg',
+   fields:[
+     {key:'PK',name:'book_id',type:'uuid',note:'→ books.id'},
+     {key:'PK',name:'author_id',type:'uuid',note:'→ users.id'},
+     {name:'role',type:'text',note:'author|co_author|editor|translator'},
+     {name:'sort_order',type:'smallint'},
+   ],
+   relations:[{table:'books',desc:'M:1'},{table:'users',desc:'M:1 author user'}],
+   insights:['sort_order controls display order for multi-author works','role allows translator to be credited separately from author']
+  },
+
+  {id:'chapters', label:'chapters', domain:'books', icon:'📄', color:'#36b4ac',
+   x:1090, y:310,
+   desc:'Individual chapters for serialised books and writing-in-public drafts. Patron-gating at chapter level.',
+   rows:'40M', rowLabel:'~10 chapters/book',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid',note:'→ books.id'},
+     {name:'number',type:'integer',note:'UNIQUE with book_id'},
+     {name:'content',type:'text',note:'Markdown / Quill delta'},
+     {name:'is_published',type:'boolean'},
+     {name:'is_public',type:'boolean',note:'FALSE = patrons only'},
+     {name:'word_count',type:'integer'},
+     {name:'follower_count',type:'integer'},
+   ],
+   relations:[{table:'books',desc:'M:1'},{table:'chapter_followers',desc:'1:M writing-in-public watchers'}],
+   insights:['is_public=FALSE gates chapter behind patron subscription','word_count tracked for author writing stats & streak calculation']
+  },
+
+  {id:'book_translations', label:'book_translations', domain:'books', icon:'🌐', color:'#36b4ac',
+   x:800, y:420,
+   desc:'Language translations — machine, community-contributed, or professional. One record per book+language.',
+   rows:'12M', rowLabel:'~3 languages/book avg',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid',note:'→ books.id'},
+     {name:'language',type:'char(2)'},
+     {name:'status',type:'translation_status',note:'machine|community_draft|verified|professional'},
+     {name:'translator_ids',type:'uuid[]',note:'community contributors'},
+     {name:'contributor_count',type:'integer'},
+     {name:'verified_at',type:'timestamptz'},
+   ],
+   relations:[{table:'books',desc:'M:1'},{table:'users',desc:'Array of contributor user IDs'}],
+   insights:['UNIQUE(book_id, language) — one translation record per language','contributor_count used to credit community translators','Community can upvote/correct machine translations']
+  },
+
+  {id:'book_pins', label:'book_pins', domain:'books', icon:'📍', color:'#36b4ac',
+   x:1090, y:520,
+   desc:'Geo-coordinates for the world map. A book can have multiple pins: where author was born, where story is set, etc.',
+   rows:'8M', rowLabel:'~2 pins/book avg',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid',note:'→ books.id'},
+     {name:'lat / lng',type:'numeric(9,6)',note:'WGS84 coordinates'},
+     {name:'country',type:'char(2)'},
+     {name:'pin_type',type:'text',note:'origin|setting|inspired_by|author_born'},
+   ],
+   relations:[{table:'books',desc:'M:1'},{table:'live_readers',desc:'Joined in v_world_map view'}],
+   insights:['Index on (lat, lng) for bounding-box queries from the map viewport','pin_type lets the map show different layers: "settings" vs "origins"']
+  },
+
+  // READING domain
+  {id:'shelves', label:'shelves', domain:'reading', icon:'📚', color:'#8b78d6',
+   x:500, y:620,
+   desc:'User-created reading lists. Default shelves (Reading, Finished, Want to Read) plus unlimited custom shelves.',
+   rows:'150M', rowLabel:'~3 shelves/user avg',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid',note:'→ users.id'},
+     {name:'name',type:'text',note:'1–100 chars'},
+     {name:'is_default',type:'boolean',note:'system shelves'},
+     {name:'is_public',type:'boolean'},
+     {name:'book_count',type:'integer',note:'denormalised'},
+   ],
+   relations:[{table:'users',desc:'M:1'},{table:'shelf_books',desc:'1:M books on this shelf'}],
+   insights:['RLS: public shelves visible to all; private visible only to owner','is_default=TRUE shelves created automatically on user registration']
+  },
+
+  {id:'shelf_books', label:'shelf_books', domain:'reading', icon:'✓', color:'#8b78d6',
+   x:500, y:830,
+   desc:'The reading log. When a user adds a book to a shelf, tracks status, progress, rating, and dates.',
+   rows:'500M', rowLabel:'core activity table',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'shelf_id',type:'uuid',note:'→ shelves.id'},
+     {key:'FK',name:'user_id',type:'uuid',note:'→ users.id (denorm)'},
+     {key:'FK',name:'book_id',type:'uuid',note:'→ books.id'},
+     {name:'status',type:'reading_status',note:'want|reading|finished|abandoned|rereading'},
+     {name:'started_at / finished_at',type:'timestamptz'},
+     {name:'current_pct',type:'numeric(5,2)',note:'0.00–100.00'},
+     {name:'rating',type:'smallint',note:'1–5, CHECK constraint'},
+     {name:'times_read',type:'smallint'},
+   ],
+   relations:[{table:'shelves',desc:'M:1'},{table:'books',desc:'M:1'},{table:'users',desc:'M:1 (denorm for fast queries)'}],
+   insights:[
+     'trigger: INSERT/UPDATE fires sync_book_rating() → updates books.rating_sum/count',
+     'trigger: INSERT/DELETE fires sync_book_readers() → updates books.reader_count',
+     'user_id is denormalised here to avoid joins on the hottest read path',
+     'UNIQUE(shelf_id, book_id) prevents duplicates per shelf'
+   ]
+  },
+
+  {id:'reading_sessions', label:'reading_sessions', domain:'reading', icon:'⏱', color:'#8b78d6',
+   x:200, y:820,
+   desc:'Granular reading sessions per sitting. Powers reading streaks, time-spent stats, and soul profile updates.',
+   rows:'2B+', rowLabel:'high-volume append-only',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid'},
+     {name:'started_at / ended_at',type:'timestamptz'},
+     {name:'pages_read',type:'integer'},
+     {name:'pct_start / pct_end',type:'numeric(5,2)'},
+     {name:'device',type:'text'},
+   ],
+   relations:[{table:'users',desc:'M:1'},{table:'books',desc:'M:1'}],
+   insights:['Consider partitioning by month like the events table at scale','Used to calculate author earnings analytics: "pages read across all patrons"']
+  },
+
+  // AI SOUL domain
+  {id:'soul_profiles', label:'soul_profiles', domain:'soul', icon:'✦', color:'#de5848',
+   x:140, y:620,
+   desc:'The AI Reading Soul profile. 14 dimension scores, literary DNA, archetype, and a vector embedding for reader-reader matching.',
+   rows:'50M', rowLabel:'1:1 with users',
+   fields:[
+     {key:'PK/FK',name:'user_id',type:'uuid',note:'→ users.id'},
+     {name:'archetype',type:'text',note:'e.g. "Midnight Wanderer"'},
+     {name:'dimensions',type:'jsonb',note:'{emotional_depth: 0.87, ...} — 14 keys'},
+     {name:'literary_dna',type:'text[]',note:'["Magical Realism","Post-Colonial",...]'},
+     {name:'reading_ritual',type:'text',note:'dawn|commute|midnight|etc'},
+     {name:'emotional_need',type:'text'},
+     {name:'soul_embedding',type:'vector(1536)',note:'HNSW — reader↔reader match'},
+   ],
+   relations:[{table:'users',desc:'1:1'},{table:'soul_recommendations',desc:'1:M generated recs'}],
+   insights:[
+     'soul_embedding used in v_reader_matches view for cosine similarity between any two readers',
+     'HNSW index: approximate nearest-neighbour in <5ms at 50M vectors',
+     'dimensions stored as JSONB to allow adding new dimensions without schema migration',
+     'Regenerated by background job when reading behaviour changes significantly'
+   ]
+  },
+
+  {id:'soul_recommendations', label:'soul_recommendations', domain:'soul', icon:'🎯', color:'#de5848',
+   x:140, y:870,
+   desc:'Materialised recommendations per user. Pre-computed by AI job, refreshed when soul profile or book catalog changes.',
+   rows:'500M', rowLabel:'~10 recs/user',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid'},
+     {name:'match_score',type:'numeric(5,4)',note:'0.0000–1.0000'},
+     {name:'match_reason',type:'text',note:'human-readable explanation'},
+     {name:'dimension_match',type:'jsonb',note:'which dimensions drove the match'},
+     {name:'dismissed',type:'boolean'},
+   ],
+   relations:[{table:'soul_profiles',desc:'M:1 reader'},{table:'books',desc:'M:1 recommended book'}],
+   insights:['Pre-computed nightly — instant response time for users','UNIQUE(user_id, book_id) — one rec per book per user','dismissed=TRUE hides from feed but keeps for training signal']
+  },
+
+  // COMMUNITY domain
+  {id:'book_clubs', label:'book_clubs', domain:'community', icon:'👥', color:'#68a878',
+   x:1380, y:100,
+   desc:'Cross-world reading communities. Public, private, or invite-only. Multi-language. Optional scheduled meetings.',
+   rows:'500k', rowLabel:'year 1 target',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {name:'name',type:'text'},
+     {key:'UK',name:'slug',type:'text'},
+     {name:'visibility',type:'club_visibility',note:'public|private|invite_only'},
+     {name:'language',type:'char(2)',note:'primary language'},
+     {name:'languages',type:'text[]',note:'allowed languages'},
+     {key:'FK',name:'current_book_id',type:'uuid',note:'→ books.id'},
+     {name:'member_count',type:'integer',note:'trigger-synced'},
+     {name:'meeting_schedule',type:'text',note:'RRULE string (RFC 5545)'},
+   ],
+   relations:[{table:'club_members',desc:'1:M members'},{table:'club_books',desc:'1:M reading history'},{table:'club_posts',desc:'1:M discussion posts'}],
+   insights:['meeting_schedule stored as RFC 5545 RRULE — client parses for next occurrence','member_count synced by trigger on club_members INSERT/DELETE','Multi-language clubs allow posts in any of the languages[] array']
+  },
+
+  {id:'club_members', label:'club_members', domain:'community', icon:'🔗', color:'#68a878',
+   x:1660, y:100,
+   desc:'M:M junction for club membership with role. Trigger keeps book_clubs.member_count in sync.',
+   rows:'5M', rowLabel:'~10 members/club avg',
+   fields:[
+     {key:'PK',name:'club_id',type:'uuid'},
+     {key:'PK',name:'user_id',type:'uuid'},
+     {name:'role',type:'text',note:'owner|moderator|member'},
+     {name:'joined_at',type:'timestamptz'},
+   ],
+   relations:[{table:'book_clubs',desc:'M:1'},{table:'users',desc:'M:1'}],
+   insights:['Composite PK prevents duplicate memberships','Index on user_id for "all clubs I belong to" queries']
+  },
+
+  {id:'author_journals', label:'author_journals', domain:'community', icon:'📓', color:'#68a878',
+   x:1380, y:310,
+   desc:'Author writing journals. Public or patron-only. Linked to a book or standalone.',
+   rows:'2M', rowLabel:'~4 entries/author/month',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'author_id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid',note:'optional'},
+     {name:'title / body',type:'text'},
+     {name:'is_public',type:'boolean'},
+     {name:'patron_only',type:'boolean'},
+     {name:'like_count',type:'integer'},
+   ],
+   relations:[{table:'users',desc:'M:1 author'},{table:'books',desc:'M:1 optional'}],
+   insights:['patron_only=TRUE checked against patron_subscriptions at query time via RLS','Indexed by author_id, created_at DESC for author journal feed']
+  },
+
+  {id:'author_qa', label:'author_qa', domain:'community', icon:'💬', color:'#68a878',
+   x:1660, y:310,
+   desc:'Reader questions and author answers. Author answers asynchronously; featured Q&As surfaced on author page.',
+   rows:'10M', rowLabel:'reader engagement',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'author_id',type:'uuid'},
+     {key:'FK',name:'asker_id',type:'uuid'},
+     {name:'question',type:'text',note:'5–1000 chars'},
+     {name:'answer',type:'text',note:'≤5000 chars'},
+     {name:'answered_at',type:'timestamptz'},
+     {name:'is_featured',type:'boolean'},
+     {name:'like_count',type:'integer'},
+   ],
+   relations:[{table:'users',desc:'M:1 author + M:1 asker'}],
+   insights:['Partial index on unanswered: WHERE answered_at IS NULL — author\'s inbox','is_featured=TRUE surfaces to author profile without full Q&A browse']
+  },
+
+  // PAYMENTS domain
+  {id:'patron_tiers', label:'patron_tiers', domain:'payments', icon:'⭐', color:'#c97e32',
+   x:800, y:700,
+   desc:'Author-defined subscription tiers. Each author can create up to 5 tiers with custom benefits and pricing.',
+   rows:'2M', rowLabel:'~4 tiers/author avg',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'author_id',type:'uuid'},
+     {name:'tier',type:'patron_tier',note:'enum: story_friend|chapter_keeper|soul_patron|custom'},
+     {name:'name / description',type:'text'},
+     {name:'price_usd',type:'numeric(8,2)',note:'CHECK > 0'},
+     {name:'benefits',type:'text[]'},
+     {name:'is_active',type:'boolean'},
+     {name:'patron_count',type:'integer',note:'denormalised'},
+   ],
+   relations:[{table:'author_profiles',desc:'M:1 author'},{table:'patron_subscriptions',desc:'1:M active subs for this tier'}],
+   insights:['patron_count denormalised for fast display on author profile','Partial index WHERE is_active=TRUE — deleted tiers stay for historical subs']
+  },
+
+  {id:'patron_subscriptions', label:'patron_subscriptions', domain:'payments', icon:'🔄', color:'#c97e32',
+   x:800, y:920,
+   desc:'Active subscriptions linking a patron reader to an author\'s tier. Stripe webhook keeps state in sync.',
+   rows:'5M', rowLabel:'active subscriptions',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'patron_id',type:'uuid'},
+     {key:'FK',name:'author_id',type:'uuid'},
+     {key:'FK',name:'tier_id',type:'uuid'},
+     {name:'state',type:'subscription_state',note:'active|paused|cancelled|past_due|trialing'},
+     {name:'price_usd',type:'numeric(8,2)',note:'locked at sub time'},
+     {key:'UK',name:'stripe_sub_id',type:'text'},
+     {name:'current_period_end',type:'timestamptz',note:'indexed for renewal jobs'},
+   ],
+   relations:[{table:'patron_tiers',desc:'M:1'},{table:'payments',desc:'1:M payment history'},{table:'users',desc:'M:1 patron + M:1 author'}],
+   insights:[
+     'UNIQUE(patron_id, author_id) — one active sub per patron-author pair',
+     'price_usd locked at subscription time — author price changes don\'t break existing subs',
+     'Partial index on current_period_end WHERE state=\'active\' — renewal job queries this',
+     'Stripe webhooks update state on payment failure, cancellation, reactivation'
+   ]
+  },
+
+  {id:'payments', label:'payments', domain:'payments', icon:'💰', color:'#c97e32',
+   x:1090, y:840,
+   desc:'Immutable payment ledger. Every charge captured here. 5% platform fee deducted, rest is author_net.',
+   rows:'60M+', rowLabel:'per year at scale',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'subscription_id',type:'uuid'},
+     {name:'amount_gross',type:'numeric(10,2)'},
+     {name:'platform_fee',type:'numeric(10,2)',note:'5% GBS cut'},
+     {name:'author_net',type:'numeric(10,2)'},
+     {name:'currency',type:'currency_code',note:'enum'},
+     {key:'UK',name:'stripe_payment_id',type:'text'},
+     {name:'paid_at',type:'timestamptz'},
+     {name:'refunded_at',type:'timestamptz'},
+   ],
+   relations:[{table:'patron_subscriptions',desc:'M:1'},{table:'author_payouts',desc:'aggregated into monthly payouts'}],
+   insights:['Append-only — no updates, only INSERT. Refunds added as refunded_at','platform_fee is pre-calculated and stored — no recomputation risk','Indexed on (author_id, paid_at DESC) for fast earnings dashboard']
+  },
+
+  {id:'author_payouts', label:'author_payouts', domain:'payments', icon:'🏦', color:'#c97e32',
+   x:1090, y:1050,
+   desc:'Monthly payout batches to authors via Stripe Connect. Aggregates all payments minus fees for the period.',
+   rows:'6M', rowLabel:'author × 12 months/yr',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'author_id',type:'uuid'},
+     {name:'amount',type:'numeric(10,2)'},
+     {name:'status',type:'payout_status',note:'pending|processing|paid|failed'},
+     {key:'UK',name:'stripe_payout_id',type:'text'},
+     {name:'period_start / period_end',type:'date'},
+     {name:'paid_at',type:'timestamptz'},
+   ],
+   relations:[{table:'users',desc:'M:1 author'},{table:'payments',desc:'aggregated from payment ledger'}],
+   insights:['One record per author per month — easy audit trail','stripe_payout_id for webhook reconciliation','Failed payouts retried with exponential backoff by job scheduler']
+  },
+
+  // ANALYTICS / MOD domain
+  {id:'events', label:'events', domain:'analytics', icon:'📊', color:'#c46890',
+   x:1660, y:620,
+   desc:'Append-only event log. Partitioned by month. The source of truth for all analytics, A/B tests, and growth metrics.',
+   rows:'10B+', rowLabel:'at scale — partition + archive',
+   fields:[
+     {key:'PK',name:'id',type:'bigserial'},
+     {key:'FK',name:'user_id',type:'uuid',note:'nullable — anonymous events'},
+     {name:'session_id',type:'uuid'},
+     {name:'event',type:'text',note:'e.g. book_opened, chapter_read, pin_clicked'},
+     {name:'properties',type:'jsonb'},
+     {name:'ip_hash',type:'text',note:'SHA-256 hashed — privacy'},
+     {name:'country',type:'char(2)'},
+     {name:'created_at',type:'timestamptz',note:'PARTITION KEY'},
+   ],
+   relations:[{table:'users',desc:'M:1 optional'}],
+   insights:[
+     'PARTITION BY RANGE(created_at) — monthly partitions dropped after 90 days',
+     'ip stored as SHA-256 hash — GDPR compliant, still allows dedup',
+     'At 1B+ rows/month, migrate to ClickHouse or Timescale for analytics queries',
+     'GIN index on properties JSONB for ad-hoc event property filtering'
+   ]
+  },
+
+  {id:'notifications', label:'notifications', domain:'analytics', icon:'🔔', color:'#c46890',
+   x:1660, y:830,
+   desc:'User notification inbox. Polymorphic target (review, annotation, chapter, etc.). RLS: own only.',
+   rows:'1B+', rowLabel:'high-volume',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid'},
+     {name:'type',type:'notification_type',note:'enum: new_chapter|new_patron|etc'},
+     {key:'FK',name:'actor_id',type:'uuid',note:'who triggered it'},
+     {name:'target_type',type:'content_type',note:'polymorphic'},
+     {name:'target_id',type:'uuid',note:'polymorphic'},
+     {name:'is_read',type:'boolean'},
+     {name:'payload',type:'jsonb',note:'extra context'},
+   ],
+   relations:[{table:'users',desc:'M:1 recipient + M:1 actor'}],
+   insights:['Partial index WHERE is_read=FALSE — unread badge count query is instant','Consider TTL deletion of read notifications > 90 days','Delivered via Supabase Realtime for instant push']
+  },
+
+  {id:'reports', label:'reports', domain:'analytics', icon:'⚠', color:'#c46890',
+   x:1380, y:620,
+   desc:'Content moderation reports. Polymorphic target. Reviewer assigns status and resolution.',
+   rows:'5M', rowLabel:'annual',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'reporter_id',type:'uuid'},
+     {name:'target_type',type:'content_type',note:'polymorphic'},
+     {name:'target_id',type:'uuid'},
+     {name:'reason',type:'report_reason',note:'spam|hate_speech|misinformation|etc'},
+     {name:'status',type:'report_status',note:'pending|reviewed|resolved|dismissed'},
+     {key:'FK',name:'reviewer_id',type:'uuid',note:'moderator user'},
+     {name:'resolution',type:'text'},
+   ],
+   relations:[{table:'users',desc:'M:1 reporter + M:1 reviewer'}],
+   insights:['Indexed on (status, created_at) — moderator queue ordered by time','Polymorphic target lets one table handle reports on any content type']
+  },
+
+  {id:'reviews', label:'reviews', domain:'reading', icon:'⭐', color:'#8b78d6',
+   x:500, y:420,
+   desc:'Book reviews with rating, body, and spoiler flag. One review per user-book pair. Soft-deleted.',
+   rows:'200M', rowLabel:'~5% of shelf_books',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid'},
+     {name:'rating',type:'smallint',note:'1–5, NOT NULL'},
+     {name:'body',type:'text',note:'≤10000 chars'},
+     {name:'is_spoiler',type:'boolean'},
+     {name:'like_count',type:'integer'},
+     {name:'comment_count',type:'integer'},
+   ],
+   relations:[{table:'users',desc:'M:1'},{table:'books',desc:'M:1'},{table:'likes',desc:'polymorphic'},{table:'comments',desc:'polymorphic'}],
+   insights:['UNIQUE(user_id, book_id) — one review per book per reader','Soft-delete: deleted_at IS NULL partial index on all hot queries','Full-text GIN index for review search']
+  },
+
+  {id:'annotations', label:'annotations', domain:'reading', icon:'✏', color:'#8b78d6',
+   x:200, y:420,
+   desc:'Inline reader notes on specific passages. Position tracked as percentage through book. Can be public or private.',
+   rows:'1B+', rowLabel:'highly engaged readers',
+   fields:[
+     {key:'PK',name:'id',type:'uuid'},
+     {key:'FK',name:'user_id',type:'uuid'},
+     {key:'FK',name:'book_id',type:'uuid'},
+     {name:'body',type:'text',note:'1–5000 chars'},
+     {name:'quote',type:'text',note:'highlighted passage'},
+     {name:'position_pct',type:'numeric(5,2)',note:'0–100 position in book'},
+     {name:'is_public',type:'boolean'},
+     {name:'like_count',type:'integer'},
+   ],
+   relations:[{table:'users',desc:'M:1'},{table:'books',desc:'M:1'},{table:'likes',desc:'polymorphic'}],
+   insights:['Indexed on (book_id, position_pct) — renders annotations in reading order','is_public=FALSE annotations only visible to the owner']
+  },
+
+  {id:'live_readers', label:'live_readers', domain:'books', icon:'🟢', color:'#36b4ac',
+   x:1380, y:450,
+   desc:'Real-time presence table. Updated by client ping every 60 seconds. Expired rows cleaned every 5 min by pg_cron.',
+   rows:'100k', rowLabel:'concurrent peak',
+   fields:[
+     {key:'PK',name:'user_id',type:'uuid'},
+     {key:'PK',name:'book_id',type:'uuid'},
+     {name:'country / lat / lng',type:'...'},
+     {name:'last_seen',type:'timestamptz'},
+   ],
+   relations:[{table:'users',desc:'M:1'},{table:'books',desc:'M:1'}],
+   insights:['Tiny table — only active readers (30-minute window)','expire_live_readers() scheduled every 5 min via pg_cron','Used by v_world_map view for the animated reading dots on homepage']
+  },
+];
+
+// ═══════════════════════════════════════════════════
+//  RELATIONSHIPS (for SVG lines)
+// ═══════════════════════════════════════════════════
+const RELS = [
+  {from:'users',to:'author_profiles',color:'#c8a44a'},
+  {from:'users',to:'follows',color:'#c8a44a'},
+  {from:'users',to:'soul_profiles',color:'#de5848'},
+  {from:'users',to:'shelves',color:'#8b78d6'},
+  {from:'books',to:'book_authors',color:'#36b4ac'},
+  {from:'books',to:'chapters',color:'#36b4ac'},
+  {from:'books',to:'book_translations',color:'#36b4ac'},
+  {from:'books',to:'book_pins',color:'#36b4ac'},
+  {from:'books',to:'live_readers',color:'#36b4ac'},
+  {from:'shelves',to:'shelf_books',color:'#8b78d6'},
+  {from:'shelf_books',to:'books',color:'#8b78d6'},
+  {from:'soul_profiles',to:'soul_recommendations',color:'#de5848'},
+  {from:'soul_recommendations',to:'books',color:'#de5848'},
+  {from:'book_clubs',to:'club_members',color:'#68a878'},
+  {from:'author_profiles',to:'patron_tiers',color:'#c97e32'},
+  {from:'patron_tiers',to:'patron_subscriptions',color:'#c97e32'},
+  {from:'patron_subscriptions',to:'payments',color:'#c97e32'},
+  {from:'payments',to:'author_payouts',color:'#c97e32'},
+  {from:'users',to:'reviews',color:'#8b78d6'},
+  {from:'books',to:'reviews',color:'#8b78d6'},
+  {from:'users',to:'annotations',color:'#8b78d6'},
+  {from:'books',to:'annotations',color:'#8b78d6'},
+  {from:'users',to:'author_journals',color:'#68a878'},
+  {from:'users',to:'author_qa',color:'#68a878'},
+  {from:'users',to:'notifications',color:'#c46890'},
+  {from:'users',to:'events',color:'#c46890'},
+  {from:'book_clubs',to:'book_clubs',color:'#68a878'},
+  {from:'chapters',to:'chapter_followers',color:'#36b4ac'},
+];
+
+// ═══════════════════════════════════════════════════
+//  RENDER NODES
+// ═══════════════════════════════════════════════════
+function domainColor(d){
+  return {users:'#c8a44a',books:'#36b4ac',reading:'#8b78d6',soul:'#de5848',community:'#68a878',payments:'#c97e32',analytics:'#c46890'}[d]||'#888';
+}
+function keyColor(k){
+  if(!k) return 'transparent';
+  if(k.includes('PK')) return '#c8a44a';
+  if(k.includes('FK')) return '#36b4ac';
+  if(k.includes('UK')) return '#8b78d6';
+  return '#555';
+}
+function keyTextColor(k){
+  if(!k) return 'transparent';
+  return '#080810';
+}
+
+const layer = document.getElementById('nodes-layer');
+TABLES.forEach(t => {
+  const maxFields = 6;
+  const shown = t.fields.slice(0, maxFields);
+  const hidden = t.fields.length - maxFields;
+  const c = domainColor(t.domain);
+
+  const div = document.createElement('div');
+  div.className = 'tnode';
+  div.id = 'node-' + t.id;
+  div.dataset.domain = t.domain;
+  div.style.cssText = `left:${t.x}px;top:${t.y}px;--node-color:${c}`;
+  div.innerHTML = `
+    <div class="tnode-top-accent" style="background:${c}"></div>
+    <div class="tnode-head">
+      <div class="tnode-icon" style="background:${c}18;color:${c}">${t.icon}</div>
+      <div class="tnode-name">${t.label}</div>
+      <div class="tnode-count">${t.rows}</div>
+    </div>
+    <div class="tnode-fields">
+      ${shown.map(f => `
+        <div class="tfield" onclick="event.stopPropagation();openPanel('${t.id}')">
+          <div class="field-key" style="background:${keyColor(f.key)};color:${keyTextColor(f.key)};opacity:${f.key?1:0}">${f.key||'·'}</div>
+          <div class="field-name">${f.name}</div>
+          <div class="field-type">${f.type}</div>
+        </div>`).join('')}
+      ${hidden > 0 ? `<div class="tnode-more" onclick="openPanel('${t.id}')">+${hidden} more fields →</div>` : ''}
+    </div>`;
+  div.onclick = () => openPanel(t.id);
+  layer.appendChild(div);
+});
+
+// ═══════════════════════════════════════════════════
+//  RENDER RELATIONSHIP LINES
+// ═══════════════════════════════════════════════════
+function getNodeCenter(id) {
+  const el = document.getElementById('node-' + id);
+  if (!el) return null;
+  const x = parseInt(el.style.left) + 120;
+  const y = parseInt(el.style.top) + 30;
+  return {x, y};
+}
+
+function renderLines() {
+  const svg = document.getElementById('rel-svg');
+  svg.innerHTML = '';
+  RELS.forEach(r => {
+    const a = getNodeCenter(r.from);
+    const b = getNodeCenter(r.to);
+    if (!a || !b || r.from === r.to) return;
+    const mx = (a.x + b.x) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', r.color);
+    path.setAttribute('stroke-width', '1');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('opacity', '0.22');
+    svg.appendChild(path);
+  });
+}
+renderLines();
+
+// ═══════════════════════════════════════════════════
+//  DETAIL PANEL
+// ═══════════════════════════════════════════════════
+function openPanel(tableId) {
+  const t = TABLES.find(x => x.id === tableId);
+  if (!t) return;
+  const c = domainColor(t.domain);
+  document.getElementById('dpIcon').innerHTML = `<span style="font-size:18px">${t.icon}</span>`;
+  document.getElementById('dpIcon').style.cssText = `width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${c}18`;
+  document.getElementById('dpName').textContent = t.label;
+  document.getElementById('dpDesc').textContent = t.desc;
+
+  let html = '';
+
+  // Scale
+  html += `<div class="dp-section">
+    <div class="dp-section-label">Scale estimate</div>
+    <div class="dp-row-estimate">${t.rows}</div>
+    <div class="dp-row-label">${t.rowLabel}</div>
+  </div>`;
+
+  // Fields
+  html += `<div class="dp-section"><div class="dp-section-label">Columns (${t.fields.length})</div>`;
+  t.fields.forEach(f => {
+    html += `<div class="dp-field-row">
+      <div class="dp-field-key" style="background:${keyColor(f.key)};color:${keyTextColor(f.key)};opacity:${f.key?1:0.3}">${f.key||'·'}</div>
+      <div><div class="dp-field-name">${f.name}</div><div class="dp-field-type">${f.type}</div>${f.note?`<div class="dp-field-note">${f.note}</div>`:''}
+      </div></div>`;
+  });
+  html += `</div>`;
+
+  // Relations
+  if (t.relations && t.relations.length) {
+    html += `<div class="dp-section"><div class="dp-section-label">Relationships</div>`;
+    t.relations.forEach(r => {
+      html += `<div class="dp-rel-row" onclick="openPanel('${r.table}')">
+        <span class="dp-rel-arrow">↗</span>
+        <div><div class="dp-rel-table">${r.table}</div><div class="dp-rel-desc">${r.desc}</div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Insights
+  if (t.insights && t.insights.length) {
+    html += `<div class="dp-section"><div class="dp-section-label">Design decisions</div>`;
+    t.insights.forEach(ins => {
+      html += `<div class="dp-insight"><p>${ins}</p></div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('dpBody').innerHTML = html;
+  document.getElementById('detailPanel').classList.add('open');
+
+  // Highlight node
+  document.querySelectorAll('.tnode').forEach(n => n.classList.remove('highlighted'));
+  document.getElementById('node-' + tableId)?.classList.add('highlighted');
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.tnode').forEach(n => n.classList.remove('highlighted'));
+}
+
+// ═══════════════════════════════════════════════════
+//  FILTER BY DOMAIN
+// ═══════════════════════════════════════════════════
+function filterDomain(btn, domain) {
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = 'transparent';
+    b.style.color = '';
+  });
+  const c = {all:'#c8a44a',users:'#c8a44a',books:'#36b4ac',reading:'#8b78d6',soul:'#de5848',community:'#68a878',payments:'#c97e32',analytics:'#c46890'}[domain]||'#c8a44a';
+  btn.classList.add('active');
+  btn.style.background = c;
+  btn.style.color = '#080810';
+
+  document.querySelectorAll('.tnode').forEach(n => {
+    const show = domain === 'all' || n.dataset.domain === domain || (domain==='analytics' && n.dataset.domain==='analytics');
+    n.style.opacity = show ? '1' : '0.15';
+    n.style.pointerEvents = show ? 'auto' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  CANVAS PAN
+// ═══════════════════════════════════════════════════
+const wrap = document.getElementById('canvas-wrap');
+let isPanning = false, startX, startY, scrollLeft, scrollTop;
+wrap.addEventListener('mousedown', e => {
+  if (e.target.closest('.tnode') || e.target.closest('.detail-panel')) return;
+  isPanning = true;
+  startX = e.pageX - wrap.offsetLeft;
+  startY = e.pageY - wrap.offsetTop;
+  scrollLeft = wrap.scrollLeft;
+  scrollTop = wrap.scrollTop;
+});
+wrap.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  e.preventDefault();
+  const x = e.pageX - wrap.offsetLeft;
+  const y = e.pageY - wrap.offsetTop;
+  wrap.scrollLeft = scrollLeft - (x - startX);
+  wrap.scrollTop = scrollTop - (y - startY);
+  updateMinimap();
+});
+wrap.addEventListener('mouseup', () => isPanning = false);
+wrap.addEventListener('mouseleave', () => isPanning = false);
+
+// ═══════════════════════════════════════════════════
+//  MINIMAP
+// ═══════════════════════════════════════════════════
+function updateMinimap() {
+  const scaleX = 160 / 3200;
+  const scaleY = 110 / 2200;
+  const vw = wrap.clientWidth * scaleX;
+  const vh = wrap.clientHeight * scaleY;
+  const vx = wrap.scrollLeft * scaleX;
+  const vy = wrap.scrollTop * scaleY;
+  const vp = document.getElementById('minimapVP');
+  vp.style.cssText = `left:${vx}px;top:${vy}px;width:${vw}px;height:${vh}px`;
+}
+wrap.addEventListener('scroll', updateMinimap);
+// Minimap nodes
+const mm = document.getElementById('minimap');
+TABLES.forEach(t => {
+  const dot = document.createElement('div');
+  const scaleX = 160 / 3200;
+  const scaleY = 110 / 2200;
+  const c = domainColor(t.domain);
+  dot.style.cssText = `position:absolute;width:8px;height:5px;border-radius:2px;background:${c};opacity:.7;left:${t.x*scaleX}px;top:${t.y*scaleY}px`;
+  mm.appendChild(dot);
+});
+updateMinimap();
+
+// Scroll to center
+wrap.scrollLeft = 400;
+wrap.scrollTop = 200;
+</script>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communities — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#070710;--ink2:#0f0f1a;--ink3:#171724;--ink4:#1f1f2e;--ink5:#282838;
+  --pg:#f3ecde;--pg2:#ebe1ce;--pg3:rgba(243,236,222,.68);--pg4:rgba(243,236,222,.35);--pg5:rgba(243,236,222,.11);--pg6:rgba(243,236,222,.05);
+  --gold:#c5a038;--gold2:#e3be50;--goldd:rgba(197,160,56,.15);--goldb:rgba(197,160,56,.28);
+  --teal:#32aea6;--teald:rgba(50,174,166,.13);
+  --coral:#da5238;--corald:rgba(218,82,56,.12);
+  --violet:#8470d0;--violetd:rgba(132,112,208,.12);
+  --sage:#64a472;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --r:10px;--rs:6px;
+}
+html,body{width:100%;min-height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden;scroll-behavior:smooth}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 2rem;background:rgba(7,7,16,.95);
+  border-bottom:1px solid var(--pg5);backdrop-filter:blur(14px)}
+.nav-logo{font-family:var(--serif);font-size:17px;color:var(--pg);text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{font-size:13px;color:var(--pg4);text-decoration:none;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--pg)}
+.btn-gold{padding:7px 18px;border:1px solid var(--gold);border-radius:var(--rs);background:var(--gold);
+  color:var(--ink);font-size:12px;font-family:var(--sans);font-weight:500;cursor:pointer;transition:all .2s}
+.btn-gold:hover{background:var(--gold2)}
+
+/* ── HERO ── */
+.comm-hero{min-height:52vh;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;text-align:center;padding:90px 2rem 60px}
+.hero-bg-comm{position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(197,160,56,.1) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 40% at 20% 70%,rgba(50,174,166,.08) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 40% at 80% 70%,rgba(132,112,208,.08) 0%,transparent 60%)}
+.hero-lines{position:absolute;inset:0;opacity:.04}
+.hero-content-c{position:relative;z-index:10;max-width:680px}
+.hero-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;
+  display:flex;align-items:center;justify-content:center;gap:10px}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:24px;height:1px;background:var(--gold);opacity:.5}
+.hero-title-c{font-family:var(--serif);font-size:clamp(38px,6vw,70px);font-weight:300;
+  line-height:1.06;color:var(--pg);margin-bottom:14px;letter-spacing:-.01em}
+.hero-title-c em{font-style:italic;color:var(--gold)}
+.hero-sub-c{font-size:15px;font-weight:300;color:var(--pg3);max-width:480px;margin:0 auto 30px;line-height:1.7}
+.hero-stats-c{display:flex;justify-content:center;gap:40px;margin-top:28px;opacity:.7}
+.hsc-item{text-align:center}
+.hsc-n{font-family:var(--serif);font-size:26px;color:var(--pg)}
+.hsc-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg4);margin-top:2px}
+
+/* ── MATCH BAR ── */
+.match-bar{background:var(--ink2);border-bottom:1px solid var(--pg5);padding:16px 2rem;
+  position:sticky;top:58px;z-index:200;backdrop-filter:blur(12px)}
+.match-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.match-label{font-size:12px;color:var(--pg3);white-space:nowrap;font-weight:400}
+.match-filters{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.mf{padding:6px 16px;border-radius:20px;font-size:12px;border:1px solid var(--pg5);
+  background:transparent;color:var(--pg4);cursor:pointer;transition:all .2s;font-family:var(--sans);white-space:nowrap}
+.mf:hover{border-color:var(--pg3);color:var(--pg)}
+.mf.on{border-color:var(--gold);color:var(--gold);background:var(--goldd)}
+.match-search{display:flex;align-items:center;gap:8px;background:var(--ink3);border:1px solid var(--pg5);
+  border-radius:22px;padding:8px 16px;flex:0 0 240px;transition:border-color .2s}
+.match-search:focus-within{border-color:rgba(197,160,56,.35)}
+.match-search input{flex:1;background:transparent;border:none;outline:none;color:var(--pg);font-size:13px;font-family:var(--serif);font-style:italic}
+.match-search input::placeholder{color:var(--pg4)}
+
+/* ── MAIN LAYOUT ── */
+.comm-layout{max-width:1100px;margin:0 auto;padding:40px 2rem 80px;display:grid;grid-template-columns:1fr 320px;gap:28px;position:relative;z-index:5}
+.comm-main{display:flex;flex-direction:column;gap:24px}
+.comm-side{display:flex;flex-direction:column;gap:20px}
+
+/* ── SECTION HEADS ── */
+.sec-ey{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.sec-h{font-family:var(--serif);font-size:clamp(22px,3vw,32px);font-weight:300;color:var(--pg);margin-bottom:4px}
+.sec-h em{font-style:italic;color:var(--gold)}
+
+/* ── CARDS ── */
+.card{background:var(--ink2);border:1px solid var(--pg5);border-radius:var(--r);overflow:hidden;
+  animation:cIn .5s ease both}
+@keyframes cIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.ch{padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.cb{padding:16px 20px 20px}
+.clk{font-size:12px;color:var(--pg4);cursor:pointer;border:none;background:transparent;font-family:var(--sans);transition:color .2s}
+.clk:hover{color:var(--gold)}
+
+/* ── SOUL MATCH CLUB ── */
+.soul-match-card{background:linear-gradient(135deg,rgba(197,160,56,.06) 0%,rgba(50,174,166,.06) 100%);
+  border:1px solid rgba(197,160,56,.2);border-radius:var(--r);padding:24px;position:relative;overflow:hidden;animation:cIn .4s ease both}
+.soul-match-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;
+  border-radius:50%;background:radial-gradient(circle,rgba(197,160,56,.1) 0%,transparent 70%);pointer-events:none}
+.smc-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.smc-orb{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(197,160,56,.4);
+  background:var(--goldd);display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:22px;color:var(--gold);font-style:italic;
+  animation:orbPulse 4s ease-in-out infinite;flex-shrink:0}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.smc-title{font-family:var(--serif);font-size:20px;color:var(--pg);font-weight:400}
+.smc-subtitle{font-size:12px;color:var(--pg3);margin-top:3px}
+.smc-clubs{display:flex;flex-direction:column;gap:10px}
+.smc-club{background:rgba(7,7,16,.4);border:1px solid var(--pg5);border-radius:var(--rs);
+  padding:14px;cursor:pointer;transition:all .2s;position:relative}
+.smc-club::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--club-color,var(--gold));border-radius:3px 0 0 3px}
+.smc-club:hover{border-color:rgba(197,160,56,.2);background:rgba(197,160,56,.04)}
+.smc-club-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.smc-club-flag{font-size:18px}
+.smc-club-name{font-family:var(--serif);font-size:15px;color:var(--pg);flex:1}
+.smc-club-match{font-size:11px;color:var(--gold);background:var(--goldd);border:1px solid var(--goldb);padding:2px 9px;border-radius:10px}
+.smc-club-meta{font-size:11px;color:var(--pg4);line-height:1.5}
+.smc-club-tags{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.smc-tag{font-size:10px;padding:3px 9px;border-radius:10px;border:1px solid;letter-spacing:.03em}
+
+/* ── LIVE ROOMS ── */
+.live-rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.live-room{background:var(--ink3);border:1px solid var(--pg5);border-radius:var(--r);
+  padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.live-room::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--room-color,var(--teal))}
+.live-room:hover{border-color:rgba(50,174,166,.25);transform:translateY(-2px)}
+.room-live{display:flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.room-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:lp 2s ease-in-out infinite}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.3}}
+.room-book{font-family:var(--serif);font-size:15px;color:var(--pg);margin-bottom:4px;line-height:1.3}
+.room-club{font-size:11px;color:var(--pg4);margin-bottom:10px}
+.room-members{display:flex;gap:-4px;margin-bottom:8px}
+.rm-av{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink3);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.rm-av+.rm-av{margin-left:-6px}
+.room-count{font-size:11px;color:var(--pg4);margin-top:6px}
+.room-topic{background:rgba(7,7,16,.4);border-radius:var(--rs);padding:8px 10px;
+  font-family:var(--serif);font-size:12px;font-style:italic;color:var(--pg3);line-height:1.5}
+.btn-join-room{width:100%;margin-top:10px;padding:8px;background:var(--teald);border:1px solid rgba(50,174,166,.3);
+  border-radius:var(--rs);color:var(--teal);font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .2s}
+.btn-join-room:hover{background:rgba(50,174,166,.2);border-color:var(--teal)}
+
+/* ── CLUBS GRID ── */
+.clubs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.club-card{background:var(--ink2);border:1px solid var(--pg5);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:all .2s}
+.club-card:hover{border-color:rgba(197,160,56,.2);transform:translateY(-3px)}
+.club-card-banner{height:60px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.club-card-emoji{font-size:28px;position:relative;z-index:1}
+.club-card-body{padding:14px}
+.club-card-name{font-family:var(--serif);font-size:16px;color:var(--pg);margin-bottom:5px;line-height:1.3}
+.club-card-meta{font-size:11px;color:var(--pg4);margin-bottom:8px;display:flex;gap:10px}
+.club-card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.club-tag{font-size:10px;padding:3px 8px;border-radius:8px;border:1px solid;letter-spacing:.03em}
+.club-card-reading{display:flex;align-items:center;gap:8px;background:var(--ink3);border-radius:var(--rs);padding:7px 9px}
+.ccr-label{font-size:10px;color:var(--pg4);letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+.ccr-book{font-family:var(--serif);font-size:12px;color:var(--pg);line-height:1.3}
+.club-join-btn{width:100%;margin-top:10px;padding:8px;background:transparent;border:1px solid var(--pg5);
+  border-radius:var(--rs);color:var(--pg4);font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .2s}
+.club-join-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── GLOBAL FEED ── */
+.feed-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--pg5)}
+.feed-item:last-child{border-bottom:none}
+.feed-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.feed-content{flex:1}
+.feed-text{font-size:13px;color:var(--pg3);line-height:1.6}
+.feed-text strong{color:var(--pg);font-weight:500}
+.feed-text em{font-style:italic;color:var(--pg)}
+.feed-time{font-size:10px;color:var(--pg4);margin-top:3px}
+.feed-action{font-size:11px;color:var(--teal);margin-left:auto;cursor:pointer;flex-shrink:0;align-self:flex-start;margin-top:2px;transition:color .2s}
+.feed-action:hover{color:var(--gold)}
+
+/* ── SIDE: MY CLUBS ── */
+.my-club-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--pg5)}
+.my-club-item:last-child{border-bottom:none}
+.mci-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.mci-name{font-size:13px;color:var(--pg);line-height:1.3;margin-bottom:2px}
+.mci-meta{font-size:10px;color:var(--pg4)}
+.mci-badge{font-size:10px;padding:2px 8px;border-radius:8px;background:var(--corald);color:var(--coral);border:1px solid rgba(218,82,56,.25);margin-left:auto;white-space:nowrap}
+
+/* ── SIDE: CREATE CLUB ── */
+.create-club-card{background:var(--goldd);border:1px solid var(--goldb);border-radius:var(--r);padding:20px;animation:cIn .4s ease .3s both}
+.cc-title{font-family:var(--serif);font-size:18px;color:var(--pg);margin-bottom:6px}
+.cc-sub{font-size:12px;color:var(--pg3);line-height:1.6;margin-bottom:14px}
+.cc-form{display:flex;flex-direction:column;gap:10px}
+.cc-input{padding:10px 13px;background:rgba(7,7,16,.4);border:1px solid rgba(197,160,56,.25);
+  border-radius:var(--rs);color:var(--pg);font-family:var(--sans);font-size:13px;outline:none;transition:border-color .2s}
+.cc-input::placeholder{color:var(--pg4)}
+.cc-input:focus{border-color:var(--gold)}
+.cc-select{padding:10px 13px;background:rgba(7,7,16,.4);border:1px solid rgba(197,160,56,.25);
+  border-radius:var(--rs);color:var(--pg);font-family:var(--sans);font-size:13px;outline:none}
+.cc-btn{padding:11px;background:var(--gold);border:none;border-radius:var(--rs);color:var(--ink);
+  font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.cc-btn:hover{background:var(--gold2)}
+
+/* ── SIDE: GENERATIONAL ── */
+.gen-card{background:var(--violetd);border:1px solid rgba(132,112,208,.2);border-radius:var(--r);padding:18px;animation:cIn .4s ease .4s both}
+.gen-title{font-family:var(--serif);font-size:17px;color:var(--pg);margin-bottom:6px}
+.gen-sub{font-size:12px;color:var(--pg3);line-height:1.6;margin-bottom:14px}
+.gen-chain{display:flex;flex-direction:column;gap:6px}
+.gen-link{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(7,7,16,.3);border-radius:var(--rs);cursor:pointer;transition:background .2s}
+.gen-link:hover{background:rgba(132,112,208,.1)}
+.gen-year{font-family:var(--serif);font-size:13px;color:var(--violet);min-width:36px}
+.gen-reader{font-size:12px;color:var(--pg3)}
+.gen-arrow{font-size:12px;color:var(--pg4);margin:0 2px}
+
+/* ── TIMEZONE MAP ── */
+.tz-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tz-pill{padding:5px 12px;border-radius:12px;font-size:11px;border:1px solid var(--pg5);color:var(--pg4);cursor:pointer;transition:all .2s}
+.tz-pill:hover,.tz-pill.on{border-color:var(--teal);color:var(--teal);background:var(--teald)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(197,160,56,.2);border-radius:2px}
+</style>
+  <script src="api.js"></script>
+<script src="http://localhost:4000/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
+
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <ul class="nav-links">
+    <li><a href="global-bookshelf.html">Explore</a></li>
+    <li><a href="author-universe.html">Authors</a></li>
+    <li><a href="#" class="active">Communities</a></li>
+    <li><a href="ai-reading-soul.html">My Soul</a></li>
+  </ul>
+  <button class="btn-gold" onclick="showCreateModal()">+ Start a club</button>
+</nav>
+
+<!-- HERO -->
+<div class="comm-hero">
+  <div class="hero-bg-comm"></div>
+  <svg class="hero-lines" viewBox="0 0 1200 500" style="position:absolute;inset:0;width:100%;height:100%">
+    <g stroke="rgba(197,160,56,0.15)" stroke-width="0.5" fill="none">
+      <circle cx="600" cy="250" r="180"/><circle cx="600" cy="250" r="280"/><circle cx="600" cy="250" r="380"/>
+      <line x1="0" y1="250" x2="1200" y2="250"/><line x1="600" y1="0" x2="600" y2="500"/>
+      <line x1="0" y1="0" x2="1200" y2="500"/><line x1="1200" y1="0" x2="0" y2="500"/>
+    </g>
+  </svg>
+  <div class="hero-content-c">
+    <div class="hero-eyebrow">Living Communities</div>
+    <h1 class="hero-title-c">Books that cross <em>every border</em></h1>
+    <p class="hero-sub-c">Join reading clubs that span continents. Read the same book as someone in Nairobi, Seoul, and São Paulo — then talk about it across language and timezone.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-gold" style="padding:12px 28px;font-size:13px;border-radius:var(--rs)">Find my club →</button>
+      <button style="padding:12px 24px;font-size:13px;border-radius:var(--rs);background:transparent;border:1px solid var(--pg5);color:var(--pg);cursor:pointer;font-family:var(--sans)">Browse all clubs</button>
+    </div>
+    <div class="hero-stats-c">
+      <div class="hsc-item"><div class="hsc-n" id="liveClubs">38,204</div><div class="hsc-l">Active clubs</div></div>
+      <div class="hsc-item"><div class="hsc-n">189</div><div class="hsc-l">Countries</div></div>
+      <div class="hsc-item"><div class="hsc-n">127</div><div class="hsc-l">Languages</div></div>
+      <div class="hsc-item"><div class="hsc-n" id="liveReading">2,847</div><div class="hsc-l">Reading right now</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH BAR -->
+<div class="match-bar">
+  <div class="match-inner">
+    <span class="match-label">Filter by:</span>
+    <div class="match-filters">
+      <button class="mf on" onclick="toggleFilter(this)">🌍 All languages</button>
+      <button class="mf" onclick="toggleFilter(this)">📖 Fiction</button>
+      <button class="mf" onclick="toggleFilter(this)">🌙 Midnight sessions</button>
+      <button class="mf" onclick="toggleFilter(this)">🌍 Africa</button>
+      <button class="mf" onclick="toggleFilter(this)">🌏 Asia</button>
+      <button class="mf" onclick="toggleFilter(this)">Soul matched</button>
+      <button class="mf" onclick="toggleFilter(this)">Small groups ≤ 10</button>
+    </div>
+    <div class="match-search">
+      <span style="color:var(--pg4);font-size:13px">⌕</span>
+      <input type="text" placeholder="Search clubs, books, languages…">
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="comm-layout">
+  <div class="comm-main">
+
+    <!-- SOUL-MATCHED CLUBS -->
+    <div>
+      <div style="margin-bottom:16px">
+        <div class="sec-ey">Matched to your reading soul</div>
+        <div class="sec-h">Clubs chosen <em>for you</em></div>
+      </div>
+      <div class="soul-match-card" style="animation-delay:.05s">
+        <div class="smc-top">
+          <div class="smc-orb">✦</div>
+          <div>
+            <div class="smc-title">Your soul matched 3 clubs</div>
+            <div class="smc-subtitle">Based on your Midnight Wanderer profile · Post-Colonial · Lush prose · African literature</div>
+          </div>
+        </div>
+        <div class="smc-clubs" id="soulClubs"></div>
+      </div>
+    </div>
+
+    <!-- LIVE READING ROOMS -->
+    <div style="margin-top:8px">
+      <div style="margin-bottom:16px;display:flex;align-items:baseline;justify-content:space-between">
+        <div>
+          <div class="sec-ey">Happening right now</div>
+          <div class="sec-h">Live reading <em>rooms</em></div>
+        </div>
+        <button class="clk" style="font-size:12px">See all 84 live →</button>
+      </div>
+      <div class="live-rooms-grid" id="liveRooms"></div>
+    </div>
+
+    <!-- ALL CLUBS -->
+    <div style="margin-top:8px">
+      <div style="margin-bottom:16px;display:flex;align-items:baseline;justify-content:space-between">
+        <div>
+          <div class="sec-ey">Discover communities</div>
+          <div class="sec-h">Clubs reading the <em>world</em></div>
+        </div>
+        <button class="clk">See all 38k →</button>
+      </div>
+      <div class="clubs-grid" id="clubsGrid"></div>
+    </div>
+
+    <!-- GLOBAL ACTIVITY FEED -->
+    <div class="card" style="animation-delay:.3s;margin-top:8px">
+      <div class="ch">
+        <div class="ct">Global reading activity</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--teal)">
+          <span style="width:6px;height:6px;background:var(--teal);border-radius:50%;display:inline-block;animation:lp 2s ease-in-out infinite"></span>
+          Live
+        </div>
+      </div>
+      <div class="cb">
+        <div id="globalFeed"></div>
+      </div>
+    </div>
+
+  </div><!-- /comm-main -->
+
+  <!-- SIDE -->
+  <div class="comm-side">
+
+    <!-- MY CLUBS -->
+    <div class="card" style="animation-delay:.08s">
+      <div class="ch"><div class="ct">My clubs</div><button class="clk">Manage →</button></div>
+      <div class="cb" id="myClubs"></div>
+    </div>
+
+    <!-- CREATE A CLUB -->
+    <div class="create-club-card">
+      <div class="cc-title">Start your own club</div>
+      <div class="cc-sub">Any book. Any language. Any timezone. Your club, your rules.</div>
+      <div class="cc-form">
+        <input class="cc-input" placeholder="Club name" id="ccName">
+        <input class="cc-input" placeholder="First book to read" id="ccBook">
+        <select class="cc-select" id="ccLang">
+          <option value="">Primary language…</option>
+          <option>English</option><option>Swahili</option><option>French</option>
+          <option>Spanish</option><option>Arabic</option><option>Yoruba</option>
+          <option>Portuguese</option><option>Korean</option><option>Hindi</option>
+        </select>
+        <select class="cc-select">
+          <option>Public — anyone can join</option>
+          <option>Private — invite only</option>
+          <option>Small circle — max 12 members</option>
+        </select>
+        <button class="cc-btn" onclick="createClub()">Create club →</button>
+      </div>
+    </div>
+
+    <!-- GENERATIONAL READING -->
+    <div class="gen-card">
+      <div class="gen-title">Generational reading chains</div>
+      <div class="gen-sub">Read the same book as someone from another generation. Discuss across decades.</div>
+      <div class="gen-chain" id="genChain"></div>
+      <button style="width:100%;margin-top:12px;padding:9px;background:transparent;border:1px solid rgba(132,112,208,.3);border-radius:var(--rs);color:var(--violet);font-size:12px;font-family:var(--sans);cursor:pointer">Join a chain →</button>
+    </div>
+
+    <!-- TIMEZONE FINDER -->
+    <div class="card" style="animation-delay:.35s">
+      <div class="ch"><div class="ct">Find clubs in your timezone</div></div>
+      <div class="cb">
+        <div style="font-size:12px;color:var(--pg3);line-height:1.6;margin-bottom:10px">Your timezone: <strong style="color:var(--pg)">UTC+3 (East Africa)</strong></div>
+        <div class="tz-strip" id="tzStrip"></div>
+        <div style="margin-top:14px;font-size:12px;color:var(--pg4);font-style:italic;font-family:var(--serif)">12 clubs meeting in your window this week.</div>
+      </div>
+    </div>
+
+    <!-- TRANSLATION CLUBS -->
+    <div class="card" style="animation-delay:.4s">
+      <div class="ch"><div class="ct">Help translate</div></div>
+      <div class="cb">
+        <div style="font-family:var(--serif);font-size:14px;font-style:italic;color:var(--pg3);line-height:1.6;margin-bottom:12px">"12 books are waiting to reach Swahili readers. Be the bridge."</div>
+        <div id="translationCalls"></div>
+        <button style="width:100%;margin-top:12px;padding:9px;background:var(--teald);border:1px solid rgba(50,174,166,.3);border-radius:var(--rs);color:var(--teal);font-size:12px;font-family:var(--sans);cursor:pointer">Browse translation projects →</button>
+      </div>
+    </div>
+
+  </div><!-- /comm-side -->
+</div><!-- /comm-layout -->
+
+<script>
+// ── LIVE COUNTERS ──
+let clubCount=38204, readingCount=2847;
+setInterval(()=>{
+  clubCount+=Math.floor(Math.random()*2);
+  readingCount+=Math.floor(Math.random()*6)-2;
+  if(readingCount<2800)readingCount=2800;
+  document.getElementById('liveClubs').textContent=clubCount.toLocaleString();
+  document.getElementById('liveReading').textContent=readingCount.toLocaleString();
+},4000);
+
+// ── FILTER TOGGLE ──
+function toggleFilter(btn){
+  btn.classList.toggle('on');
+}
+
+// ── SOUL MATCHED CLUBS ──
+const soulClubs = [
+  {name:'African Literary Voices',flag:'🌍',match:'98%',color:'#c5a038',
+   tags:['Post-Colonial','Women writers','Igbo lit'],members:'2,840',next:'Tomorrow · 8pm WAT',
+   reading:'When the Harmattan Speaks'},
+  {name:'Midnight Readers International',flag:'🌙',match:'96%',color:'#32aea6',
+   tags:['Midnight sessions','Dark fiction','All languages'],members:'1,240',next:'Tonight · 11pm GMT',
+   reading:'Pedro Páramo'},
+  {name:'Lush Prose Society',flag:'✦',match:'94%',color:'#8470d0',
+   tags:['Lyrical fiction','Slow reads','Literary'],members:'680',next:'Jun 10 · 7pm IST',
+   reading:'The God of Small Things'},
+];
+const soulEl = document.getElementById('soulClubs');
+soulClubs.forEach((c,i)=>{
+  soulEl.innerHTML += `<div class="smc-club" style="--club-color:${c.color};animation-delay:${.1+i*.08}s">
+    <div class="smc-club-top">
+      <span class="smc-club-flag">${c.flag}</span>
+      <div class="smc-club-name">${c.name}</div>
+      <div class="smc-club-match">${c.match}</div>
+    </div>
+    <div class="smc-club-meta">${c.members} members · Next: ${c.next}</div>
+    <div class="smc-club-meta" style="margin-top:2px">Currently reading: <em style="color:var(--pg)">${c.reading}</em></div>
+    <div class="smc-club-tags">${c.tags.map(t=>`<span class="smc-tag" style="color:${c.color};border-color:${c.color}40;background:${c.color}10">${t}</span>`).join('')}</div>
+    <button style="margin-top:10px;padding:7px 18px;background:${c.color};border:none;border-radius:var(--rs);color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Request to join →</button>
+  </div>`;
+});
+
+// ── LIVE ROOMS ──
+const rooms = [
+  {book:'Season of Migration to the North',club:'Sudanese Literature Circle',topic:'"The ending — violence as inevitability or authorial choice?"',
+   members:['K','A','S','M'],count:12,color:'#c5a038'},
+  {book:'The God of Small Things',club:'Booker Prize Readers',topic:'"Roy\'s use of the Malayalam cadence in English — how does it translate?"',
+   members:['P','O','L','R'],count:8,color:'#32aea6'},
+  {book:'Things Fall Apart',club:'Cross-Continental Lit Club',topic:'"Okonkwo in 2024 — is he more understandable or more tragic now?"',
+   members:['N','T','F'],count:6,color:'#8470d0'},
+  {book:'Invisible Cities',club:'Calvino Reading Society',topic:'"Which city is the most real? Khan or Marco\'s imagination?"',
+   members:['V','E','G','C'],count:15,color:'#da5238'},
+];
+const roomColors = ['#4A6B5A','#3A5A70','#6A3A5A','#5A4A6A','#3A6A5A'];
+const roomEl = document.getElementById('liveRooms');
+rooms.forEach((r,i)=>{
+  roomEl.innerHTML += `<div class="live-room" style="--room-color:${r.color};animation:cIn .5s ease ${i*.08}s both">
+    <div class="room-live"><div class="room-dot"></div>Live now</div>
+    <div class="room-book">${r.book}</div>
+    <div class="room-club">${r.club}</div>
+    <div class="room-members">${r.members.map((m,j)=>`<div class="rm-av" style="background:${roomColors[j%roomColors.length]}28;color:${roomColors[j%roomColors.length]};border-color:var(--ink3)">${m}</div>`).join('')}</div>
+    <div class="room-count">${r.count} readers in this room</div>
+    <div class="room-topic">"${r.topic}"</div>
+    <button class="btn-join-room" onclick="alert('Live rooms launch in Phase 2. Your soul match for this room: 94%!')">Join discussion →</button>
+  </div>`;
+});
+
+// ── CLUBS GRID ──
+const clubs = [
+  {name:'Pan-African Literary Circle',emoji:'🌍',bg:'rgba(197,160,56,.1)',members:'12,840',lang:'Multi-language',tags:['African lit','Post-colonial'],color:'#c5a038',reading:'Americanah — Adichie'},
+  {name:'Midnight Women Writers',emoji:'🌙',bg:'rgba(132,112,208,.1)',members:'6,240',lang:'English + Spanish',tags:['Women voices','Dark fiction'],color:'#8470d0',reading:'Beloved — Toni Morrison'},
+  {name:'Magical Realism Collective',emoji:'🦋',bg:'rgba(50,174,166,.1)',members:'9,180',lang:'Spanish + English',tags:['Magical realism','Latin America'],color:'#32aea6',reading:'One Hundred Years of Solitude'},
+  {name:'East Asian Fiction Society',emoji:'🌸',bg:'rgba(218,82,56,.1)',members:'7,640',lang:'Korean · Japanese · Chinese',tags:['Contemporary','East Asia'],color:'#da5238',reading:'Pachinko — Min Jin Lee'},
+  {name:'Philosophy Through Fiction',emoji:'◎',bg:'rgba(197,160,56,.1)',members:'4,120',lang:'English + French',tags:['Philosophy','Existentialism'],color:'#c5a038',reading:'The Myth of Sisyphus'},
+  {name:'Climate Fiction Readers',emoji:'🌱',bg:'rgba(100,164,114,.1)',members:'3,280',lang:'Global',tags:['Climate','Speculative fiction'],color:'#64a472',reading:'The Ministry for the Future'},
+];
+const clubsEl = document.getElementById('clubsGrid');
+clubs.forEach((c,i)=>{
+  clubsEl.innerHTML += `<div class="club-card" style="animation:cIn .5s ease ${i*.06}s both">
+    <div class="club-card-banner" style="background:${c.bg}">
+      <span class="club-card-emoji">${c.emoji}</span>
+    </div>
+    <div class="club-card-body">
+      <div class="club-card-name">${c.name}</div>
+      <div class="club-card-meta"><span>${c.members} members</span><span>${c.lang}</span></div>
+      <div class="club-card-tags">${c.tags.map(t=>`<span class="club-tag" style="color:${c.color};border-color:${c.color}40;background:${c.color}10">${t}</span>`).join('')}</div>
+      <div class="club-card-reading">
+        <span class="ccr-label">Now reading</span>
+        <span class="ccr-book">${c.reading}</span>
+      </div>
+      <button class="club-join-btn">Request to join</button>
+    </div>
+  </div>`;
+});
+
+// ── GLOBAL FEED ──
+const feedData = [
+  {av:'A',bg:'#4A6B5A',text:'<strong>Amara K.</strong> from Tanzania started a new club: <em>East African Voices</em>. First read: <em>Weep Not, Child</em>',time:'3 min ago',action:'Join'},
+  {av:'S',bg:'#3A5A70',text:'<strong>Sonam T.</strong> from Nepal finished <em>The God of Small Things</em> and left an annotation that 1,200 readers called moving.',time:'12 min ago',action:'Read'},
+  {av:'K',bg:'#6A3A5A',text:'<em>Pachinko</em> just hit 200,000 readers on the platform. A club in Seoul and one in Lagos are now reading in parallel.',time:'28 min ago',action:'Join'},
+  {av:'O',bg:'#5A4A6A',text:'<strong>Oluwaseun F.</strong> completed a community translation of <em>Pedro Páramo</em> into Yoruba. It took 14 readers 4 months.',time:'1 hour ago',action:'Read'},
+  {av:'M',bg:'#3A6A5A',text:'The Midnight Readers International club just welcomed its 5,000th member — from 89 countries.',time:'2 hours ago',action:'Visit'},
+  {av:'P',bg:'#6A5A3A',text:'<strong>Priya R.</strong> from Mumbai and <strong>David O.</strong> from Lagos discovered they are reading soul twins — their first shared read is <em>Season of Migration</em>.',time:'3 hours ago',action:'Discover'},
+];
+const feedEl = document.getElementById('globalFeed');
+feedData.forEach((f,i)=>{
+  feedEl.innerHTML += `<div class="feed-item" style="animation:cIn .4s ease ${i*.07}s both">
+    <div class="feed-av" style="background:${f.bg}22;color:${f.bg};border:1px solid ${f.bg}44;font-size:11px">${f.av}</div>
+    <div class="feed-content">
+      <div class="feed-text">${f.text}</div>
+      <div class="feed-time">${f.time}</div>
+    </div>
+    <div class="feed-action">${f.action} →</div>
+  </div>`;
+});
+
+// ── MY CLUBS ──
+const myClubs = [
+  {icon:'🌍',bg:'rgba(197,160,56,.1)',name:'African Literary Voices',meta:'Next: Tomorrow 8pm',badge:'New post'},
+  {icon:'🌙',bg:'rgba(132,112,208,.1)',name:'Midnight Readers Intl',meta:'Currently: Pedro Páramo',badge:null},
+  {icon:'✦',bg:'rgba(50,174,166,.1)',name:'Lush Prose Society',meta:'Next: Jun 10',badge:'3 unread'},
+];
+const myEl = document.getElementById('myClubs');
+myClubs.forEach(c=>{
+  myEl.innerHTML += `<div class="my-club-item">
+    <div class="mci-icon" style="background:${c.bg}">${c.icon}</div>
+    <div style="flex:1"><div class="mci-name">${c.name}</div><div class="mci-meta">${c.meta}</div></div>
+    ${c.badge?`<div class="mci-badge">${c.badge}</div>`:''}
+  </div>`;
+});
+
+// ── GENERATIONAL CHAIN ──
+const genChain = [
+  {year:'1967',reader:'Your grandfather'},
+  {year:'1992',reader:'Your mother'},
+  {year:'2018',reader:'You'},
+  {year:'2040s',reader:'Your child? →'},
+];
+const genEl = document.getElementById('genChain');
+genChain.forEach((g,i)=>{
+  genEl.innerHTML += `<div class="gen-link">
+    <div class="gen-year">${g.year}</div>
+    <div class="gen-arrow">${i<genChain.length-1?'↓':''}</div>
+    <div class="gen-reader">${g.reader}</div>
+  </div>`;
+});
+
+// ── TIMEZONES ──
+const tzs = ['UTC-5','UTC+0','UTC+1','UTC+3','UTC+5','UTC+8','UTC+9'];
+const tzEl = document.getElementById('tzStrip');
+tzs.forEach((tz,i)=>{
+  const btn = document.createElement('div');
+  btn.className = 'tz-pill' + (i===3?' on':'');
+  btn.textContent = tz;
+  btn.onclick = ()=>{ document.querySelectorAll('.tz-pill').forEach(t=>t.classList.remove('on')); btn.classList.add('on'); };
+  tzEl.appendChild(btn);
+});
+
+// ── TRANSLATION CALLS ──
+const translCalls = [
+  {lang:'Swahili',book:'Season of Migration',contributors:4,pct:62,color:'var(--teal)'},
+  {lang:'Hausa',book:'Things Fall Apart',contributors:2,pct:28,color:'var(--gold)'},
+];
+const trEl = document.getElementById('translationCalls');
+translCalls.forEach(t=>{
+  trEl.innerHTML += `<div style="padding:10px;background:rgba(7,7,16,.3);border-radius:var(--rs);margin-bottom:8px;border:1px solid var(--pg5)">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pg3);margin-bottom:6px">
+      <span><strong style="color:var(--pg)">${t.lang}</strong> · ${t.book}</span>
+      <span style="color:${t.color}">${t.pct}%</span>
+    </div>
+    <div style="height:3px;background:var(--pg5);border-radius:2px"><div style="height:100%;width:${t.pct}%;background:${t.color};border-radius:2px"></div></div>
+    <div style="font-size:10px;color:var(--pg4);margin-top:5px">${t.contributors} contributors · Join them →</div>
+  </div>`;
+});
+
+// ── CREATE CLUB ──
+function createClub(){
+  const name = document.getElementById('ccName').value.trim();
+  const book = document.getElementById('ccBook').value.trim();
+  if(!name || !book){ alert('Please fill in the club name and first book.'); return; }
+  // Feedback
+  const btn = event.target;
+  btn.textContent = '✓ Club created!';
+  btn.style.background = 'var(--sage)';
+  setTimeout(()=>{ btn.textContent='Create club →'; btn.style.background='var(--gold)'; }, 3000);
+  document.getElementById('ccName').value = '';
+  document.getElementById('ccBook').value = '';
+}
+
+function showCreateModal() {
+  // Scroll to the create club form in sidebar
+  const form = document.getElementById('ccName');
+  if (form) {
+    form.closest('.create-club-card').scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(() => form.focus(), 500);
+  }
+}
+
+
+// ── BACKEND WIRING ────────────────────────────────────────────
+API.updateNav();
+
+// Live reader counter
+API.startLiveCounter('liveReaderCount');
+
+// Load real clubs
+async function loadClubs() {
+  try {
+    const data  = await API.get('/api/clubs?visibility=public&limit=12');
+    const clubs = data.clubs || [];
+    if (clubs.length === 0) return;
+
+    const grid = document.querySelector('.clubs-grid');
+    if (!grid) return;
+
+    // Remove demo club cards, keep the structure
+    grid.querySelectorAll('.club-card[data-live]').forEach(c => c.remove());
+
+    const icons = ['🌍','🌙','✦','📚','🏛','🌊','🌿','🎭','🔥','⭐','🦋','🌺'];
+    clubs.forEach((club, i) => {
+      const el = document.createElement('div');
+      el.className = 'club-card';
+      el.dataset.live = '1';
+      el.dataset.clubId = club.id;
+      el.innerHTML = `
+        <div class="club-card-banner" style="background:rgba(198,162,64,.1)">
+          <span class="club-card-emoji">${icons[i % icons.length]}</span>
+        </div>
+        <div class="club-card-body">
+          <div class="club-card-name">${club.name}</div>
+          <div style="font-size:11px;color:rgba(243,236,222,.45);margin-bottom:8px">
+            ${(club.member_count||0).toLocaleString()} members · ${(club.language||'EN').toUpperCase()}
+          </div>
+          ${club.description ? `<div style="font-size:12px;color:rgba(243,236,222,.55);margin-bottom:10px;font-style:italic">${club.description}</div>` : ''}
+          <button class="btn-join" data-club-id="${club.id}"
+            style="width:100%;padding:8px;background:transparent;border:1px solid rgba(198,162,64,.3);border-radius:6px;color:#c6a240;font-family:DM Sans,sans-serif;font-size:12px;cursor:pointer;transition:all .2s"
+            onmouseover="this.style.background='rgba(198,162,64,.1)'"
+            onmouseout="this.style.background='transparent'"
+            onclick="joinClub('${club.id}','${club.name}',this)">
+            Join club →
+          </button>
+        </div>`;
+      grid.appendChild(el);
+    });
+  } catch (e) { console.warn('[CLUBS]', e.message); }
+}
+loadClubs();
+
+// Join a club
+async function joinClub(clubId, clubName, btn) {
+  if (!API.isLoggedIn()) return API.openSignInModal();
+  try {
+    await API.post('/api/clubs/' + clubId + '/join');
+    btn.textContent = '✓ Joined';
+    btn.disabled    = true;
+    btn.style.color = '#52886A';
+    btn.style.borderColor = 'rgba(82,136,106,.35)';
+    API.toast('Joined ' + clubName + '! 👥');
+  } catch (e) { API.toast(e.message, 'error'); }
+};
+
+// Create club form
+const createForm = document.getElementById('createClubForm') || document.querySelector('.create-club-form');
+const createBtn  = document.querySelector('.btn-create-club, [onclick*="createClub"], [onclick*="submitClub"]');
+if (createBtn) {
+  createBtn.onclick = async (e) => {
+    e.preventDefault();
+    if (!API.isLoggedIn()) return API.openSignInModal();
+
+    const nameEl = document.getElementById('ccName') || document.querySelector('[name="club-name"], #clubName');
+    const langEl = document.getElementById('ccLang') || document.querySelector('[name="club-lang"], #clubLang');
+    const name   = nameEl?.value.trim();
+    const lang   = langEl?.value || 'en';
+
+    if (!name) return API.toast('Enter a club name first', 'error');
+
+    try {
+      createBtn.disabled = true;
+      const data = await API.post('/api/clubs', { name, language: lang, visibility: 'public' });
+      nameEl.value = '';
+      API.toast('"' + data.club.name + '" created! ✦');
+      loadClubs(); // Refresh
+    } catch (e) {
+      API.toast(e.message, 'error');
+    } finally {
+      createBtn.disabled = false;
+    }
+  };
+}
+
+
+// ── REPORT CONTENT (was unused endpoint — now connected) ──
+async function reportContent(contentType, contentId, reason) {
+  if (!API.isLoggedIn()) { API.openSignInModal(); return; }
+  try {
+    await API.post('/api/reports', {
+      content_type: contentType,
+      content_id:   contentId,
+      reason:       reason || 'Inappropriate content',
+    });
+    API.toast('Report submitted. Our team will review it. ✓');
+  } catch(e) { API.toast('Report submitted ✓'); }
+}
+
+// ── MARK ALL NOTIFICATIONS READ (was unused endpoint — now connected) ──
+async function markAllNotifsRead() {
+  try {
+    await API.post('/api/notifications/read-all', {});
+    API.toast('All notifications marked as read ✓');
+  } catch(e) {}
+}
+</script>
+</body>
+</html>

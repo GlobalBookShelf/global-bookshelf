@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload a Book — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
+.wrap{max-width:720px;margin:0 auto;padding:56px 2rem 80px}
+.page-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.page-title{font-family:var(--serif);font-size:clamp(28px,4vw,48px);font-weight:300;color:var(--pg);margin-bottom:10px}
+.page-title em{color:var(--gold);font-style:italic}
+.page-sub{font-size:14px;color:var(--pg3);line-height:1.7;margin-bottom:40px}
+.card{background:var(--ink2);border:1px solid rgba(245,239,227,.07);border-radius:12px;padding:28px;margin-bottom:20px}
+.card-title{font-size:14px;font-weight:500;color:var(--pg);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--pg3);margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;background:rgba(245,239,227,.05);border:1px solid rgba(245,239,227,.12);border-radius:8px;color:var(--pg);font-family:var(--sans);font-size:14px;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--goldb)}
+.form-input::placeholder{color:var(--pg3)}
+textarea.form-input{resize:vertical;min-height:90px}
+select.form-input{cursor:pointer}
+select.form-input option{background:var(--ink2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* Drop zone */
+.drop-zone{border:2px dashed rgba(201,168,76,.3);border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .3s;position:relative}
+.drop-zone:hover,.drop-zone.over{border-color:rgba(201,168,76,.7);background:var(--goldd)}
+.drop-icon{font-size:40px;margin-bottom:14px}
+.drop-title{font-size:15px;color:var(--pg);margin-bottom:6px;font-weight:500}
+.drop-sub{font-size:12px;color:var(--pg3);margin-bottom:16px}
+.drop-btn{padding:10px 24px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer}
+/* Progress */
+.progress-wrap{display:none;margin-top:20px}
+.progress-label{font-size:12px;color:var(--pg3);margin-bottom:6px}
+.progress-bar{height:6px;background:rgba(245,239,227,.08);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(to right,var(--gold),var(--gold2));border-radius:3px;width:0%;transition:width .3s}
+/* File preview */
+.file-preview{background:var(--ink3);border-radius:10px;padding:16px 20px;margin-top:16px;display:none;align-items:center;gap:14px;border:1px solid rgba(245,239,227,.06)}
+.file-icon{font-size:28px;flex-shrink:0}
+.file-name{font-size:14px;color:var(--pg);margin-bottom:3px;word-break:break-all}
+.file-size{font-size:12px;color:var(--pg3)}
+.file-remove{margin-left:auto;background:transparent;border:1px solid rgba(245,239,227,.15);border-radius:6px;color:var(--pg3);font-size:12px;cursor:pointer;padding:5px 12px;flex-shrink:0}
+/* Status */
+.status-box{border-radius:10px;padding:16px 20px;margin-top:20px;font-size:13px;display:none}
+.status-box.success{background:rgba(82,168,118,.1);border:1px solid rgba(82,168,118,.25);color:var(--sage)}
+.status-box.error{background:rgba(224,92,74,.1);border:1px solid rgba(224,92,74,.25);color:var(--coral)}
+/* Submit */
+.submit-btn{width:100%;padding:14px;background:var(--gold);border:none;border-radius:8px;color:var(--ink);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px}
+.submit-btn:hover{background:var(--gold2);transform:translateY(-1px)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+/* Formats info */
+.formats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.format-chip{padding:8px;text-align:center;background:var(--ink3);border-radius:8px;border:1px solid rgba(245,239,227,.06)}
+.format-ext{font-size:13px;font-weight:500;color:var(--gold)}
+.format-label{font-size:10px;color:var(--pg3);margin-top:3px}
+/* Download preview */
+.download-card{background:var(--goldd);border:1px solid var(--goldb);border-radius:10px;padding:20px;display:flex;align-items:center;gap:16px;margin-top:20px}
+.download-info{flex:1}
+.download-title{font-size:14px;font-weight:500;color:var(--pg);margin-bottom:4px}
+.download-sub{font-size:12px;color:var(--pg3)}
+.download-btn{padding:10px 20px;background:var(--gold);border:none;border-radius:16px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    Global <span style="color:var(--gold)">BookShelf</span>
+  </a>
+  <div style="display:flex;gap:10px">
+    <a href="author-universe.html" style="padding:7px 16px;border:1px solid rgba(245,239,227,.18);border-radius:20px;background:transparent;color:rgba(245,239,227,.6);font-family:var(--sans);font-size:12px;text-decoration:none">← Author page</a>
+    <a href="explore.html" style="padding:7px 18px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;text-decoration:none">Explore books</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="page-tag">Author tools — Global BookShelf</div>
+  <div class="page-title">Upload your <em>book</em></div>
+  <div class="page-sub">Upload a PDF, EPUB or DOCX file. Readers can download it directly from your book page. You choose whether it is free or paid.</div>
+
+  <!-- BOOK INFO -->
+  <div class="card">
+    <div class="card-title">📖 Book information</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Book title *</label>
+        <input class="form-input" type="text" id="bookTitle" placeholder="The title of your book">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Author name *</label>
+        <input class="form-input" type="text" id="authorName" placeholder="Your name or pen name">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="bookDesc" placeholder="What is this book about?"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Genre</label>
+        <select class="form-input" id="bookGenre">
+          <option value="Fiction">Fiction</option>
+          <option value="Non-fiction">Non-fiction</option>
+          <option value="Poetry">Poetry</option>
+          <option value="Philosophy">Philosophy</option>
+          <option value="History">History</option>
+          <option value="Science">Science</option>
+          <option value="Biography">Biography</option>
+          <option value="Children">Children</option>
+          <option value="Academic">Academic</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Access</label>
+        <select class="form-input" id="bookAccess">
+          <option value="free">🆓 Free — anyone can download</option>
+          <option value="paid">💛 Patrons only — subscribers download</option>
+          <option value="preview">👁 Preview only — no download</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Language</label>
+        <select class="form-input" id="bookLang">
+          <option value="en">English</option>
+          <option value="sw">Swahili</option>
+          <option value="fr">French</option>
+          <option value="ar">Arabic</option>
+          <option value="yo">Yorùbá</option>
+          <option value="ha">Hausa</option>
+          <option value="ig">Igbo</option>
+          <option value="pt">Portuguese</option>
+          <option value="es">Spanish</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Country of origin</label>
+        <input class="form-input" type="text" id="bookCountry" placeholder="e.g. Tanzania, Nigeria, Kenya">
+      </div>
+    </div>
+  </div>
+
+  <!-- COVER IMAGE -->
+  <div class="card">
+    <div class="card-title">🖼 Cover image (optional)</div>
+    <div class="form-group">
+      <label class="form-label">Cover image URL</label>
+      <input class="form-input" type="url" id="coverUrl" placeholder="https://... or leave blank for a generated cover">
+    </div>
+    <div style="font-size:11px;color:var(--pg3);margin-top:-8px">Paste a direct image URL, or upload your own image below</div>
+    <div style="margin-top:12px">
+      <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="uploadCoverImage(this)">
+      <button onclick="document.getElementById('coverFileInput').click()"
+        style="padding:9px 18px;background:transparent;border:1px solid var(--goldb);border-radius:16px;color:var(--gold);font-family:var(--sans);font-size:12px;cursor:pointer">
+        Upload cover image →
+      </button>
+      <span id="coverStatus" style="font-size:12px;color:var(--pg3);margin-left:12px"></span>
+    </div>
+  </div>
+
+  <!-- BOOK FILE UPLOAD -->
+  <div class="card">
+    <div class="card-title">📄 Book file *</div>
+
+    <div class="drop-zone" id="dropZone"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="handleDrop(event)"
+      onclick="document.getElementById('fileInput').click()">
+      <div class="drop-icon">📚</div>
+      <div class="drop-title">Drop your book file here</div>
+      <div class="drop-sub">PDF, EPUB, DOCX, TXT or MOBI — maximum 50 MB</div>
+      <button class="drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Choose file</button>
+    </div>
+
+    <input type="file" id="fileInput" accept=".pdf,.epub,.docx,.txt,.mobi" style="display:none" onchange="fileSelected(this)">
+
+    <div class="file-preview" id="filePreview">
+      <div class="file-icon" id="fileIcon">📄</div>
+      <div>
+        <div class="file-name" id="fileName"></div>
+        <div class="file-size" id="fileSize"></div>
+      </div>
+      <button class="file-remove" onclick="removeFile()">Remove</button>
+    </div>
+
+    <div style="margin-top:20px">
+      <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--pg3);margin-bottom:10px">Supported formats</div>
+      <div class="formats-grid">
+        <div class="format-chip"><div class="format-ext">PDF</div><div class="format-label">Most common</div></div>
+        <div class="format-chip"><div class="format-ext">EPUB</div><div class="format-label">E-readers</div></div>
+        <div class="format-chip"><div class="format-ext">DOCX</div><div class="format-label">Word doc</div></div>
+        <div class="format-chip"><div class="format-ext">TXT</div><div class="format-label">Plain text</div></div>
+        <div class="format-chip"><div class="format-ext">MOBI</div><div class="format-label">Kindle</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD BUTTON -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label" id="progressLabel">Uploading…</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="status-box" id="statusBox"></div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitBook()">
+    Publish book to Global BookShelf →
+  </button>
+
+  <div style="font-size:12px;color:var(--pg3);text-align:center;margin-top:14px;line-height:1.6">
+    By uploading you confirm you hold the rights to this book.<br>
+    Global BookShelf takes 0% on free books and 5% on patron downloads.
+  </div>
+</div>
+
+<script>
+'use strict';
+
+let selectedFile = null;
+let coverImageUrl = '';
+
+function updateNav() {
+  const s = API.getSession();
+  // Simple check — redirect to sign in if not logged in
+  if (!s || !s.user) {
+    API.openSignInModal(() => updateNav());
+  }
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('dropZone').classList.remove('over');
+  const file = event.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function fileSelected(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+function processFile(file) {
+  const maxSize = 50 * 1024 * 1024;
+  const allowed = ['.pdf','.epub','.docx','.txt','.mobi'];
+  const ext     = '.' + file.name.split('.').pop().toLowerCase();
+
+  if (!allowed.includes(ext)) {
+    showStatus('Only PDF, EPUB, DOCX, TXT and MOBI files are allowed', 'error'); return;
+  }
+  if (file.size > maxSize) {
+    showStatus('File is too large — maximum size is 50 MB', 'error'); return;
+  }
+
+  selectedFile = file;
+
+  const icons = { pdf:'📕', epub:'📗', docx:'📘', txt:'📄', mobi:'📙' };
+  const extClean = ext.replace('.','');
+
+  document.getElementById('fileIcon').textContent = icons[extClean] || '📄';
+  document.getElementById('fileName').textContent  = file.name;
+  document.getElementById('fileSize').textContent  = (file.size / (1024*1024)).toFixed(2) + ' MB · ' + extClean.toUpperCase();
+  document.getElementById('filePreview').style.display = 'flex';
+
+  // Auto-fill title from filename
+  const titleInput = document.getElementById('bookTitle');
+  if (!titleInput.value) {
+    titleInput.value = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+}
+
+function removeFile() {
+  selectedFile = null;
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+}
+
+async function uploadCoverImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('coverStatus').textContent = 'Uploading…';
+  try {
+    const data = await API.uploadImage(file);
+    if (data.url) {
+      document.getElementById('coverUrl').value = data.url;
+      coverImageUrl = data.url;
+      document.getElementById('coverStatus').textContent = '✓ Cover uploaded';
+      document.getElementById('coverStatus').style.color = 'var(--sage)';
+    }
+  } catch(e) {
+    document.getElementById('coverStatus').textContent = 'Upload failed: ' + e.message;
+    document.getElementById('coverStatus').style.color = 'var(--coral)';
+  }
+}
+
+function showStatus(msg, type) {
+  const box = document.getElementById('statusBox');
+  box.textContent = msg;
+  box.className   = 'status-box ' + type;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+async function submitBook() {
+  const title    = document.getElementById('bookTitle').value.trim();
+  const author   = document.getElementById('authorName').value.trim();
+  const desc     = document.getElementById('bookDesc').value.trim();
+  const genre    = document.getElementById('bookGenre').value;
+  const access   = document.getElementById('bookAccess').value;
+  const lang     = document.getElementById('bookLang').value;
+  const country  = document.getElementById('bookCountry').value.trim();
+  const coverUrl = document.getElementById('coverUrl').value.trim();
+
+  if (!title)        { showStatus('Book title is required', 'error'); return; }
+  if (!author)       { showStatus('Author name is required', 'error'); return; }
+  if (!selectedFile) { showStatus('Please select a book file to upload', 'error'); return; }
+  if (!API.isLoggedIn()) { API.openSignInModal(); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Publishing…';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel= document.getElementById('progressLabel');
+
+  progressWrap.style.display = 'block';
+  progressLabel.textContent  = 'Step 1 of 2 — Creating book record…';
+  progressFill.style.width   = '20%';
+
+  try {
+    // Step 1 — Create book record in database
+    const bookData = await API.post('/api/books', {
+      title,
+      author_name:       author,
+      description:       desc,
+      genres:            [genre],
+      original_language: lang,
+      origin_country:    country || null,
+      cover_url:         coverUrl || null,
+      status:            'published',
+      is_free:           access === 'free',
+      is_downloadable:   access !== 'preview',
+    });
+
+    const bookId = bookData.book?.id || bookData.id;
+    progressLabel.textContent = 'Step 2 of 2 — Uploading book file…';
+    progressFill.style.width  = '50%';
+
+    // Step 2 — Upload the book file
+    const form = new FormData();
+    form.append('book', selectedFile);
+    if (bookId) form.append('book_id', bookId);
+
+    const token   = API.getToken();
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    // Simulate progress
+    let prog = 50;
+    const progInterval = setInterval(() => {
+      prog = Math.min(prog + 5, 95);
+      progressFill.style.width = prog + '%';
+    }, 400);
+
+    const uploadRes  = await fetch('http://localhost:4000/api/upload/book', { method:'POST', headers, body:form });
+    const uploadData = await uploadRes.json();
+    clearInterval(progInterval);
+
+    if (!uploadRes.ok) throw new Error(uploadData.error || 'File upload failed');
+
+    progressFill.style.width   = '100%';
+    progressLabel.textContent  = 'Published successfully!';
+
+    showStatus(
+      `✓ "${title}" is now live on Global BookShelf!\n` +
+      `Format: ${uploadData.format} · Size: ${uploadData.size_mb} MB\n` +
+      `Readers can now ${access === 'free' ? 'download it for free' : access === 'paid' ? 'download with a patron subscription' : 'read a preview'}.`,
+      'success'
+    );
+
+    // Show download link
+    const downloadCard = document.createElement('div');
+    downloadCard.className = 'download-card';
+    downloadCard.innerHTML = `
+      <div style="font-size:24px">📚</div>
+      <div class="download-info">
+        <div class="download-title">${title}</div>
+        <div class="download-sub">by ${author} · ${uploadData.format} · ${uploadData.size_mb} MB · ${access === 'free' ? 'Free download' : 'Patron download'}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        ${bookId ? `<button class="download-btn" onclick="window.location.href='book-detail.html?id=${bookId}'">View book →</button>` : ''}
+        <button class="download-btn" style="background:transparent;border:1px solid var(--goldb);color:var(--gold)" onclick="window.location.href='explore.html'">Explore books</button>
+      </div>`;
+    document.querySelector('.wrap').appendChild(downloadCard);
+
+    btn.textContent = '✓ Published!';
+
+  } catch(e) {
+    progressWrap.style.display = 'none';
+    showStatus('Error: ' + (e.message || 'Something went wrong'), 'error');
+    btn.disabled = false;
+    btn.textContent = 'Publish book to Global BookShelf →';
+  }
+}
+
+// Boot
+updateNav();
+
+// Pre-fill author name from session
+const session = API.getSession();
+if (session?.user?.display_name) {
+  document.getElementById('authorName').value = session.user.display_name;
+}
+</script>
+</body>
+</html>

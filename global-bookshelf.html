@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global BookShelf — The World's Living Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --ink2: #13131c;
+    --ink3: #1c1c28;
+    --parchment: #f5efe3;
+    --parchment2: #ede4d3;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --amber: #d4873a;
+    --teal: #3ab8b0;
+    --coral: #e05c4a;
+    --muted: rgba(245,239,227,0.45);
+    --muted2: rgba(245,239,227,0.2);
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 64px;
+    background: linear-gradient(to bottom, rgba(10,10,15,0.98), rgba(10,10,15,0));
+    backdrop-filter: blur(0px);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo-mark {
+    width: 32px; height: 32px;
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--gold);
+    font-style: italic;
+  }
+  .nav-logo-text {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--parchment);
+    letter-spacing: 0.02em;
+  }
+  .nav-logo-text span { color: var(--gold); }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--parchment); }
+
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .btn-ghost {
+    padding: 7px 18px;
+    border: 1px solid rgba(245,239,227,0.2);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--parchment);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-primary {
+    padding: 7px 18px;
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    background: var(--gold);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    text-transform: uppercase;
+  }
+  .btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    width: 100%; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ─── MAP CONTAINER ─── */
+  #map-container {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+
+  #world-map {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    max-width: 1600px;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 60px rgba(201,168,76,0.08));
+    animation: mapBreath 8s ease-in-out infinite;
+  }
+
+  @keyframes mapBreath {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -51%) scale(1.008); }
+  }
+
+  /* ─── BOOK PINS ─── */
+  .book-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+    z-index: 10;
+    animation: pinDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+
+  @keyframes pinDrop {
+    from { transform: translate(-50%, -200%); opacity: 0; }
+    to { transform: translate(-50%, -100%); opacity: 1; }
+  }
+
+  .pin-body {
+    width: 28px; height: 36px;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .book-pin:hover .pin-body { transform: scale(1.3) translateY(-4px); }
+
+  .pin-book {
+    width: 22px; height: 28px;
+    border-radius: 2px 3px 3px 2px;
+    position: absolute;
+    top: 0; left: 3px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.6), inset -1px 0 0 rgba(255,255,255,0.1);
+  }
+  .pin-spine {
+    width: 4px; height: 28px;
+    border-radius: 2px 0 0 2px;
+    position: absolute;
+    top: 0; left: 3px;
+    opacity: 0.6;
+  }
+  .pin-tip {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid;
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Pin pulse rings */
+  .pin-pulse {
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .book-pin:hover .pin-pulse::before {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    border: 1px solid currentColor;
+    animation: pulseRing 1s ease-out infinite;
+    transform: translate(-50%, -50%);
+  }
+  .book-pin:hover .pin-pulse::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    border: 1px solid currentColor;
+    animation: pulseRing 1s ease-out 0.3s infinite;
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes pulseRing {
+    0% { width: 8px; height: 8px; opacity: 0.8; }
+    100% { width: 50px; height: 50px; opacity: 0; }
+  }
+
+  /* ─── LIVE READER DOTS — static blinking like heartbeat ─── */
+  .reader-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    z-index: 8;
+    animation: readerPulse 3s ease-in-out infinite;
+  }
+  .reader-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--teal);
+    animation: readerRing 3s ease-out infinite;
+  }
+
+  @keyframes readerPulse {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+  @keyframes readerRing {
+    0% { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 0; transform: scale(3); }
+  }
+
+  /* ─── TOOLTIP ─── */
+  .book-tooltip {
+    position: absolute;
+    bottom: 42px; left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: var(--ink2);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 6px;
+    padding: 12px 14px;
+    width: 200px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 20;
+  }
+  .book-pin:hover .book-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .tooltip-cover {
+    width: 100%; height: 80px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    background: var(--ink3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .tooltip-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--parchment);
+    margin-bottom: 2px;
+    line-height: 1.3;
+  }
+  .tooltip-author {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .tooltip-meta {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tooltip-country {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .tooltip-readers {
+    font-size: 10px;
+    color: var(--teal);
+    margin-left: auto;
+  }
+
+  /* ─── HERO CONTENT ─── */
+  .hero-content {
+    position: relative; z-index: 20;
+    text-align: center;
+    pointer-events: none;
+    animation: heroReveal 1.2s ease-out 0.3s backwards;
+  }
+
+  @keyframes heroReveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold));
+  }
+  .hero-eyebrow::after { background: linear-gradient(to left, transparent, var(--gold)); }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--parchment);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .hero-title em { font-style: italic; color: var(--gold); }
+
+  .hero-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 440px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  .hero-actions {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    pointer-events: all;
+  }
+
+  .btn-cta {
+    padding: 13px 32px;
+    background: var(--gold);
+    border: none;
+    border-radius: 3px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(201,168,76,0.3);
+  }
+  .btn-cta:hover {
+    background: var(--gold2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201,168,76,0.4);
+  }
+
+  .btn-text {
+    padding: 13px 24px;
+    background: transparent;
+    border: 1px solid rgba(245,239,227,0.2);
+    border-radius: 3px;
+    color: var(--parchment);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-text:hover { border-color: var(--parchment); }
+
+  /* ─── LIVE STATS BAR ─── */
+  .stats-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 30;
+    padding: 16px 2.5rem;
+    background: linear-gradient(to top, rgba(10,10,15,0.95), rgba(10,10,15,0));
+    display: flex; align-items: center; justify-content: space-between;
+    animation: fadeUp 1s ease-out 1s backwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .stat-item { text-align: center; }
+  .stat-number {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--parchment);
+    letter-spacing: 0.02em;
+  }
+  .stat-number span { color: var(--gold); }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .stat-divider {
+    width: 1px; height: 32px;
+    background: rgba(245,239,227,0.1);
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: liveBlink 2s ease-in-out infinite;
+  }
+  @keyframes liveBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ─── TIME SLIDER ─── */
+  .time-slider-wrap {
+    position: absolute;
+    left: 2.5rem; top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: fadeIn 1s ease-out 1.2s backwards;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .time-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .time-slider {
+    -webkit-appearance: none;
+    width: 180px;
+    height: 2px;
+    background: rgba(245,239,227,0.15);
+    border-radius: 1px;
+    outline: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    transform: rotate(180deg);
+    cursor: pointer;
+  }
+  .time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--ink);
+    box-shadow: 0 0 8px rgba(201,168,76,0.6);
+    cursor: pointer;
+  }
+  .time-year {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── ERA TOOLTIP (ADDED) ─── */
+  .time-tooltip {
+    position: absolute;
+    left: calc(100% + 14px);
+    background: rgba(10,10,15,0.95);
+    border: 1px solid rgba(201,168,76,0.45);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--gold);
+    font-style: italic;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s;
+    backdrop-filter: blur(8px);
+    z-index: 50;
+  }
+  .time-tooltip::before {
+    content: '';
+    position: absolute;
+    right: 100%; top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: rgba(201,168,76,0.45);
+  }
+  .time-slider-wrap:hover .time-tooltip { opacity: 1; }
+
+  /* ─── FILTER CHIPS ─── */
+  .filter-strip {
+    position: absolute;
+    right: 2rem; top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    display: flex; flex-direction: column; gap: 6px;
+    animation: fadeIn 1s ease-out 1.4s backwards;
+  }
+  .filter-chip {
+    padding: 7px 12px;
+    border: 1px solid rgba(245,239,227,0.15);
+    border-radius: 20px;
+    background: rgba(10,10,15,0.7);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+  .filter-chip .chip-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* ─── SEARCH DROPDOWN (ADDED) ─── */
+  .search-dropdown {
+    position: absolute;
+    top: calc(100% + 6px); left: 0; right: 0;
+    background: rgba(17,17,26,0.98);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+    z-index: 40;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  .search-dropdown.show { display: block; }
+  .search-result {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(245,239,227,0.06);
+  }
+  .search-result:last-child { border-bottom: none; }
+  .search-result:hover { background: rgba(201,168,76,0.08); }
+  .sr-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+  .sr-title { font-size: 13px; color: var(--parchment); line-height: 1.3; }
+  .sr-sub { font-size: 11px; color: var(--muted); }
+  .sr-type { font-size: 10px; color: var(--gold); margin-left: auto; flex-shrink: 0; letter-spacing: 0.06em; text-transform: uppercase; }
+  .search-empty { padding: 16px; text-align: center; font-size: 13px; color: var(--muted); font-style: italic; }
+
+  /* ─── SECTION: FEATURES ─── */
+  .features-section {
+    position: relative; z-index: 5;
+    padding: 100px 2.5rem;
+    background: var(--ink);
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .section-tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 300;
+    color: var(--parchment);
+    line-height: 1.2;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(245,239,227,0.06);
+    border: 1px solid rgba(245,239,227,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature-card {
+    padding: 40px 36px;
+    background: var(--ink);
+    transition: background 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .feature-card:hover { background: var(--ink2); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 18px;
+    display: block;
+  }
+  .feature-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--parchment);
+    margin-bottom: 10px;
+  }
+  .feature-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ─── MARQUEE ─── */
+  .marquee-section {
+    padding: 20px 0;
+    border-top: 1px solid rgba(245,239,227,0.06);
+    border-bottom: 1px solid rgba(245,239,227,0.06);
+    overflow: hidden;
+    background: var(--ink2);
+    position: relative; z-index: 5;
+    min-height: 52px;
+    display: flex; align-items: center;
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marquee 55s linear infinite;
+    white-space: nowrap;
+    will-change: transform;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  .marquee-item {
+    display: inline-flex; align-items: center;
+    font-family: var(--serif);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+    padding: 0 32px;
+    border-right: 1px solid rgba(245,239,227,0.08);
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .marquee-item span {
+    color: var(--gold);
+    font-style: normal;
+    font-size: 11px;
+    font-family: var(--sans);
+    letter-spacing: 0.1em;
+    margin-right: 10px;
+    text-transform: uppercase;
+  }
+  .marquee-item em { color: var(--gold); cursor: pointer; }
+  .marquee-item em:hover { text-decoration: underline; }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── RECENTLY PINNED ─── */
+  .recent-section {
+    padding: 80px 2.5rem;
+    background: var(--ink);
+    position: relative; z-index: 5;
+  }
+  .recent-row {
+    display: flex; gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    scrollbar-width: none;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .recent-row::-webkit-scrollbar { display: none; }
+
+  .book-card {
+    flex-shrink: 0;
+    width: 160px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .book-card:hover { transform: translateY(-6px); }
+
+  .book-cover {
+    width: 100%; height: 220px;
+    border-radius: 4px 6px 6px 4px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 4px 6px 20px rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .book-cover-spine {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 4px 0 0 4px;
+  }
+  .book-cover-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    padding: 0 14px;
+    line-height: 1.4;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .book-card-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    color: var(--parchment);
+    margin-bottom: 3px;
+  }
+  .book-card-author {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .book-card-meta {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .book-card-flag { font-size: 12px; }
+  .book-card-readers {
+    font-size: 10px;
+    color: var(--teal);
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── AFRICAN SPOTLIGHT (ADDED) ─── */
+  .african-section {
+    padding: 80px 2.5rem;
+    background: var(--ink2);
+    border-top: 1px solid rgba(245,239,227,0.06);
+    position: relative; z-index: 5;
+  }
+  .african-row {
+    display: flex; gap: 16px;
+    overflow-x: auto; padding-bottom: 16px;
+    scrollbar-width: none;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .african-row::-webkit-scrollbar { display: none; }
+  .african-card {
+    flex-shrink: 0; width: 190px;
+    background: var(--ink3);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(245,239,227,0.06);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .african-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.3); }
+  .african-cover {
+    height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    position: relative;
+  }
+  .african-cover-bar {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 7px;
+  }
+  .african-info { padding: 12px; }
+  .african-title {
+    font-family: var(--serif);
+    font-size: 13px; color: var(--parchment);
+    margin-bottom: 3px; line-height: 1.3;
+  }
+  .african-author { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 5px; }
+  .african-readers { font-size: 10px; color: var(--teal); }
+
+  /* ─── SOUL RECOMMENDATIONS (ADDED) ─── */
+  .soul-section {
+    padding: 80px 2.5rem;
+    background: var(--ink);
+    border-top: 1px solid rgba(245,239,227,0.06);
+    position: relative; z-index: 5;
+    display: none;
+  }
+  .soul-section.visible { display: block; }
+  .soul-row {
+    display: flex; gap: 14px;
+    overflow-x: auto; padding-bottom: 12px;
+    scrollbar-width: none;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .soul-row::-webkit-scrollbar { display: none; }
+  .soul-card {
+    flex-shrink: 0; width: 175px;
+    background: var(--ink2);
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.18);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .soul-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.45); }
+  .soul-cover {
+    height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; position: relative;
+  }
+  .soul-cover-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
+  .soul-match {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(10,10,15,0.9);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 10px; padding: 2px 7px;
+    font-size: 11px; color: var(--gold);
+  }
+  .soul-info { padding: 10px 12px; }
+  .soul-title { font-family: var(--serif); font-size: 13px; color: var(--parchment); margin-bottom: 3px; line-height: 1.3; }
+  .soul-author { font-size: 11px; color: var(--muted); font-style: italic; }
+
+  /* ─── TESTIMONIALS (ADDED) ─── */
+  .testimonials-section {
+    padding: 80px 2.5rem;
+    background: var(--ink2);
+    border-top: 1px solid rgba(245,239,227,0.06);
+    position: relative; z-index: 5;
+  }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  @media(max-width:768px){ .testimonials-grid { grid-template-columns: 1fr; } }
+  .testimonial-card {
+    background: var(--ink3); border-radius: 8px;
+    padding: 28px; border: 1px solid rgba(245,239,227,0.06);
+  }
+  .testimonial-quote {
+    font-family: var(--serif);
+    font-size: 16px; font-style: italic;
+    color: var(--parchment2); line-height: 1.75; margin-bottom: 20px;
+  }
+  .testimonial-quote::before {
+    content: '\201C'; color: var(--gold);
+    font-size: 28px; line-height: 0;
+    vertical-align: -10px; margin-right: 3px;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 10px; }
+  .testimonial-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; border: 1px solid rgba(201,168,76,0.3);
+  }
+  .testimonial-name { font-size: 13px; font-weight: 500; color: var(--parchment); margin-bottom: 2px; }
+  .testimonial-meta { font-size: 11px; color: var(--muted); }
+
+  /* ─── MOBILE APP (ADDED) ─── */
+  .app-section {
+    padding: 80px 2.5rem;
+    background: var(--ink);
+    border-top: 1px solid rgba(245,239,227,0.06);
+    position: relative; z-index: 5;
+  }
+  .app-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 40px;
+  }
+  .app-text { flex: 1; }
+  .app-title {
+    font-family: var(--serif);
+    font-size: clamp(28px,3vw,42px);
+    font-weight: 300; color: var(--parchment);
+    margin-bottom: 14px; line-height: 1.2;
+  }
+  .app-title em { color: var(--gold); font-style: italic; }
+  .app-sub { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 420px; margin-bottom: 28px; }
+  .app-badges { display: flex; gap: 14px; flex-wrap: wrap; }
+  .app-badge {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px;
+    background: var(--ink2);
+    border: 1px solid rgba(245,239,227,0.12);
+    border-radius: 8px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none;
+  }
+  .app-badge:hover { border-color: var(--gold); background: rgba(201,168,76,0.06); }
+  .app-badge-icon { font-size: 22px; }
+  .app-badge-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; display: block; }
+  .app-badge-name { font-size: 13px; color: var(--parchment); font-weight: 500; display: block; }
+  .app-phone {
+    flex-shrink: 0; width: 190px; height: 340px;
+    background: var(--ink2); border-radius: 22px;
+    border: 2px solid rgba(245,239,227,0.1);
+    position: relative; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .app-phone-screen { position: absolute; inset: 8px; border-radius: 16px; background: var(--ink3); overflow: hidden; }
+  .app-phone-notch { width: 70px; height: 18px; background: var(--ink2); border-radius: 0 0 9px 9px; margin: 0 auto; }
+  .app-phone-content { padding: 8px; }
+  .apc-title { font-family: var(--serif); font-size: 11px; color: var(--gold); margin-bottom: 8px; text-align: center; font-style: italic; }
+  .apc-book {
+    background: var(--ink2); border-radius: 5px; padding: 6px; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid rgba(245,239,227,0.06);
+  }
+  .apc-cover { width: 26px; height: 36px; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .apc-info-title { font-size: 9px; color: var(--parchment); line-height: 1.2; margin-bottom: 2px; }
+  .apc-info-meta { font-size: 9px; color: var(--teal); }
+
+  /* ─── NEWSLETTER (ADDED) ─── */
+  .newsletter-section {
+    padding: 70px 2.5rem;
+    background: var(--ink2);
+    border-top: 1px solid rgba(245,239,227,0.06);
+    position: relative; z-index: 5;
+  }
+  .newsletter-inner { max-width: 520px; margin: 0 auto; text-align: center; }
+  .newsletter-title {
+    font-family: var(--serif);
+    font-size: clamp(24px,3vw,36px);
+    font-weight: 300; color: var(--parchment); margin-bottom: 10px;
+  }
+  .newsletter-title em { color: var(--gold); font-style: italic; }
+  .newsletter-sub { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+  .newsletter-form { display: flex; gap: 10px; max-width: 420px; margin: 0 auto; }
+  .newsletter-input {
+    flex: 1; padding: 11px 18px;
+    background: rgba(245,239,227,0.05);
+    border: 1px solid rgba(245,239,227,0.15);
+    border-radius: 3px; color: var(--parchment);
+    font-family: var(--sans); font-size: 14px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .newsletter-input:focus { border-color: var(--gold); }
+  .newsletter-input::placeholder { color: var(--muted); }
+  .newsletter-btn {
+    padding: 11px 22px; background: var(--gold);
+    border: none; border-radius: 3px;
+    color: var(--ink); font-family: var(--sans);
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .newsletter-btn:hover { background: var(--gold2); }
+  .newsletter-note { font-size: 11px; color: var(--muted2); margin-top: 12px; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid rgba(245,239,227,0.06);
+    padding: 40px 2.5rem;
+    background: var(--ink);
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .footer-copy {
+    font-size: 11px;
+    color: rgba(245,239,227,0.2);
+    letter-spacing: 0.05em;
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-size: 11px;
+    color: rgba(245,239,227,0.25);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ─── SEARCH BAR ─── */
+  .search-wrap {
+    position: absolute;
+    top: 80px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    width: 360px;
+    animation: fadeIn 1s ease-out 0.8s backwards;
+  }
+  .search-input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    background: rgba(10,10,15,0.8);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 24px;
+    color: var(--parchment);
+    font-family: var(--sans);
+    font-size: 13px;
+    outline: none;
+    backdrop-filter: blur(12px);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input::placeholder { color: rgba(245,239,227,0.3); }
+  .search-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(201,168,76,0.15);
+  }
+  .search-icon {
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  /* Scroll hint */
+  .scroll-hint {
+    position: absolute;
+    bottom: 72px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    animation: scrollBounce 2s ease-in-out infinite;
+    opacity: 0.4;
+  }
+  .scroll-hint-text {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .scroll-hint-arrow {
+    width: 1px; height: 24px;
+    background: linear-gradient(to bottom, var(--parchment), transparent);
+  }
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ─── NAV USER STATE (ADDED) ─── */
+  #navUserMenu { display: none; align-items: center; gap: 10px; }
+  #navUserAvatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(201,168,76,0.12);
+    border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--gold); cursor: pointer;
+  }
+  #navUserName { font-size: 13px; color: var(--parchment); }
+  #navSignOutBtn {
+    font-size: 11px; color: var(--muted); cursor: pointer;
+    padding: 5px 12px; border: 1px solid rgba(245,239,227,0.12);
+    border-radius: 3px; background: transparent; letter-spacing: 0.04em;
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  #navSignOutBtn:hover { border-color: var(--coral); color: var(--coral); }
+
+  /* ─── TOAST (ADDED) ─── */
+  .gbs-toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    z-index: 2000;
+    background: rgba(17,17,26,0.96);
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 24px; padding: 12px 24px;
+    font-family: var(--sans); font-size: 14px; color: var(--parchment);
+    backdrop-filter: blur(10px);
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    white-space: nowrap; pointer-events: none;
+  }
+  .gbs-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+<script src="api.js"></script>
+<script src="http://localhost:4000/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available — install with: npm install socket.io')"></script>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav id="mainNav">
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    <div class="nav-logo-text">Global <span>BookShelf</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="community-hub.html">Communities</a></li>
+    <li><a href="authors.html">Authors</a></li>
+    <li><a href="languages.html">Languages</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(onLoginSuccess)">Sign In</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <div id="navUserMenu">
+      <div id="navUserAvatar">?</div>
+      <span id="navUserName"></span>
+      <button id="navSignOutBtn" onclick="doSignOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+
+  <!-- Map -->
+  <div id="map-container">
+    <svg id="world-map" viewBox="0 0 2000 1000" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Ocean -->
+      <rect width="2000" height="1000" fill="#0d1018"/>
+      <!-- Grid lines (latitude/longitude) -->
+      <g stroke="rgba(201,168,76,0.06)" stroke-width="0.5">
+        <line x1="0" y1="200" x2="2000" y2="200"/>
+        <line x1="0" y1="350" x2="2000" y2="350"/>
+        <line x1="0" y1="500" x2="2000" y2="500"/>
+        <line x1="0" y1="650" x2="2000" y2="650"/>
+        <line x1="0" y1="800" x2="2000" y2="800"/>
+        <line x1="250" y1="0" x2="250" y2="1000"/>
+        <line x1="500" y1="0" x2="500" y2="1000"/>
+        <line x1="750" y1="0" x2="750" y2="1000"/>
+        <line x1="1000" y1="0" x2="1000" y2="1000"/>
+        <line x1="1250" y1="0" x2="1250" y2="1000"/>
+        <line x1="1500" y1="0" x2="1500" y2="1000"/>
+        <line x1="1750" y1="0" x2="1750" y2="1000"/>
+      </g>
+      <!-- Equator highlight -->
+      <line x1="0" y1="500" x2="2000" y2="500" stroke="rgba(201,168,76,0.12)" stroke-width="1"/>
+      <!-- Continents -->
+      <path d="M180,120 L340,100 L420,130 L460,180 L480,250 L500,330 L470,400 L440,450 L400,480 L380,520 L360,480 L340,440 L300,420 L260,400 L240,360 L220,300 L200,240 L190,180 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M380,520 L400,540 L390,580 L370,600 L360,560 L360,520 Z" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M340,80 L420,60 L460,80 L450,120 L420,130 L360,120 Z" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.2)" stroke-width="0.8"/>
+      <path d="M380,600 L440,580 L500,600 L540,660 L560,740 L540,820 L500,880 L460,900 L420,880 L400,820 L380,760 L360,700 L360,640 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M820,100 L900,90 L960,110 L1000,150 L980,200 L940,220 L900,240 L860,220 L830,200 L810,160 L800,130 Z" fill="rgba(201,168,76,0.2)" stroke="rgba(201,168,76,0.4)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M860,80 L900,60 L920,90 L900,110 L870,110 Z" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M790,130 L810,110 L820,130 L800,150 Z" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M820,280 L900,260 L980,280 L1020,340 L1040,420 L1040,520 L1020,620 L980,700 L940,740 L900,760 L860,740 L820,700 L800,620 L790,520 L790,420 L800,340 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M1000,260 L1060,250 L1100,290 L1110,350 L1080,380 L1040,360 L1000,320 Z" fill="rgba(201,168,76,0.16)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M960,60 L1200,40 L1400,80 L1460,120 L1440,180 L1380,200 L1300,180 L1200,200 L1100,200 L1040,180 L1000,150 L960,110 Z" fill="rgba(201,168,76,0.17)" stroke="rgba(201,168,76,0.32)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M1100,260 L1160,240 L1200,280 L1220,340 L1200,420 L1160,460 L1120,440 L1090,380 L1080,320 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8"/>
+      <path d="M1340,260 L1420,240 L1460,280 L1440,340 L1400,360 L1360,340 L1330,300 Z" fill="rgba(201,168,76,0.16)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M1200,160 L1340,140 L1420,180 L1440,240 L1400,260 L1340,260 L1260,260 L1200,240 L1160,200 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M1460,180 L1490,170 L1500,200 L1480,220 L1460,210 Z" fill="rgba(201,168,76,0.15)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+      <path d="M1440,560 L1560,540 L1640,580 L1660,660 L1640,740 L1580,780 L1500,780 L1440,740 L1410,660 L1420,600 Z" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.35)" stroke-width="0.8" filter="url(#glow)"/>
+      <path d="M1680,740 L1700,720 L1710,760 L1700,790 L1680,780 Z" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+    </svg>
+    <div id="pins-layer"></div>
+    <div id="readers-layer"></div>
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-wrap" id="searchWrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search books, authors, cities…" autocomplete="off">
+    <div class="search-dropdown" id="searchDropdown"></div>
+  </div>
+
+  <!-- Time slider -->
+  <div class="time-slider-wrap" id="sliderWrap">
+    <div class="time-label">Era</div>
+    <input type="range" class="time-slider" min="1800" max="2024" value="2024" id="timeSlider">
+    <div class="time-tooltip" id="timeTooltip">2024</div>
+    <div class="time-year" id="timeYear">2024</div>
+  </div>
+
+  <!-- Genre filters -->
+  <div class="filter-strip">
+    <div class="filter-chip active" data-genre="All"><span class="chip-dot" style="background:var(--gold)"></span>All</div>
+    <div class="filter-chip" data-genre="Fiction"><span class="chip-dot" style="background:#e05c4a"></span>Fiction</div>
+    <div class="filter-chip" data-genre="African"><span class="chip-dot" style="background:#3ab8b0"></span>African</div>
+    <div class="filter-chip" data-genre="Poetry"><span class="chip-dot" style="background:#a78bdd"></span>Poetry</div>
+    <div class="filter-chip" data-genre="Philosophy"><span class="chip-dot" style="background:#d4873a"></span>Philosophy</div>
+    <div class="filter-chip" data-genre="History"><span class="chip-dot" style="background:#6dbf7e"></span>History</div>
+  </div>
+
+  <!-- Hero text (bottom-center) -->
+  <div class="hero-content" style="position:absolute;bottom:100px;left:0;right:0;">
+    <div class="hero-eyebrow">The World's Living Library</div>
+    <div class="hero-title">Every book.<br><em>Every world.</em></div>
+    <div class="hero-sub">Discover literature from every culture, language, and century — all on a single living map.</div>
+    <div class="hero-actions">
+      <button class="btn-cta" onclick="enterFullMap()">Explore the Map</button>
+      <button class="btn-text" onclick="document.querySelector('.features-section').scrollIntoView({behavior:'smooth'})">How it works →</button>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live
+    </div>
+    <div class="stat-item">
+      <div class="stat-number"><span id="stat1">2,847</span></div>
+      <div class="stat-label">Reading right now</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-number"><span id="statBooks">4.2M</span></div>
+      <div class="stat-label">Books catalogued</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-number"><span id="statCountries">189</span></div>
+      <div class="stat-label">Countries represented</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-number"><span id="statLanguages">127</span></div>
+      <div class="stat-label">Languages</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-number"><span id="statClubs">38,200</span></div>
+      <div class="stat-label">Active book clubs</div>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">
+    <div class="scroll-hint-text">Scroll</div>
+    <div class="scroll-hint-arrow"></div>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ─── -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee"></div>
+</div>
+
+<!-- ─── FEATURES ─── -->
+<section class="features-section">
+  <div class="section-header">
+    <div class="section-tag">Why Global BookShelf is Different</div>
+    <div class="section-title">Not a catalogue.<br>A <em>living civilization</em> of books.</div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" onclick="enterFullMap()">
+      <span class="feature-icon">🌍</span>
+      <div class="feature-title">Living World Map</div>
+      <div class="feature-desc">Every book pinned to where it was born. Watch the world read in real time. Travel through centuries with a single slider.</div>
+    </div>
+    <div class="feature-card" onclick="window.location.href='ai-reading-soul.html'">
+      <span class="feature-icon">🧠</span>
+      <div class="feature-title">AI Reading Soul</div>
+      <div class="feature-desc">Not just recommendations — an AI that learns your emotional world, your life stage, and connects you to books that will change you.</div>
+    </div>
+    <div class="feature-card" onclick="window.location.href='languages.html'">
+      <span class="feature-icon">🌐</span>
+      <div class="feature-title">Borderless Reading</div>
+      <div class="feature-desc">127 languages. AI translation that preserves cultural meaning, not just words. No great book locked behind a language barrier.</div>
+    </div>
+    <div class="feature-card" onclick="window.location.href='authors.html'">
+      <span class="feature-icon">✍️</span>
+      <div class="feature-title">Author Universe</div>
+      <div class="feature-desc">Authors are stars. Watch them write in public. Fund their next chapter directly. Connect without gatekeepers or algorithms.</div>
+    </div>
+    <div class="feature-card" onclick="window.location.href='community-hub.html'">
+      <span class="feature-icon">👥</span>
+      <div class="feature-title">Cross-World Clubs</div>
+      <div class="feature-desc">Book clubs that cross continents, time zones, and generations. Read the same book your grandparent loved — then discuss it with them.</div>
+    </div>
+    <div class="feature-card" onclick="window.location.href='book-detail.html'">
+      <span class="feature-icon">🎮</span>
+      <div class="feature-title">Books as Experiences</div>
+      <div class="feature-desc">Ambient soundscapes, character maps that grow as you read, endings debate rooms. The book doesn't end at the last page.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── AFRICAN SPOTLIGHT (ADDED) ─── -->
+<section class="african-section">
+  <div style="max-width:1100px;margin:0 auto 32px;display:flex;align-items:baseline;justify-content:space-between">
+    <div>
+      <div class="section-tag">African Voices</div>
+      <div class="section-title" style="font-size:28px">Literature from the continent <em>the world is rediscovering</em></div>
+    </div>
+    <a href="explore.html?country=african" style="font-size:12px;color:var(--gold);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">See all →</a>
+  </div>
+  <div class="african-row" id="africanBooks"></div>
+</section>
+
+<!-- ─── SOUL RECOMMENDATIONS (ADDED — visible only when logged in) ─── -->
+<section class="soul-section" id="soulSection">
+  <div style="max-width:1100px;margin:0 auto 32px;display:flex;align-items:baseline;justify-content:space-between">
+    <div>
+      <div class="section-tag">Chosen for your soul</div>
+      <div class="section-title" style="font-size:26px">Books that match your <em id="soulArchetypeName">reading spirit</em></div>
+    </div>
+    <a href="ai-reading-soul.html" style="font-size:12px;color:var(--gold);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">View soul profile →</a>
+  </div>
+  <div class="soul-row" id="soulBooks"></div>
+</section>
+
+<!-- ─── RECENTLY PINNED ─── -->
+<section class="recent-section">
+  <div style="max-width:1100px;margin:0 auto 32px;display:flex;align-items:baseline;justify-content:space-between;">
+    <div>
+      <div class="section-tag" style="margin-bottom:8px">Pinned This Hour</div>
+      <div class="section-title" style="font-size:28px;">What the world is reading <em>right now</em></div>
+    </div>
+    <a href="explore.html" style="font-size:12px;color:var(--gold);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;">See all →</a>
+  </div>
+  <div class="recent-row" id="recent-books"></div>
+</section>
+
+<!-- ─── TESTIMONIALS (ADDED) ─── -->
+<section class="testimonials-section">
+  <div class="section-header" style="margin-bottom:40px">
+    <div class="section-tag">Reader voices</div>
+    <div class="section-title">What real readers say</div>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-quote">I found Tayeb Salih because of the world map. I am from Sudan and I had never read him. Global BookShelf showed me my own literature.</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:rgba(58,184,176,0.15)">🇸🇩</div>
+        <div>
+          <div class="testimonial-name">Amira H.</div>
+          <div class="testimonial-meta">Khartoum, Sudan · 847 books read</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">The soul quiz told me I was a Midnight Wanderer. Every book it recommended since then has broken something open in me.</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:rgba(124,111,212,0.15)">🇰🇷</div>
+        <div>
+          <div class="testimonial-name">Ji-woo K.</div>
+          <div class="testimonial-meta">Seoul, South Korea · 312 books read</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-quote">I translated a passage from Things Fall Apart into Swahili. Three weeks later 400 people had read my translation.</div>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:rgba(82,168,118,0.15)">🇹🇿</div>
+        <div>
+          <div class="testimonial-name">Baraka M.</div>
+          <div class="testimonial-meta">Dar es Salaam, Tanzania · Translator</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MOBILE APP (ADDED) ─── -->
+<section class="app-section">
+  <div class="app-inner">
+    <div class="app-text">
+      <div class="section-tag">Global BookShelf Mobile</div>
+      <div class="app-title">Your living library<br><em>in your pocket</em></div>
+      <div class="app-sub">The full platform — world map, soul recommendations, author universe, book clubs — on iOS and Android.</div>
+      <div class="app-badges">
+        <a href="#" class="app-badge" onclick="showToast('iOS app coming soon — join the waitlist below ✦');return false">
+          <span class="app-badge-icon">🍎</span>
+          <span><span class="app-badge-sub">Download on the</span><span class="app-badge-name">App Store</span></span>
+        </a>
+        <a href="#" class="app-badge" onclick="showToast('Android app coming soon — join the waitlist below ✦');return false">
+          <span class="app-badge-icon">▶</span>
+          <span><span class="app-badge-sub">Get it on</span><span class="app-badge-name">Google Play</span></span>
+        </a>
+      </div>
+    </div>
+    <div class="app-phone">
+      <div class="app-phone-screen">
+        <div class="app-phone-notch"></div>
+        <div class="app-phone-content">
+          <div class="apc-title">Global BookShelf</div>
+          <div class="apc-book"><div class="apc-cover" style="background:rgba(139,58,42,0.3)">🌿</div><div><div class="apc-info-title">The God of Small Things</div><div class="apc-info-meta">● 284,190 reading</div></div></div>
+          <div class="apc-book"><div class="apc-cover" style="background:rgba(42,74,106,0.3)">🌙</div><div><div class="apc-info-title">Season of Migration</div><div class="apc-info-meta">● 98,000 reading</div></div></div>
+          <div class="apc-book"><div class="apc-cover" style="background:rgba(74,42,106,0.3)">🌹</div><div><div class="apc-info-title">Things Fall Apart</div><div class="apc-info-meta">● 420,000 reading</div></div></div>
+          <div style="background:var(--gold);border-radius:8px;padding:6px;text-align:center;margin-top:7px;font-size:9px;color:var(--ink);font-weight:500">Discover my reading soul →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEWSLETTER (ADDED) ─── -->
+<section class="newsletter-section">
+  <div class="newsletter-inner">
+    <div class="section-tag">Stay connected</div>
+    <div class="newsletter-title">Be first when we <em>launch in your city</em></div>
+    <div class="newsletter-sub">Rolling out city by city — Dar es Salaam, Lagos, Nairobi, Cairo, Accra. Drop your email and we will tell you the moment your city goes live.</div>
+    <div class="newsletter-form">
+      <input class="newsletter-input" id="newsletterEmail" type="email" placeholder="your@email.com">
+      <button class="newsletter-btn" onclick="submitNewsletter()">Notify me</button>
+    </div>
+    <div class="newsletter-note">No spam. One email when your city launches. Unsubscribe anytime.</div>
+    <div id="newsletterMsg" style="margin-top:12px;font-size:13px;color:var(--gold);display:none"></div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-logo">Global BookShelf</div>
+  <div class="footer-links">
+    <a href="about.html">About</a>
+    <a href="authors.html">Authors</a>
+    <a href="about.html#publishers">Publishers</a>
+    <a href="schema-explorer.html">API</a>
+    <a href="about.html#privacy">Privacy</a>
+  </div>
+  <div class="footer-copy">© 2025 Global BookShelf. The World's Living Library.</div>
+</footer>
+
+<!-- Exit full-map button -->
+<button id="exitMapBtn" style="display:none;position:fixed;top:20px;right:20px;z-index:600;
+  padding:10px 20px;background:rgba(10,10,15,0.9);border:1px solid rgba(201,168,76,0.4);
+  border-radius:24px;color:var(--gold);font-family:var(--sans);font-size:13px;
+  cursor:pointer;backdrop-filter:blur(10px)" onclick="enterFullMap()">✕ Exit map</button>
+
+<!-- Toast -->
+<div id="gbsToast" class="gbs-toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+//  ORIGINAL DATA — unchanged from the original file
+// ═══════════════════════════════════════════════════════════
+const books = [
+  { title:"One Hundred Years of Solitude", author:"García Márquez", country:"Colombia", flag:"🇨🇴", genre:"Fiction", color:"#8B6B35", x:35, y:61, readers:1240, year:1967 },
+  { title:"Crime and Punishment", author:"Dostoevsky", country:"Russia", flag:"🇷🇺", genre:"Fiction", color:"#4A5568", x:55, y:18, readers:984, year:1866 },
+  { title:"Things Fall Apart", author:"Chinua Achebe", country:"Nigeria", flag:"🇳🇬", genre:"Fiction", color:"#7B5E3A", x:51, y:56, readers:672, year:1958 },
+  { title:"The Alchemist", author:"Paulo Coelho", country:"Brazil", flag:"🇧🇷", genre:"Fiction", color:"#C4913A", x:38, y:75, readers:2100, year:1988 },
+  { title:"Norwegian Wood", author:"Murakami", country:"Japan", flag:"🇯🇵", genre:"Fiction", color:"#4A6741", x:76, y:26, readers:1560, year:1987 },
+  { title:"Don Quixote", author:"Cervantes", country:"Spain", flag:"🇪🇸", genre:"Fiction", color:"#8B3A3A", x:47, y:24, readers:430, year:1605 },
+  { title:"Midnight's Children", author:"Rushdie", country:"India", flag:"🇮🇳", genre:"Fiction", color:"#A0522D", x:62, y:38, readers:780, year:1981 },
+  { title:"Beloved", author:"Toni Morrison", country:"USA", flag:"🇺🇸", genre:"Fiction", color:"#2C3E50", x:22, y:28, readers:1020, year:1987 },
+  { title:"The Trial", author:"Kafka", country:"Czechia", flag:"🇨🇿", genre:"Fiction", color:"#5A4A6A", x:52, y:21, readers:560, year:1925 },
+  { title:"Season of Migration", author:"Tayeb Salih", country:"Sudan", flag:"🇸🇩", genre:"Fiction", color:"#8B7355", x:54, y:52, readers:320, year:1966 },
+  { title:"Love in the Time of Cholera", author:"García Márquez", country:"Colombia", flag:"🇨🇴", genre:"Fiction", color:"#C2855A", x:33, y:57, readers:890, year:1985 },
+  { title:"Kokoro", author:"Natsume Soseki", country:"Japan", flag:"🇯🇵", genre:"Fiction", color:"#3D5A5E", x:74, y:24, readers:440, year:1914 },
+];
+
+const recentBooks = [
+  { title:"Dune", author:"Frank Herbert", flag:"🇺🇸", color:"#C4913A", readers:"3.2k", emoji:"🏜️" },
+  { title:"Pachinko", author:"Min Jin Lee", flag:"🇰🇷", color:"#4A6741", readers:"1.8k", emoji:"🎰" },
+  { title:"The Master and Margarita", author:"Bulgakov", flag:"🇷🇺", color:"#5A4A6A", readers:"2.1k", emoji:"😈" },
+  { title:"Half of a Yellow Sun", author:"Adichie", flag:"🇳🇬", color:"#C4803A", readers:"940", emoji:"☀️" },
+  { title:"The God of Small Things", author:"Roy", flag:"🇮🇳", color:"#8B6B35", readers:"1.4k", emoji:"🌿" },
+  { title:"Invisible Cities", author:"Calvino", flag:"🇮🇹", color:"#3A5A8B", readers:"1.1k", emoji:"🏛️" },
+  { title:"Anna Karenina", author:"Tolstoy", flag:"🇷🇺", color:"#6B3A3A", readers:"2.5k", emoji:"🌹" },
+  { title:"The Cairo Trilogy", author:"Mahfouz", flag:"🇪🇬", color:"#A09060", readers:"620", emoji:"🕌" },
+];
+
+const marqueeItems = [
+  ["🇿🇦 Cape Town","just started reading","Things Fall Apart"],
+  ["🇯🇵 Tokyo","just finished","Norwegian Wood"],
+  ["🇧🇷 São Paulo","pinned to their shelf","The Alchemist"],
+  ["🇬🇧 London","joined a book club for","Crime and Punishment"],
+  ["🇮🇳 Mumbai","left an annotation in","Midnight's Children"],
+  ["🇺🇸 New York","started reading","Beloved"],
+  ["🇲🇽 Mexico City","translated a passage from","Don Quixote"],
+  ["🇨🇳 Beijing","discovered through the map","Kokoro"],
+  ["🇫🇷 Paris","wrote a review for","Invisible Cities"],
+  ["🇰🇷 Seoul","recommended","Pachinko to 12 friends"],
+  ["🇹🇿 Dar es Salaam","just started reading","Season of Migration"],
+  ["🇳🇬 Lagos","became a patron of","Adaeze Okonkwo"],
+];
+
+// African books fallback data
+const AFRICAN_BOOKS = [
+  { id:'a1', title:'Things Fall Apart', author:'Chinua Achebe', emoji:'🌿', color:'#7B5E3A', readers:'420,000' },
+  { id:'a2', title:'Americanah', author:'Chimamanda Ngozi Adichie', emoji:'✈️', color:'#8B4A2A', readers:'290,000' },
+  { id:'a3', title:'Season of Migration', author:'Tayeb Salih', emoji:'🏺', color:'#8B7355', readers:'98,000' },
+  { id:'a4', title:"Weep Not, Child", author:"Ngũgĩ wa Thiong'o", emoji:'🌱', color:'#3A6A3A', readers:'84,000' },
+  { id:'a5', title:'So Long a Letter', author:'Mariama Bâ', emoji:'✉️', color:'#6A4A8B', readers:'62,000' },
+  { id:'a6', title:'Half of a Yellow Sun', author:'Chimamanda Ngozi Adichie', emoji:'☀️', color:'#C4803A', readers:'180,000' },
+  { id:'a7', title:'Purple Hibiscus', author:'Chimamanda Ngozi Adichie', emoji:'🌺', color:'#8B2A6A', readers:'140,000' },
+  { id:'a8', title:'The Beautiful Ones Are Not Yet Born', author:'Ayi Kwei Armah', emoji:'🌍', color:'#3A5A7B', readers:'48,000' },
+];
+
+// ═══════════════════════════════════════════════════════════
+//  ORIGINAL RENDER FUNCTIONS — unchanged
+// ═══════════════════════════════════════════════════════════
+
+// ─── RENDER PINS ───
+const pinsLayer = document.getElementById('pins-layer');
+const mapContainer = document.getElementById('map-container');
+let currentGenre = 'All';
+
+function renderPins(bookList) {
+  pinsLayer.innerHTML = '';
+  const filtered = currentGenre === 'All' ? bookList
+    : bookList.filter(b => b.genre && b.genre.toLowerCase().includes(currentGenre.toLowerCase()));
+  filtered.forEach((b, i) => {
+    const pin = document.createElement('div');
+    pin.className = 'book-pin';
+    pin.style.cssText = `left:${b.x}%;top:${b.y}%;animation-delay:${i * 0.12 + 0.5}s`;
+    pin.innerHTML = `
+      <div class="pin-body">
+        <div class="pin-book" style="background:${b.color}"></div>
+        <div class="pin-spine" style="background:rgba(0,0,0,0.3)"></div>
+        <div class="pin-tip" style="border-top-color:${b.color}"></div>
+        <div class="pin-pulse" style="color:${b.color}"></div>
+      </div>
+      <div class="book-tooltip">
+        <div class="tooltip-cover" style="background:${b.color}20;border:1px solid ${b.color}40">
+          <span style="font-size:32px">${b.flag}</span>
+        </div>
+        <div class="tooltip-title">${b.title}</div>
+        <div class="tooltip-author">${b.author}</div>
+        <div class="tooltip-meta">
+          <span class="tooltip-country">${b.country}</span>
+          <span class="tooltip-readers">● ${b.readers.toLocaleString()} reading</span>
+        </div>
+      </div>`;
+    pin.querySelector('.pin-body').onclick = () => {
+      window.location.href = 'book-detail.html';
+    };
+    pinsLayer.appendChild(pin);
+  });
+}
+renderPins(books);
+
+// ─── RENDER READER DOTS ─── (20 static blinking dots)
+const readersLayer = document.getElementById('readers-layer');
+const dotPositions = [
+  [28,32],[42,28],[57,45],[66,35],[71,22],[44,68],[36,74],[53,58],
+  [61,42],[47,26],[55,20],[63,28],[50,50],[73,30],[37,62],[29,45],
+  [52,56],[48,42],[65,48],[40,36],
+];
+dotPositions.forEach((pos, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'reader-dot';
+  dot.style.cssText = `left:${pos[0]}%;top:${pos[1]}%;animation-delay:${i * 0.4}s`;
+  readersLayer.appendChild(dot);
+});
+
+// ─── TIME SLIDER ───
+const slider = document.getElementById('timeSlider');
+const yearLabel = document.getElementById('timeYear');
+const tooltip = document.getElementById('timeTooltip');
+
+slider.addEventListener('input', () => {
+  const val = slider.value;
+  yearLabel.textContent = val;
+  if (tooltip) tooltip.textContent = val;
+  const age = (2024 - parseInt(val)) / 224;
+  document.getElementById('world-map').style.opacity = 0.4 + (1 - age) * 0.35;
+  // Filter pins by era
+  const filtered = books.filter(b => b.year <= parseInt(val));
+  renderPins(filtered);
+});
+
+// ─── GENRE FILTERS — now wired to actually filter the map ───
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentGenre = chip.dataset.genre || 'All';
+    renderPins(books);
+    renderRecentBooks(currentGenre);
+  });
+});
+
+// ─── LIVE COUNTER ───
+let counter = 2847;
+setInterval(async () => {
+  try {
+    const d = await API.get('/api/live/readers');
+    counter = d.total || counter;
+  } catch {
+    counter += Math.floor(Math.random() * 6) - 2;
+    if (counter < 2800) counter = 2800;
+    if (counter > 2950) counter = 2950;
+  }
+  document.getElementById('stat1').textContent = counter.toLocaleString();
+}, 3200);
+
+// ─── MARQUEE — triple-duplicated for seamless loop on any screen ───
+const marqueeEl = document.getElementById('marquee');
+const allItems = [...marqueeItems, ...marqueeItems, ...marqueeItems];
+allItems.forEach(([loc, action, book]) => {
+  const el = document.createElement('div');
+  el.className = 'marquee-item';
+  el.innerHTML = `<span>${loc}</span> ${action} — <em onclick="window.location.href='book-detail.html'">${book}</em>`;
+  marqueeEl.appendChild(el);
+});
+
+// Try to load real events from server
+(async () => {
+  try {
+    const data = await API.get('/api/events/recent');
+    if (data.events && data.events.length >= 5) {
+      marqueeEl.innerHTML = '';
+      const live = [...data.events, ...data.events, ...data.events];
+      live.forEach(e => {
+        const el = document.createElement('div');
+        el.className = 'marquee-item';
+        el.innerHTML = `<span>🌍 ${e.city || e.country || 'Global'}</span> ${e.action || 'is reading'} — <em onclick="window.location.href='book-detail.html'">${e.book_title || 'a book'}</em>`;
+        marqueeEl.appendChild(el);
+      });
+    }
+  } catch { /* keep fallback */ }
+})();
+
+// ─── RECENT BOOKS ───
+function renderRecentBooks(genre) {
+  const recentEl = document.getElementById('recent-books');
+  recentEl.innerHTML = '';
+  let list = recentBooks;
+  if (genre && genre !== 'All') {
+    // In production filter from API; for now show all
+    list = recentBooks;
+  }
+  // Try real API first
+  API.get('/api/books/trending/week').then(data => {
+    if (data.books && data.books.length) {
+      recentEl.innerHTML = '';
+      data.books.slice(0,8).forEach((b, i) => {
+        const colors = ['#8B3A2A','#7B4A1A','#2A4A6A','#3A5A2A','#4A2A6A','#5A3A1A','#1A5A4A','#4A4A6A'];
+        const col = b.color || colors[i % colors.length];
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.onclick = () => window.location.href = 'book-detail.html?id=' + b.id;
+        card.innerHTML = `
+          <div class="book-cover" style="background:${col}22;border:1px solid ${col}44">
+            <div class="book-cover-spine" style="background:${col}60"></div>
+            <div class="book-cover-title">${b.title}</div>
+            <div style="position:absolute;bottom:8px;right:10px;font-size:22px;opacity:0.7">${b.cover_emoji||'📖'}</div>
+          </div>
+          <div class="book-card-title">${b.title}</div>
+          <div class="book-card-author">${b.author}</div>
+          <div class="book-card-meta">
+            <span class="book-card-flag">${b.flag||'🌍'}</span>
+            <span class="book-card-readers">● ${(b.reader_count||0).toLocaleString()}</span>
+          </div>`;
+        recentEl.appendChild(card);
+      });
+    }
+  }).catch(() => {
+    // Fallback to static data
+    list.forEach(b => {
+      const card = document.createElement('div');
+      card.className = 'book-card';
+      card.onclick = () => window.location.href = 'book-detail.html';
+      card.innerHTML = `
+        <div class="book-cover" style="background:${b.color}22;border:1px solid ${b.color}44">
+          <div class="book-cover-spine" style="background:${b.color}60"></div>
+          <div class="book-cover-title">${b.title}</div>
+          <div style="position:absolute;bottom:8px;right:10px;font-size:24px;opacity:0.7">${b.emoji}</div>
+        </div>
+        <div class="book-card-title">${b.title}</div>
+        <div class="book-card-author">${b.author}</div>
+        <div class="book-card-meta">
+          <span class="book-card-flag">${b.flag}</span>
+          <span class="book-card-readers">● ${b.readers} reading</span>
+        </div>`;
+      recentEl.appendChild(card);
+    });
+  });
+}
+renderRecentBooks();
+
+// ═══════════════════════════════════════════════════════════
+//  ADDED — everything missing from the original
+// ═══════════════════════════════════════════════════════════
+
+// ─── TOAST ───
+function showToast(msg) {
+  const t = document.getElementById('gbsToast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ─── FULL MAP MODE ───
+// ── HANDLE OAUTH RETURN — pick up token from URL ──
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('oauth_token')) {
+    // API.js handles this automatically — just update nav
+    setTimeout(() => { API.updateNav(); onLoginSuccess({}); }, 200);
+  }
+})();
+
+function enterFullMap() {
+  const hero = document.querySelector('.hero');
+  const btn  = document.getElementById('exitMapBtn');
+  const content = document.querySelector('.hero-content');
+  const statsBar = document.querySelector('.stats-bar');
+  const hint = document.querySelector('.scroll-hint');
+  if (hero.classList.contains('fullmap')) {
+    hero.classList.remove('fullmap');
+    hero.style.cssText = '';
+    document.body.style.overflow = '';
+    if (content)  content.style.opacity  = '1';
+    if (statsBar) statsBar.style.opacity = '1';
+    if (hint)     hint.style.opacity     = '0.4';
+    btn.style.display = 'none';
+  } else {
+    hero.classList.add('fullmap');
+    hero.style.cssText = 'position:fixed;inset:0;z-index:500;height:100vh';
+    document.body.style.overflow = 'hidden';
+    if (content)  content.style.opacity  = '0';
+    if (statsBar) statsBar.style.opacity = '0';
+    if (hint)     hint.style.display     = 'none';
+    btn.style.display = 'block';
+    document.getElementById('world-map').style.width = '140%';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.querySelector('.hero.fullmap')) enterFullMap();
+});
+
+// ─── SEARCH DROPDOWN ───
+const searchInput = document.getElementById('searchInput');
+const searchDropdown = document.getElementById('searchDropdown');
+let searchTimer = null;
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearTimeout(searchTimer);
+  if (!q || q.length < 2) { searchDropdown.classList.remove('show'); return; }
+  searchTimer = setTimeout(() => doSearch(q), 350);
+});
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchWrap').contains(e.target))
+    searchDropdown.classList.remove('show');
+});
+
+async function doSearch(q) {
+  searchDropdown.classList.add('show');
+  searchDropdown.innerHTML = '<div class="search-empty">Searching…</div>';
+  try {
+    const data = await API.get('/api/search?q=' + encodeURIComponent(q) + '&limit=6');
+    const results = data.results?.books || data.books || [];
+    if (!results.length) {
+      searchDropdown.innerHTML = `<div class="search-empty">No results for "${q}"</div>`; return;
+    }
+    searchDropdown.innerHTML = results.slice(0,5).map(b => `
+      <div class="search-result" onclick="window.location.href='book-detail.html?id=${b.id}'">
+        <div class="sr-icon">${b.cover_emoji||'📖'}</div>
+        <div><div class="sr-title">${b.title}</div><div class="sr-sub">${b.author||''}</div></div>
+        <div class="sr-type">Book</div>
+      </div>`).join('');
+  } catch {
+    // Fallback — search static books array
+    const q2 = q.toLowerCase();
+    const found = books.filter(b => b.title.toLowerCase().includes(q2) || b.author.toLowerCase().includes(q2));
+    searchDropdown.innerHTML = found.length
+      ? found.slice(0,5).map(b => `
+          <div class="search-result" onclick="window.location.href='book-detail.html'">
+            <div class="sr-icon">${b.flag}</div>
+            <div><div class="sr-title">${b.title}</div><div class="sr-sub">${b.author}</div></div>
+            <div class="sr-type">Book</div>
+          </div>`).join('')
+      : `<div class="search-empty">No results for "${q}"</div>`;
+  }
+}
+
+// ─── STATS — live from API ───
+(async () => {
+  try {
+    const s = await API.get('/api/admin/stats');
+    if (s.total_books)   document.getElementById('statBooks').textContent    = (s.total_books/1000000).toFixed(1)+'M';
+    if (s.total_clubs)   document.getElementById('statClubs').textContent    = s.total_clubs.toLocaleString();
+  } catch { /* keep hardcoded fallback values */ }
+})();
+
+// ─── NAV — show user name after login ───
+function updateNavState() {
+  const session = typeof API !== 'undefined' && API.getSession ? API.getSession() : null;
+  const signIn  = document.getElementById('navSignIn');
+  const joinFree= document.getElementById('navJoinFree');
+  const menu    = document.getElementById('navUserMenu');
+  const avatar  = document.getElementById('navUserAvatar');
+  const nameEl  = document.getElementById('navUserName');
+  if (session && session.user) {
+    if (signIn)  signIn.style.display  = 'none';
+    if (joinFree)joinFree.style.display = 'none';
+    if (menu)    menu.style.display     = 'flex';
+    const name = session.user.display_name || 'Reader';
+    if (avatar)  avatar.textContent = name[0].toUpperCase();
+    if (nameEl)  nameEl.textContent = name;
+    loadSoulRecommendations();
+  } else {
+    if (signIn)  signIn.style.display  = '';
+    if (joinFree)joinFree.style.display = '';
+    if (menu)    menu.style.display     = 'none';
+  }
+}
+function onLoginSuccess(data) {
+  updateNavState();
+  showToast('✦ Welcome back, <strong style="color:var(--gold)">' + (data?.user?.display_name || 'Reader') + '</strong>');
+}
+function doSignOut() {
+  if (typeof API !== 'undefined' && API.logout) API.logout();
+  updateNavState();
+  showToast('Signed out successfully');
+}
+updateNavState();
+
+// ─── AFRICAN SPOTLIGHT ───
+(async () => {
+  const container = document.getElementById('africanBooks');
+  let books2 = AFRICAN_BOOKS;
+  try {
+    const data = await API.get('/api/books?country=NG,TZ,KE,GH,ZA,EG,SN,ET,SD&sort=readers&limit=10');
+    if (data.books && data.books.length >= 3) books2 = data.books;
+  } catch { /* use fallback */ }
+  container.innerHTML = '';
+  books2.forEach((b, i) => {
+    const colors = ['#7B5E3A','#8B4A2A','#3A6A3A','#6A4A8B','#C4803A','#2A4A6A','#8B2A6A','#3A5A7B'];
+    const col = b.color || colors[i % colors.length];
+    const card = document.createElement('div');
+    card.className = 'african-card';
+    card.onclick = () => window.location.href = 'book-detail.html?id=' + (b.id||'');
+    card.innerHTML = `
+      <div class="african-cover" style="background:${col}22">
+        <div class="african-cover-bar" style="background:${col}"></div>
+        <span>${b.emoji || b.cover_emoji || '📖'}</span>
+      </div>
+      <div class="african-info">
+        <div class="african-title">${b.title}</div>
+        <div class="african-author">${b.author}</div>
+        <div class="african-readers">● ${b.readers || (b.reader_count||0).toLocaleString()}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+})();
+
+// ─── SOUL RECOMMENDATIONS (shown only when logged in) ───
+async function loadSoulRecommendations() {
+  // Check localStorage first (works even when server is offline)
+  let localProfile = null;
+  try {
+    const raw = localStorage.getItem('gbs_soul_profile');
+    if (raw) localProfile = JSON.parse(raw);
+  } catch(e) {}
+
+  try {
+    const [profData, recData] = await Promise.all([
+      API.get('/api/soul/profile'),
+      API.get('/api/soul/recommendations'),
+    ]);
+    const profile = profData.profile || localProfile;
+    const recs    = recData.recommendations || [];
+    if (!profile) return;
+    const archetypeEl = document.getElementById('soulArchetypeName');
+    if (archetypeEl && profile.archetype) archetypeEl.textContent = profile.archetype;
+    document.getElementById('soulSection').classList.add('visible');
+    if (!recs.length) return;
+    const booksEl = document.getElementById('soulBooks');
+    booksEl.innerHTML = '';
+    const colors = ['#8B3A2A','#2A4A6A','#4A2A6A','#3A5A2A','#5A3A1A','#1A5A4A'];
+    recs.slice(0,6).forEach((b, i) => {
+      const col = b.color || colors[i % colors.length];
+      const card = document.createElement('div');
+      card.className = 'soul-card';
+      card.onclick = () => window.location.href = 'book-detail.html?id=' + b.id;
+      card.innerHTML = `
+        <div class="soul-cover" style="background:${col}28">
+          <div class="soul-cover-bar" style="background:${col}"></div>
+          <span style="font-size:28px">${b.cover_emoji||'📖'}</span>
+          <div class="soul-match">${Math.round((b.match_score||0.85)*100)}%</div>
+        </div>
+        <div class="soul-info">
+          <div class="soul-title">${b.title}</div>
+          <div class="soul-author">${b.author}</div>
+        </div>`;
+      booksEl.appendChild(card);
+    });
+  } catch { /* user has no soul profile yet */ }
+}
+
+// ─── NEWSLETTER ───
+async function submitNewsletter() {
+  const email = document.getElementById('newsletterEmail').value.trim();
+  const msg   = document.getElementById('newsletterMsg');
+  if (!email || !email.includes('@')) { showToast('Enter a valid email address'); return; }
+  try { await API.post('/api/notify', { email, source: 'homepage' }); } catch { /* silent */ }
+  document.getElementById('newsletterEmail').value = '';
+  msg.textContent = '✦ You are on the list. We will email you when your city launches.';
+  msg.style.display = 'block';
+  showToast('✦ You are on the waitlist!');
+}
+
+// ─── NAV scroll effect ───
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  if (nav) nav.style.background = window.scrollY > 40
+    ? 'rgba(10,10,15,0.98)'
+    : 'linear-gradient(to bottom, rgba(10,10,15,0.98), rgba(10,10,15,0))';
+}, { passive: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explore Books — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;
+  --pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);
+  --gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);
+  --teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+/* NAV */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);
+  backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:0;list-style:none}
+.nav-links a{display:block;padding:8px 16px;font-size:12px;color:var(--pg3);text-decoration:none;letter-spacing:.05em;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--pg)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{padding:7px 16px;border:1px solid rgba(245,239,227,.18);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-primary{padding:7px 18px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer}
+/* NAV USER STATE */
+#navUserMenu{display:none;align-items:center;gap:8px}
+#navUserAvatar{width:28px;height:28px;border-radius:50%;background:var(--goldd);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold)}
+#navUserName{font-size:13px;color:var(--pg)}
+#navSignOutBtn{font-size:11px;color:var(--pg3);cursor:pointer;padding:5px 10px;border:1px solid rgba(245,239,227,.12);border-radius:3px;background:transparent}
+/* HERO */
+.hero{padding:56px 2.5rem 40px;background:linear-gradient(to bottom,var(--ink2),var(--ink));border-bottom:1px solid rgba(245,239,227,.06)}
+.hero-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-title{font-family:var(--serif);font-size:clamp(32px,5vw,60px);font-weight:300;color:var(--pg);margin-bottom:10px;line-height:1.1}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:14px;color:var(--pg3);max-width:500px;line-height:1.7}
+/* SEARCH */
+.search-section{padding:28px 2.5rem;background:var(--ink2);border-bottom:1px solid rgba(245,239,227,.06)}
+.search-wrap{max-width:1100px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.search-box{flex:1;min-width:240px;position:relative}
+.search-box input{width:100%;padding:12px 18px 12px 42px;background:rgba(245,239,227,.05);border:1px solid rgba(245,239,227,.12);border-radius:24px;color:var(--pg);font-family:var(--sans);font-size:13px;outline:none;transition:border-color .2s}
+.search-box input:focus{border-color:var(--goldb)}
+.search-box input::placeholder{color:var(--pg3)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:15px;pointer-events:none}
+.sort-select{padding:11px 16px;background:rgba(245,239,227,.05);border:1px solid rgba(245,239,227,.12);border-radius:24px;color:var(--pg);font-family:var(--sans);font-size:13px;outline:none;cursor:pointer}
+.sort-select option{background:var(--ink2)}
+/* FILTERS */
+.filters-section{padding:20px 2.5rem;background:var(--ink);border-bottom:1px solid rgba(245,239,227,.06)}
+.filters-inner{max-width:1100px;margin:0 auto}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.filter-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg3);min-width:60px}
+.filter-chip{padding:6px 14px;border:1px solid rgba(245,239,227,.12);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.filter-chip:hover,.filter-chip.active{border-color:var(--gold);color:var(--gold);background:var(--goldd)}
+.filter-chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.results-info{font-size:12px;color:var(--pg3);padding:12px 2.5rem;max-width:1100px;margin:0 auto}
+/* GRID */
+.books-section{padding:32px 2.5rem 60px;min-height:400px}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+/* BOOK CARD */
+.book-card{cursor:pointer;transition:transform .2s}
+.book-card:hover{transform:translateY(-6px)}
+.book-cover{width:100%;aspect-ratio:2/3;border-radius:4px 7px 7px 4px;position:relative;overflow:hidden;box-shadow:4px 6px 20px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.book-spine{position:absolute;left:0;top:0;bottom:0;width:10px;border-radius:4px 0 0 4px}
+.book-emoji{font-size:32px;position:absolute;bottom:10px;right:10px;opacity:.7}
+.book-title-overlay{font-family:var(--serif);font-size:13px;font-weight:500;color:rgba(255,255,255,.9);text-align:center;padding:0 14px;line-height:1.4;text-shadow:0 2px 8px rgba(0,0,0,.5);z-index:1}
+.book-meta-title{font-family:var(--serif);font-size:14px;color:var(--pg);margin-bottom:3px;line-height:1.3}
+.book-meta-author{font-size:11px;color:var(--pg3);font-style:italic;margin-bottom:5px}
+.book-meta-row{display:flex;align-items:center;gap:6px}
+.book-country{font-size:12px}
+.book-readers{font-size:10px;color:var(--teal)}
+.book-soul-match{font-size:10px;color:var(--gold);margin-left:auto}
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--pg3)}
+.empty-icon{font-size:40px;margin-bottom:14px}
+.empty-title{font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:8px}
+.empty-sub{font-size:14px;line-height:1.7;max-width:360px;margin:0 auto 20px}
+/* LOAD MORE */
+.load-more-wrap{text-align:center;padding:32px 0}
+.btn-load-more{padding:12px 32px;background:transparent;border:1px solid var(--goldb);border-radius:24px;color:var(--gold);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-load-more:hover{background:var(--goldd)}
+.btn-load-more:disabled{opacity:.4;cursor:not-allowed}
+/* SOUL BANNER */
+.soul-banner{max-width:1100px;margin:0 auto 28px;background:var(--goldd);border:1px solid var(--goldb);border-radius:10px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.soul-banner-text{font-size:13px;color:var(--pg2);line-height:1.5}
+.soul-banner-text strong{color:var(--gold)}
+.soul-banner-btn{padding:8px 18px;background:var(--gold);border:none;border-radius:16px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    Global <span style="color:var(--gold)">BookShelf</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="explore.html" class="active">Explore</a></li>
+    <li><a href="community-hub.html">Communities</a></li>
+    <li><a href="authors.html">Authors</a></li>
+    <li><a href="languages.html">Languages</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(onLogin)">Sign In</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <div id="navUserMenu">
+      <div id="navUserAvatar">?</div>
+      <span id="navUserName"></span>
+      <button id="navSignOutBtn" onclick="API.logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Global BookShelf — Explore</div>
+  <div class="hero-title">Every book.<br><em>Every world.</em></div>
+  <div class="hero-sub">Browse <span id="totalCount">4.2 million</span> books from every culture, language, and century.</div>
+</div>
+
+<div class="search-section">
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search by title, author, or theme…" autocomplete="off">
+    </div>
+    <select class="sort-select" id="sortSelect">
+      <option value="readers">Most read</option>
+      <option value="rating">Highest rated</option>
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="title">A — Z</option>
+    </select>
+  </div>
+</div>
+
+<div class="filters-section">
+  <div class="filters-inner">
+    <div class="filter-row">
+      <span class="filter-label">Genre</span>
+      <button class="filter-chip active" data-filter="genre" data-value="">All genres</button>
+      <button class="filter-chip" data-filter="genre" data-value="Fiction"><span class="dot" style="background:#e05c4a"></span>Fiction</button>
+      <button class="filter-chip" data-filter="genre" data-value="Non-fiction"><span class="dot" style="background:#3ab8b0"></span>Non-fiction</button>
+      <button class="filter-chip" data-filter="genre" data-value="Poetry"><span class="dot" style="background:#a78bdd"></span>Poetry</button>
+      <button class="filter-chip" data-filter="genre" data-value="Philosophy"><span class="dot" style="background:#d4873a"></span>Philosophy</button>
+      <button class="filter-chip" data-filter="genre" data-value="History"><span class="dot" style="background:#6dbf7e"></span>History</button>
+      <button class="filter-chip" data-filter="genre" data-value="Science"><span class="dot" style="background:#5599dd"></span>Science</button>
+      <button class="filter-chip" data-filter="genre" data-value="Magical Realism"><span class="dot" style="background:#c9a84c"></span>Magical Realism</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Region</span>
+      <button class="filter-chip active" data-filter="region" data-value="">All regions</button>
+      <button class="filter-chip" data-filter="region" data-value="africa">🌍 Africa</button>
+      <button class="filter-chip" data-filter="region" data-value="asia">🌏 Asia</button>
+      <button class="filter-chip" data-filter="region" data-value="americas">🌎 Americas</button>
+      <button class="filter-chip" data-filter="region" data-value="europe">🏛 Europe</button>
+      <button class="filter-chip" data-filter="region" data-value="middle-east">🕌 Middle East</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Era</span>
+      <button class="filter-chip active" data-filter="era" data-value="">All time</button>
+      <button class="filter-chip" data-filter="era" data-value="2010-2024">2010s–Now</button>
+      <button class="filter-chip" data-filter="era" data-value="1990-2009">1990s–2000s</button>
+      <button class="filter-chip" data-filter="era" data-value="1960-1989">1960s–80s</button>
+      <button class="filter-chip" data-filter="era" data-value="1900-1959">Early 20th C</button>
+      <button class="filter-chip" data-filter="era" data-value="0-1899">Classical</button>
+    </div>
+  </div>
+</div>
+
+<div style="padding:14px 2.5rem;border-bottom:1px solid rgba(245,239,227,.06)">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">
+    <div id="resultsInfo" style="font-size:12px;color:var(--pg3)">Loading books…</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:11px;color:var(--pg3)">View:</span>
+      <button onclick="setView('grid')" id="viewGrid" style="padding:4px 10px;background:var(--goldd);border:1px solid var(--goldb);border-radius:5px;color:var(--gold);font-family:var(--sans);font-size:11px;cursor:pointer">Grid</button>
+      <button onclick="setView('list')" id="viewList" style="padding:4px 10px;background:transparent;border:1px solid rgba(245,239,227,.12);border-radius:5px;color:var(--pg3);font-family:var(--sans);font-size:11px;cursor:pointer">List</button>
+    </div>
+  </div>
+</div>
+
+<div class="books-section">
+  <div id="soulBanner" style="display:none" class="soul-banner">
+    <div class="soul-banner-text">✦ Showing books matched to your <strong id="archetypeName">reading soul</strong> — <span id="matchCount">0</span> books chosen for you</div>
+    <button class="soul-banner-btn" onclick="document.getElementById('soulBanner').style.display='none';loadBooks()">Show all books</button>
+  </div>
+  <div class="books-grid" id="booksGrid"></div>
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">Load more books →</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── STATE ──
+let currentFilters = { genre:'', region:'', era:'', search:'', sort:'readers' };
+let currentPage    = 0;
+let totalBooks     = 0;
+const LIMIT        = 24;
+const REGION_MAP   = {
+  africa:      ['NG','TZ','KE','GH','ZA','EG','SN','ET','SD','CM','UG','RW','CI','ML','BF'],
+  asia:        ['IN','CN','JP','KR','ID','TH','PH','VN','BD','PK','LK','MM','NP'],
+  americas:    ['US','CA','MX','BR','CO','AR','CL','PE','VE','CU'],
+  europe:      ['GB','FR','DE','ES','IT','RU','PL','NL','SE','NO','PT','GR','CZ','HU'],
+  'middle-east':['IR','IQ','SA','AE','TR','IL','JO','LB','SY','YE'],
+};
+const DEMO_BOOKS = [
+  {id:'d1',title:'Things Fall Apart',author:'Chinua Achebe',origin_country:'NG',flag:'🇳🇬',color:'#7B5E3A',emoji:'🌿',reader_count:420000,published_year:1958,genres:['Fiction']},
+  {id:'d2',title:'Americanah',author:'Chimamanda Ngozi Adichie',origin_country:'NG',flag:'🇳🇬',color:'#8B4A2A',emoji:'✈️',reader_count:290000,published_year:2013,genres:['Fiction']},
+  {id:'d3',title:'One Hundred Years of Solitude',author:'Gabriel García Márquez',origin_country:'CO',flag:'🇨🇴',color:'#8B6B35',emoji:'🌀',reader_count:510000,published_year:1967,genres:['Fiction','Magical Realism']},
+  {id:'d4',title:'Norwegian Wood',author:'Haruki Murakami',origin_country:'JP',flag:'🇯🇵',color:'#4A6741',emoji:'🌲',reader_count:380000,published_year:1987,genres:['Fiction']},
+  {id:'d5',title:'The God of Small Things',author:'Arundhati Roy',origin_country:'IN',flag:'🇮🇳',color:'#8B6B35',emoji:'🌿',reader_count:284000,published_year:1997,genres:['Fiction']},
+  {id:'d6',title:"Midnight's Children",author:'Salman Rushdie',origin_country:'IN',flag:'🇮🇳',color:'#A0522D',emoji:'🌙',reader_count:180000,published_year:1981,genres:['Fiction','Magical Realism']},
+  {id:'d7',title:'Beloved',author:'Toni Morrison',origin_country:'US',flag:'🇺🇸',color:'#2C3E50',emoji:'🌹',reader_count:320000,published_year:1987,genres:['Fiction']},
+  {id:'d8',title:'Season of Migration to the North',author:'Tayeb Salih',origin_country:'SD',flag:'🇸🇩',color:'#8B7355',emoji:'🏺',reader_count:98000,published_year:1966,genres:['Fiction']},
+  {id:'d9',title:'Half of a Yellow Sun',author:'Chimamanda Ngozi Adichie',origin_country:'NG',flag:'🇳🇬',color:'#C4803A',emoji:'☀️',reader_count:210000,published_year:2006,genres:['Fiction']},
+  {id:'d10',title:'Pachinko',author:'Min Jin Lee',origin_country:'KR',flag:'🇰🇷',color:'#4A6741',emoji:'🎰',reader_count:220000,published_year:2017,genres:['Fiction']},
+  {id:'d11',title:'The Cairo Trilogy',author:'Naguib Mahfouz',origin_country:'EG',flag:'🇪🇬',color:'#A09060',emoji:'🕌',reader_count:125000,published_year:1956,genres:['Fiction']},
+  {id:'d12',title:'Purple Hibiscus',author:'Chimamanda Ngozi Adichie',origin_country:'NG',flag:'🇳🇬',color:'#8B2A6A',emoji:'🌺',reader_count:140000,published_year:2003,genres:['Fiction']},
+  {id:'d13',title:'Weep Not, Child',author:"Ngũgĩ wa Thiong'o",origin_country:'KE',flag:'🇰🇪',color:'#3A6A3A',emoji:'🌱',reader_count:84000,published_year:1964,genres:['Fiction']},
+  {id:'d14',title:'So Long a Letter',author:'Mariama Bâ',origin_country:'SN',flag:'🇸🇳',color:'#6A4A8B',emoji:'✉️',reader_count:62000,published_year:1979,genres:['Fiction']},
+  {id:'d15',title:'Crime and Punishment',author:'Fyodor Dostoevsky',origin_country:'RU',flag:'🇷🇺',color:'#4A5568',emoji:'⚖️',reader_count:560000,published_year:1866,genres:['Fiction']},
+  {id:'d16',title:'Don Quixote',author:'Miguel de Cervantes',origin_country:'ES',flag:'🇪🇸',color:'#8B3A3A',emoji:'⚔️',reader_count:340000,published_year:1605,genres:['Fiction']},
+  {id:'d17',title:'The Alchemist',author:'Paulo Coelho',origin_country:'BR',flag:'🇧🇷',color:'#C4913A',emoji:'⭐',reader_count:820000,published_year:1988,genres:['Fiction']},
+  {id:'d18',title:'Invisible Cities',author:'Italo Calvino',origin_country:'IT',flag:'🇮🇹',color:'#3A5A8B',emoji:'🏛️',reader_count:190000,published_year:1972,genres:['Fiction']},
+  {id:'d19',title:'The 48 Laws of Power',author:'Robert Greene',origin_country:'US',flag:'🇺🇸',color:'#1A1A2A',emoji:'👑',reader_count:640000,published_year:1998,genres:['Non-fiction','Philosophy']},
+  {id:'d20',title:'Sapiens',author:'Yuval Noah Harari',origin_country:'IL',flag:'🇮🇱',color:'#3A5A6A',emoji:'🦴',reader_count:720000,published_year:2011,genres:['Non-fiction','History']},
+  {id:'d21',title:'The Trial',author:'Franz Kafka',origin_country:'CZ',flag:'🇨🇿',color:'#5A4A6A',emoji:'🚪',reader_count:280000,published_year:1925,genres:['Fiction']},
+  {id:'d22',title:'Kokoro',author:'Natsume Soseki',origin_country:'JP',flag:'🇯🇵',color:'#3D5A5E',emoji:'🌸',reader_count:145000,published_year:1914,genres:['Fiction']},
+  {id:'d23',title:'Anna Karenina',author:'Leo Tolstoy',origin_country:'RU',flag:'🇷🇺',color:'#6B3A3A',emoji:'🌹',reader_count:410000,published_year:1878,genres:['Fiction']},
+  {id:'d24',title:'Thinking, Fast and Slow',author:'Daniel Kahneman',origin_country:'US',flag:'🇺🇸',color:'#2A4A6A',emoji:'🧠',reader_count:380000,published_year:2011,genres:['Non-fiction','Science']},
+];
+
+// ── NAV ──
+function onLogin(data) {
+  updateNav();
+  loadBooks();
+}
+function updateNav() {
+  const s = API.getSession();
+  const si = document.getElementById('navSignIn');
+  const jf = document.getElementById('navJoinFree');
+  const um = document.getElementById('navUserMenu');
+  const ua = document.getElementById('navUserAvatar');
+  const un = document.getElementById('navUserName');
+  if (s && s.user) {
+    if(si) si.style.display='none';
+    if(jf) jf.style.display='none';
+    if(um) um.style.display='flex';
+    const name = s.user.display_name||'Reader';
+    if(ua) ua.textContent=name[0].toUpperCase();
+    if(un) un.textContent=name;
+  } else {
+    if(si) si.style.display='';
+    if(jf) jf.style.display='';
+    if(um) um.style.display='none';
+  }
+}
+
+// ── FILTER CHIPS ──
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const filterType = chip.dataset.filter;
+    document.querySelectorAll(`.filter-chip[data-filter="${filterType}"]`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilters[filterType] = chip.dataset.value;
+    currentPage = 0;
+    loadBooks();
+  });
+});
+
+// ── SEARCH ──
+let searchTimer = null;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  currentFilters.search = e.target.value.trim();
+  searchTimer = setTimeout(() => { currentPage = 0; loadBooks(); }, 400);
+});
+
+// ── SORT ──
+document.getElementById('sortSelect').addEventListener('change', e => {
+  currentFilters.sort = e.target.value;
+  currentPage = 0;
+  loadBooks();
+});
+
+// ── VIEW MODE ──
+let viewMode = 'grid';
+function setView(mode) {
+  viewMode = mode;
+  const grid = document.getElementById('booksGrid');
+  const bg   = document.getElementById('viewGrid');
+  const bl   = document.getElementById('viewList');
+  if (mode === 'list') {
+    grid.style.gridTemplateColumns = '1fr';
+    bg.style.background = 'transparent'; bg.style.color = 'var(--pg3)'; bg.style.borderColor = 'rgba(245,239,227,.12)';
+    bl.style.background = 'var(--goldd)'; bl.style.color = 'var(--gold)'; bl.style.borderColor = 'var(--goldb)';
+  } else {
+    grid.style.gridTemplateColumns = '';
+    bg.style.background = 'var(--goldd)'; bg.style.color = 'var(--gold)'; bg.style.borderColor = 'var(--goldb)';
+    bl.style.background = 'transparent'; bl.style.color = 'var(--pg3)'; bl.style.borderColor = 'rgba(245,239,227,.12)';
+  }
+}
+
+// ── LOAD BOOKS ──
+async function loadBooks() {
+  const grid = document.getElementById('booksGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--pg3)">Loading books…</div>';
+  document.getElementById('loadMoreWrap').style.display = 'none';
+
+  let books = [];
+  try {
+    const params = new URLSearchParams();
+    params.set('limit', LIMIT);
+    params.set('offset', 0);
+    if (currentFilters.sort)   params.set('sort', currentFilters.sort);
+    if (currentFilters.search) params.set('q', currentFilters.search);
+    if (currentFilters.genre)  params.set('genre', currentFilters.genre);
+    if (currentFilters.region) {
+      const countries = REGION_MAP[currentFilters.region] || [];
+      if (countries.length) params.set('country', countries.join(','));
+    }
+    if (currentFilters.era) {
+      const [from, to] = currentFilters.era.split('-');
+      params.set('year_from', from); params.set('year_to', to);
+    }
+    const data = await API.get('/api/books?' + params.toString());
+    books = data.books || [];
+    totalBooks = data.total || books.length;
+  } catch(e) {
+    books = filterDemoBooks();
+    totalBooks = books.length;
+  }
+
+  if (!books.length) books = filterDemoBooks();
+  if (!books.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px">
+      <div style="font-size:36px;margin-bottom:14px">📚</div>
+      <div style="font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:8px">No books found</div>
+      <div style="font-size:13px;color:var(--pg3);max-width:320px;margin:0 auto">Try different filters or search terms</div>
+      <button onclick="clearFilters()" style="margin-top:16px;padding:10px 22px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:13px;cursor:pointer">Clear all filters</button>
+    </div>`;
+    document.getElementById('resultsInfo').textContent = '0 books';
+    return;
+  }
+
+  document.getElementById('resultsInfo').textContent = totalBooks.toLocaleString() + ' books';
+  document.getElementById('totalCount').textContent = totalBooks.toLocaleString();
+  renderBooks(books, false);
+  if (books.length >= LIMIT) {
+    document.getElementById('loadMoreWrap').style.display = 'block';
+  }
+
+  // Check for soul recommendations
+  try {
+    const soul = await API.get('/api/soul/profile');
+    if (soul.profile && soul.profile.archetype) {
+      document.getElementById('archetypeName').textContent = soul.profile.archetype;
+      document.getElementById('matchCount').textContent = Math.min(books.length, 12);
+      document.getElementById('soulBanner').style.display = 'flex';
+    }
+  } catch(e) {}
+}
+
+function filterDemoBooks() {
+  let books = [...DEMO_BOOKS];
+  const f = currentFilters;
+  if (f.search) {
+    const q = f.search.toLowerCase();
+    books = books.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+  }
+  if (f.genre) books = books.filter(b => (b.genres||[]).some(g => g.toLowerCase().includes(f.genre.toLowerCase())));
+  if (f.region) {
+    const countries = REGION_MAP[f.region]||[];
+    books = books.filter(b => countries.includes(b.origin_country));
+  }
+  if (f.era) {
+    const [from,to] = f.era.split('-').map(Number);
+    books = books.filter(b => b.published_year >= from && b.published_year <= to);
+  }
+  if (f.sort === 'readers') books.sort((a,b) => (b.reader_count||0)-(a.reader_count||0));
+  else if (f.sort === 'newest') books.sort((a,b) => (b.published_year||0)-(a.published_year||0));
+  else if (f.sort === 'oldest') books.sort((a,b) => (a.published_year||0)-(b.published_year||0));
+  else if (f.sort === 'title') books.sort((a,b) => a.title.localeCompare(b.title));
+  return books;
+}
+
+function clearFilters() {
+  currentFilters = { genre:'', region:'', era:'', search:'', sort:'readers' };
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.value === '');
+  });
+  document.getElementById('searchInput').value = '';
+  document.getElementById('sortSelect').value = 'readers';
+  currentPage = 0;
+  loadBooks();
+}
+
+function renderBooks(books, append) {
+  const grid = document.getElementById('booksGrid');
+  if (!append) grid.innerHTML = '';
+  const colors = ['#8B3A2A','#7B4A1A','#2A4A6A','#3A5A2A','#4A2A6A','#5A3A1A','#1A5A4A','#4A4A6A','#6A2A2A','#2A6A5A'];
+  books.forEach((b, i) => {
+    const col  = b.color || colors[i % colors.length];
+    const flag = b.flag || '🌍';
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.onclick   = () => window.location.href = 'book-detail.html?id=' + (b.id||'');
+    if (viewMode === 'list') {
+      card.style.cssText = 'display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--ink2);border-radius:10px;border:1px solid rgba(245,239,227,.06)';
+      card.innerHTML = `
+        <div style="width:60px;height:90px;flex-shrink:0;border-radius:3px 5px 5px 3px;background:${col}30;border-left:6px solid ${col};display:flex;align-items:center;justify-content:center;font-size:22px">${b.cover_emoji||b.emoji||'📖'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--serif);font-size:17px;color:var(--pg);margin-bottom:3px">${b.title}</div>
+          <div style="font-size:12px;color:var(--pg3);font-style:italic;margin-bottom:6px">${b.author||'—'}</div>
+          <div style="font-size:11px;color:var(--pg3)">${flag} ${b.origin_country||'—'} · ${b.published_year||'—'} · <span style="color:var(--teal)">● ${(b.reader_count||0).toLocaleString()} reading</span></div>
+          ${b.genres?.length?`<div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">${(b.genres||[]).slice(0,3).map(g=>`<span style="font-size:10px;padding:2px 8px;background:var(--goldd);border:1px solid var(--goldb);border-radius:10px;color:var(--gold)">${g}</span>`).join('')}</div>`:''}
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <div class="book-cover" style="background:${col}28;border:1px solid ${col}44">
+          <div class="book-spine" style="background:${col}"></div>
+          <div class="book-title-overlay">${b.title}</div>
+          <div class="book-emoji">${b.cover_emoji||b.emoji||'📖'}</div>
+        </div>
+        <div class="book-meta-title">${b.title}</div>
+        <div class="book-meta-author">${b.author||'—'}</div>
+        <div class="book-meta-row">
+          <span class="book-country">${flag}</span>
+          <span class="book-readers">● ${(b.reader_count||0).toLocaleString()}</span>
+          ${b.match_score?`<span class="book-soul-match">${Math.round(b.match_score*100)}% match</span>`:''}
+        </div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+async function loadMore() {
+  const btn = document.getElementById('loadMoreBtn');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  currentPage++;
+  try {
+    const params = new URLSearchParams();
+    params.set('limit', LIMIT);
+    params.set('offset', currentPage * LIMIT);
+    if (currentFilters.sort)   params.set('sort', currentFilters.sort);
+    if (currentFilters.search) params.set('q', currentFilters.search);
+    const data  = await API.get('/api/books?' + params.toString());
+    const books = data.books || [];
+    if (books.length < LIMIT) document.getElementById('loadMoreWrap').style.display = 'none';
+    renderBooks(books, true);
+  } catch(e) {
+    document.getElementById('loadMoreWrap').style.display = 'none';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Load more books →';
+}
+
+// ── URL PARAMS — handle ?genre=Fiction or ?country=african ──
+(function readUrlParams() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('genre')) {
+    currentFilters.genre = p.get('genre');
+    document.querySelectorAll('.filter-chip[data-filter="genre"]').forEach(c => {
+      c.classList.toggle('active', c.dataset.value === currentFilters.genre);
+    });
+  }
+  if (p.get('country') === 'african') {
+    currentFilters.region = 'africa';
+    document.querySelectorAll('.filter-chip[data-filter="region"]').forEach(c => {
+      c.classList.toggle('active', c.dataset.value === 'africa');
+    });
+  }
+})();
+
+// ── BOOT ──
+updateNav();
+loadBooks();
+</script>
+</body>
+</html>

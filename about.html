@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:0;list-style:none}
+.nav-links a{display:block;padding:8px 16px;font-size:12px;color:var(--pg3);text-decoration:none;letter-spacing:.05em;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--pg)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{padding:7px 16px;border:1px solid rgba(245,239,227,.18);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-primary{padding:7px 18px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer}
+#navUserMenu{display:none;align-items:center;gap:8px}
+#navUserAvatar{width:28px;height:28px;border-radius:50%;background:var(--goldd);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold)}
+#navUserName{font-size:13px;color:var(--pg)}
+#navSignOutBtn{font-size:11px;color:var(--pg3);cursor:pointer;padding:5px 10px;border:1px solid rgba(245,239,227,.12);border-radius:3px;background:transparent}
+
+/* ── HERO ── */
+.hero{padding:80px 2.5rem 64px;text-align:center;background:linear-gradient(to bottom,var(--ink2),var(--ink));position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(201,168,76,.06),transparent);pointer-events:none}
+.hero-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:12px}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:40px;height:1px;background:var(--gold);opacity:.4}
+.hero-title{font-family:var(--serif);font-size:clamp(40px,6vw,80px);font-weight:300;line-height:1.05;color:var(--pg);margin-bottom:24px;letter-spacing:-.01em}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:16px;color:var(--pg3);max-width:580px;margin:0 auto 40px;line-height:1.8;font-weight:300}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-cta{padding:14px 32px;background:var(--gold);border:none;border-radius:3px;color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 24px rgba(201,168,76,.3)}
+.btn-cta:hover{background:var(--gold2);transform:translateY(-2px)}
+.btn-outline{padding:14px 28px;background:transparent;border:1px solid rgba(245,239,227,.2);border-radius:3px;color:var(--pg);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-outline:hover{border-color:var(--pg)}
+
+/* ── SECTIONS ── */
+.section{padding:80px 2.5rem}
+.section-inner{max-width:900px;margin:0 auto}
+.section-inner.wide{max-width:1100px}
+.section-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.section-title{font-family:var(--serif);font-size:clamp(28px,4vw,52px);font-weight:300;color:var(--pg);margin-bottom:16px;line-height:1.15}
+.section-title em{font-style:italic;color:var(--gold)}
+.body-text{font-size:15px;color:var(--pg2);line-height:1.85;margin-bottom:18px}
+.body-text strong{color:var(--pg);font-weight:500}
+.pull-quote{font-family:var(--serif);font-size:clamp(20px,3vw,30px);font-style:italic;color:var(--gold);line-height:1.5;margin:36px 0;padding-left:24px;border-left:2px solid var(--gold)}
+.sep{border:none;border-top:1px solid rgba(245,239,227,.06);margin:0}
+
+/* ── PILLARS ── */
+.pillars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+@media(max-width:768px){.pillars-grid{grid-template-columns:1fr}}
+.pillar-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:10px;padding:28px;transition:border-color .2s}
+.pillar-card:hover{border-color:rgba(201,168,76,.2)}
+.pillar-icon{font-size:28px;margin-bottom:14px}
+.pillar-title{font-family:var(--serif);font-size:18px;color:var(--pg);margin-bottom:8px}
+.pillar-desc{font-size:13px;color:var(--pg3);line-height:1.7}
+
+/* ── ECONOMY ── */
+.economy-visual{background:var(--ink2);border:1px solid var(--goldb);border-radius:12px;padding:32px;margin:32px 0}
+.economy-title{font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:20px;text-align:center}
+.economy-bar{display:flex;border-radius:6px;overflow:hidden;height:48px;margin-bottom:16px}
+.economy-author{flex:95;background:linear-gradient(135deg,var(--sage),#3A8A5A);display:flex;align-items:center;padding-left:16px;font-size:14px;font-weight:500;color:#fff}
+.economy-platform{flex:5;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--pg3)}
+.economy-comparison{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.ec-item{text-align:center;padding:16px;background:var(--ink3);border-radius:8px;border:1px solid rgba(245,239,227,.06)}
+.ec-pct{font-family:var(--serif);font-size:28px;font-weight:300}
+.ec-label{font-size:11px;color:var(--pg3);margin-top:4px;letter-spacing:.04em}
+
+/* ── PUBLISHERS ── */
+.publishers-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+@media(max-width:600px){.publishers-grid{grid-template-columns:1fr}}
+.publisher-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:10px;padding:24px}
+.publisher-title{font-size:15px;font-weight:500;color:var(--pg);margin-bottom:8px}
+.publisher-desc{font-size:13px;color:var(--pg3);line-height:1.7;margin-bottom:14px}
+.publisher-btn{padding:9px 18px;background:transparent;border:1px solid var(--goldb);border-radius:16px;color:var(--gold);font-family:var(--sans);font-size:12px;cursor:pointer}
+.publisher-btn:hover{background:var(--goldd)}
+
+/* ── PRIVACY ── */
+.privacy-item{margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(245,239,227,.06)}
+.privacy-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.privacy-title{font-size:15px;font-weight:500;color:var(--pg);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.privacy-icon{font-size:18px}
+.privacy-desc{font-size:13px;color:var(--pg3);line-height:1.75}
+
+/* ── TEAM ── */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:28px}
+.team-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:10px;padding:20px;text-align:center}
+.team-avatar{width:56px;height:56px;border-radius:50%;background:var(--goldd);border:1.5px solid var(--goldb);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px}
+.team-name{font-size:14px;font-weight:500;color:var(--pg);margin-bottom:4px}
+.team-role{font-size:12px;color:var(--pg3)}
+
+/* ── CONTACT ── */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+@media(max-width:600px){.contact-grid{grid-template-columns:1fr}}
+.contact-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:10px;padding:24px}
+.contact-icon{font-size:24px;margin-bottom:10px}
+.contact-title{font-size:14px;font-weight:500;color:var(--pg);margin-bottom:6px}
+.contact-email{font-size:13px;color:var(--gold);text-decoration:none}
+.contact-email:hover{text-decoration:underline}
+.contact-desc{font-size:12px;color:var(--pg3);margin-top:4px;line-height:1.6}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid rgba(245,239,227,.06);padding:40px 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-logo{font-family:var(--serif);font-size:18px;color:var(--pg3);font-style:italic}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:11px;color:rgba(245,239,227,.25);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
+.footer-copy{font-size:11px;color:rgba(245,239,227,.2)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    Global <span style="color:var(--gold)">BookShelf</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="community-hub.html">Communities</a></li>
+    <li><a href="authors.html">Authors</a></li>
+    <li><a href="languages.html">Languages</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <div id="navUserMenu">
+      <div id="navUserAvatar">?</div>
+      <span id="navUserName"></span>
+      <button id="navSignOutBtn" onclick="API.logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">Our story</div>
+  <div class="hero-title">Literature belongs<br>to <em>everyone</em></div>
+  <div class="hero-sub">Global BookShelf was built on a single conviction — that the world's greatest stories should be accessible to every reader, in every language, from every culture. Not just the ones published in New York and London.</div>
+  <div class="hero-cta">
+    <button class="btn-cta" onclick="window.location.href='ai-reading-soul.html'">Start reading free</button>
+    <button class="btn-outline" onclick="window.location.href='explore.html'">Browse books →</button>
+  </div>
+</div>
+
+<!-- ── MANIFESTO ── -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag">Why we exist</div>
+    <div class="section-title">We built what we<br><em>couldn't find</em></div>
+    <div class="body-text">There are over four million books in the world. Most reading platforms show you the same thousand. The algorithm recommends what sold well in English last month. The African novel that changed a generation sits undiscovered. The Japanese writer who influenced García Márquez has never been translated.</div>
+    <div class="body-text"><strong>Global BookShelf exists to fix this.</strong> We built a living world map where every book is pinned to the place it came from. We built an AI that learns who you are — not just what genre you last clicked — and connects you to books that will change you. We built a translation platform where readers who speak Swahili or Yorùbá or Amharic can unlock literature that was never available in their language.</div>
+    <div class="pull-quote">"The map doesn't show you what's popular. It shows you what's human."</div>
+    <div class="body-text">We are a platform built by readers for readers. We do not take advertising money. We do not sell your data. We do not optimize for engagement metrics. We optimize for one thing: connecting you to the right book at the right moment in your life.</div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── 7 PILLARS ── -->
+<section class="section">
+  <div class="section-inner wide">
+    <div class="section-tag">The platform</div>
+    <div class="section-title">Seven pillars of a<br><em>living library</em></div>
+    <div class="pillars-grid">
+      <div class="pillar-card"><div class="pillar-icon">🌍</div><div class="pillar-title">Living World Map</div><div class="pillar-desc">Every book pinned to where it was written. Watch the world read in real time. Travel through literary centuries with a single slider.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">🧠</div><div class="pillar-title">AI Reading Soul</div><div class="pillar-desc">A 5-screen soul quiz builds your reading archetype. The AI learns your emotional world, your life stage, and connects you to books that will change you — not just books you might like.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">🌐</div><div class="pillar-title">Borderless Reading</div><div class="pillar-desc">127 languages. Community translators who preserve cultural meaning, idiom and voice. No great book locked behind a language barrier.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">✍️</div><div class="pillar-title">Author Universe</div><div class="pillar-desc">Authors write in public. Readers watch chapters appear in real time. No gatekeepers, no literary agents, no waiting years for publication. Fund the next chapter directly.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">👥</div><div class="pillar-title">Living Communities</div><div class="pillar-desc">Book clubs that cross continents, generations and time zones. Read the same book your grandparent loved — then discuss it with them and with strangers across the world.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">💛</div><div class="pillar-title">Fair Economy</div><div class="pillar-desc">95% of every patron subscription goes directly to the author. No traditional publishing middleman. No 15% literary agent. No 40% publisher cut. The author earns what they deserve.</div></div>
+      <div class="pillar-card"><div class="pillar-icon">🎮</div><div class="pillar-title">Books as Experiences</div><div class="pillar-desc">Ambient soundscapes. Character maps that grow as you read. Endings debate rooms where readers argue for how the story should have ended. The book does not end at the last page.</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── FAIR ECONOMY ── -->
+<section class="section" id="economy">
+  <div class="section-inner">
+    <div class="section-tag">Fair Economy Model</div>
+    <div class="section-title">Writers earn <em>95 cents</em><br>of every dollar</div>
+    <div class="body-text">The traditional publishing industry gives authors 10–15% of the cover price. Literary agents take 15% of that. The author — the person who created everything — ends up with 8 cents of every dollar spent on their work.</div>
+    <div class="body-text"><strong>We built the opposite.</strong> When a reader becomes a patron, 95% of their subscription goes directly to the author's bank account via Stripe Connect. Global BookShelf takes 5% to keep the lights on.</div>
+
+    <div class="economy-visual">
+      <div class="economy-title">Where every $10 patron subscription goes</div>
+      <div class="economy-bar">
+        <div class="economy-author">95% → Author ($9.50)</div>
+        <div class="economy-platform">5%</div>
+      </div>
+      <div class="economy-comparison">
+        <div class="ec-item"><div class="ec-pct" style="color:var(--sage)">95%</div><div class="ec-label">Global BookShelf to author</div></div>
+        <div class="ec-item"><div class="ec-pct" style="color:var(--coral)">70%</div><div class="ec-label">Typical platform to creator</div></div>
+        <div class="ec-item"><div class="ec-pct" style="color:var(--coral)">8–12%</div><div class="ec-label">Traditional publishing</div></div>
+      </div>
+    </div>
+
+    <div class="body-text">Authors receive payouts monthly, directly to their bank account. No minimum threshold. No waiting 18 months for a royalty statement. Real money, in real time, for real work.</div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── PUBLISHERS ── -->
+<section class="section" id="publishers">
+  <div class="section-inner">
+    <div class="section-tag">For publishers</div>
+    <div class="section-title">The world's largest<br><em>discovery platform</em></div>
+    <div class="body-text">Global BookShelf is not a competitor to publishers. We are the world's largest book discovery platform — built for books that deserve a bigger audience. We partner with publishers to feature their catalogues on the world map, run reading clubs, and help readers discover books they would never have found otherwise.</div>
+
+    <div class="publishers-grid">
+      <div class="publisher-card">
+        <div class="publisher-title">📚 Catalogue integration</div>
+        <div class="publisher-desc">List your entire catalogue on the world map. Every book pinned to its origin. Every reader who discovers it linked back to your sales channel.</div>
+        <button class="publisher-btn" onclick="window.location.href='mailto:publishers@globalbookshelf.com'">Get in touch →</button>
+      </div>
+      <div class="publisher-card">
+        <div class="publisher-title">🌍 African literature push</div>
+        <div class="publisher-desc">We are actively building the world's largest catalogue of African literature. Publishers with African titles receive priority placement and promotion.</div>
+        <button class="publisher-btn" onclick="window.location.href='mailto:africa@globalbookshelf.com'">Partner with us →</button>
+      </div>
+      <div class="publisher-card">
+        <div class="publisher-title">🔍 Rights discovery</div>
+        <div class="publisher-desc">Our translation platform connects publishers with translators for rights they haven't been able to sell yet. New markets, new languages, new revenue.</div>
+        <button class="publisher-btn" onclick="window.location.href='mailto:rights@globalbookshelf.com'">Learn more →</button>
+      </div>
+      <div class="publisher-card">
+        <div class="publisher-title">📊 Reading analytics</div>
+        <div class="publisher-desc">Understand how readers engage with your books. Which passages they annotate. Where they stop reading. What they recommend next. Opt-in, privacy-respecting analytics.</div>
+        <button class="publisher-btn" onclick="window.location.href='mailto:data@globalbookshelf.com'">Request demo →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── PRIVACY ── -->
+<section class="section" id="privacy">
+  <div class="section-inner">
+    <div class="section-tag">Privacy policy</div>
+    <div class="section-title">Your reading life is<br><em>yours alone</em></div>
+    <div class="body-text">Global BookShelf is built on a simple privacy principle — the books you read, the annotations you make, and the discussions you have are private unless you choose to share them. We do not sell your data. We do not show you advertising. We do not share your reading history with publishers, employers, or governments.</div>
+
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">📖</span> Your reading history</div>
+      <div class="privacy-desc">What you read is stored securely and used only to improve your recommendations. It is never shared with third parties. You can delete your reading history at any time from your account settings.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">🧠</span> Your soul profile</div>
+      <div class="privacy-desc">The results of your AI Reading Soul quiz are stored and used to power your book recommendations. They are never shared or sold. You can retake the quiz or delete your profile at any time.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">💬</span> Your annotations and reviews</div>
+      <div class="privacy-desc">Private annotations are visible only to you. Public reviews are visible to other readers on the platform. You can change the visibility of any annotation or review, or delete it entirely.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">💳</span> Payment information</div>
+      <div class="privacy-desc">Patron subscriptions are processed by Stripe. Global BookShelf never stores your full credit card number. Stripe handles all payment security and compliance with PCI-DSS standards.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">🚫</span> No advertising, ever</div>
+      <div class="privacy-desc">Global BookShelf does not display advertising and does not allow advertisers to pay to have books promoted in your recommendations. Our revenue comes from the 5% platform fee on patron subscriptions — not from selling your attention.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">📧</span> Email communications</div>
+      <div class="privacy-desc">We send you emails only when authors you follow publish new work, when your city launches on the platform, and for account-related notices. You can unsubscribe from any email at any time. We do not send promotional emails from third parties.</div>
+    </div>
+    <div class="privacy-item">
+      <div class="privacy-title"><span class="privacy-icon">🗑️</span> Right to deletion</div>
+      <div class="privacy-desc">You can delete your Global BookShelf account at any time. Your reading history, soul profile, annotations and personal data will be permanently deleted within 30 days. Patron payments already processed cannot be reversed.</div>
+    </div>
+    <div class="body-text" style="margin-top:20px">For questions about privacy, contact us at <a href="mailto:privacy@globalbookshelf.com" style="color:var(--gold)">privacy@globalbookshelf.com</a>. For data deletion requests, contact <a href="mailto:data@globalbookshelf.com" style="color:var(--gold)">data@globalbookshelf.com</a>.</div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ── CONTACT ── -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag">Contact</div>
+    <div class="section-title">Get in <em>touch</em></div>
+    <div class="contact-grid">
+      <div class="contact-card"><div class="contact-icon">📚</div><div class="contact-title">General enquiries</div><a href="mailto:hello@globalbookshelf.com" class="contact-email">hello@globalbookshelf.com</a><div class="contact-desc">Questions about the platform, your account, or how to get started</div></div>
+      <div class="contact-card"><div class="contact-icon">✍️</div><div class="contact-title">Author applications</div><a href="mailto:authors@globalbookshelf.com" class="contact-email">authors@globalbookshelf.com</a><div class="contact-desc">Writers who want to publish on Global BookShelf and earn 95%</div></div>
+      <div class="contact-card"><div class="contact-icon">📖</div><div class="contact-title">Publisher partnerships</div><a href="mailto:publishers@globalbookshelf.com" class="contact-email">publishers@globalbookshelf.com</a><div class="contact-desc">Catalogue integration, rights discovery, and co-promotion</div></div>
+      <div class="contact-card"><div class="contact-icon">🛡</div><div class="contact-title">Privacy & data</div><a href="mailto:privacy@globalbookshelf.com" class="contact-email">privacy@globalbookshelf.com</a><div class="contact-desc">Data requests, account deletion, GDPR enquiries</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">Global BookShelf</div>
+  <div class="footer-links">
+    <a href="about.html">About</a>
+    <a href="authors.html">Authors</a>
+    <a href="about.html#publishers">Publishers</a>
+    <a href="about.html#privacy">Privacy</a>
+    <a href="explore.html">Explore</a>
+  </div>
+  <div class="footer-copy">© 2025 Global BookShelf. The World's Living Library.</div>
+</footer>
+
+<script>
+'use strict';
+function updateNav() {
+  const s=API.getSession();
+  const si=document.getElementById('navSignIn'),jf=document.getElementById('navJoinFree');
+  const um=document.getElementById('navUserMenu'),ua=document.getElementById('navUserAvatar'),un=document.getElementById('navUserName');
+  if(s&&s.user){if(si)si.style.display='none';if(jf)jf.style.display='none';if(um)um.style.display='flex';const name=s.user.display_name||'Reader';if(ua)ua.textContent=name[0];if(un)un.textContent=name;}
+  else{if(si)si.style.display='';if(jf)jf.style.display='';if(um)um.style.display='none';}
+}
+
+// Handle anchor links (about.html#publishers, about.html#privacy)
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const target = document.querySelector(hash);
+    if (target) setTimeout(() => target.scrollIntoView({ behavior:'smooth', block:'start' }), 300);
+  }
+});
+
+updateNav();
+</script>
+</body>
+</html>

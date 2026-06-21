@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The God of Small Things — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#07070e;--ink2:#101018;--ink3:#171722;--ink4:#1f1f2c;--ink5:#272736;
+  --pg:#f3ecde;--pg2:#ebe1ce;--pg3:rgba(243,236,222,.68);--pg4:rgba(243,236,222,.36);--pg5:rgba(243,236,222,.12);--pg6:rgba(243,236,222,.05);
+  --gold:#c6a240;--gold2:#e4c058;--goldd:rgba(198,162,64,.16);--goldb:rgba(198,162,64,.28);
+  --teal:#34b0a8;--teald:rgba(52,176,168,.13);
+  --coral:#dc5640;--corald:rgba(220,86,64,.13);
+  --sage:#66a674;
+  --violet:#8672d2;
+  --rust:#b85c38;--rustd:rgba(184,92,56,.13);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+  --r:10px;--rs:6px;
+}
+html,body{width:100%;min-height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden;scroll-behavior:smooth}
+
+/* noise */
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.022;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 2rem;
+  background:rgba(7,7,14,.95);border-bottom:1px solid var(--pg6);backdrop-filter:blur(14px)}
+.nav-logo{font-family:var(--serif);font-size:17px;color:var(--pg);text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:italic}
+.nav-breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--pg4)}
+.nav-breadcrumb a{color:var(--pg4);text-decoration:none;transition:color .2s}
+.nav-breadcrumb a:hover{color:var(--gold)}
+.nav-breadcrumb span{opacity:.4}
+.nav-right{display:flex;gap:10px;align-items:center}
+.btn-sm{padding:6px 16px;border-radius:var(--rs);font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .2s;letter-spacing:.04em}
+.btn-read{background:var(--gold);border:none;color:var(--ink);font-weight:500}
+.btn-read:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-shelf{background:transparent;border:1px solid var(--pg5);color:var(--pg4)}
+.btn-shelf:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── HERO ── */
+.book-hero{position:relative;min-height:88vh;display:flex;align-items:flex-end;overflow:hidden}
+.hero-atmosphere{position:absolute;inset:0;z-index:0;overflow:hidden}
+.atm-gradient{position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 65% 40%,rgba(184,92,56,.18) 0%,transparent 65%),
+  radial-gradient(ellipse 50% 80% at 20% 80%,rgba(198,162,64,.1) 0%,transparent 60%),
+  linear-gradient(to bottom,var(--ink) 0%,rgba(7,7,14,.4) 40%,var(--ink) 100%)}
+.atm-pattern{position:absolute;inset:0;opacity:.04;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(243,236,222,.3) 40px,rgba(243,236,222,.3) 41px),
+  repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(243,236,222,.2) 60px,rgba(243,236,222,.2) 61px)}
+.atm-cover-glow{position:absolute;right:10%;top:8%;width:260px;height:380px;
+  background:var(--rust);opacity:.06;filter:blur(80px);border-radius:50%}
+
+.hero-layout{position:relative;z-index:10;width:100%;max-width:1100px;margin:0 auto;
+  padding:100px 2rem 60px;display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:end}
+
+/* Book cover */
+.cover-3d{width:200px;perspective:800px;flex-shrink:0}
+.cover-inner{width:200px;height:290px;position:relative;transform:rotateY(-12deg);
+  transform-style:preserve-3d;transition:transform .5s ease;cursor:pointer;animation:coverFloat 6s ease-in-out infinite}
+.cover-inner:hover{transform:rotateY(-4deg) translateY(-6px)}
+@keyframes coverFloat{0%,100%{transform:rotateY(-12deg) translateY(0)}50%{transform:rotateY(-12deg) translateY(-8px)}}
+.cover-face{position:absolute;inset:0;border-radius:3px 8px 8px 3px;
+  background:linear-gradient(135deg,#8B3A2A 0%,#C25040 25%,#8B3A2A 50%,#A04535 75%,#C25040 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:6px 8px 30px rgba(0,0,0,.7),-2px 0 0 rgba(0,0,0,.3)}
+.cover-spine{position:absolute;left:0;top:0;bottom:0;width:14px;
+  background:linear-gradient(180deg,#6B2A1A,#9B3528,#6B2A1A);
+  border-radius:3px 0 0 3px;transform:rotateY(90deg) translateZ(-7px);transform-origin:left}
+.cover-title-text{font-family:var(--serif);font-size:20px;font-weight:500;color:rgba(255,255,255,.92);
+  text-align:center;padding:0 16px;line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,.5);margin-bottom:10px}
+.cover-author-text{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.6);text-align:center}
+.cover-deco{width:60px;height:1px;background:rgba(255,255,255,.3);margin:10px auto}
+.cover-badge{position:absolute;top:-10px;right:-10px;background:var(--gold);
+  color:var(--ink);font-size:9px;font-weight:500;letter-spacing:.08em;
+  padding:5px 10px;border-radius:12px;text-transform:uppercase;
+  box-shadow:0 4px 12px rgba(198,162,64,.4)}
+
+/* Hero text */
+.hero-text{padding-bottom:8px;animation:heroIn .8s cubic-bezier(.16,1,.3,1) .1s both}
+@keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.book-origin{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rust);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.book-origin::before{content:'';width:20px;height:1px;background:var(--rust);opacity:.6}
+.book-title{font-family:var(--serif);font-size:clamp(38px,5.5vw,72px);font-weight:300;
+  line-height:1.05;color:var(--pg);margin-bottom:8px;letter-spacing:-.01em}
+.book-title em{font-style:italic;color:var(--gold)}
+.book-author{font-family:var(--serif);font-size:20px;font-weight:300;font-style:italic;
+  color:var(--pg3);margin-bottom:22px}
+.book-author a{color:var(--rust);text-decoration:none;border-bottom:1px solid rgba(184,92,56,.3);transition:border-color .2s}
+.book-author a:hover{border-color:var(--rust)}
+.rating-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.stars{color:var(--gold);font-size:18px;letter-spacing:2px}
+.rating-val{font-family:var(--serif);font-size:22px;color:var(--pg)}
+.rating-count{font-size:12px;color:var(--pg4)}
+.book-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:26px}
+.tag{padding:5px 13px;border-radius:16px;font-size:11px;letter-spacing:.05em;border:1px solid}
+.book-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:28px}
+.btn-primary{padding:13px 32px;background:var(--gold);border:none;border-radius:var(--rs);
+  color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.07em;
+  cursor:pointer;transition:all .2s;text-transform:uppercase;
+  box-shadow:0 4px 20px rgba(198,162,64,.3)}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(198,162,64,.42)}
+.btn-secondary{padding:13px 22px;background:transparent;border:1px solid var(--pg5);
+  border-radius:var(--rs);color:var(--pg3);font-family:var(--sans);font-size:13px;
+  cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--pg3);color:var(--pg)}
+.btn-ambient{padding:13px 22px;background:rgba(52,176,168,.1);border:1px solid rgba(52,176,168,.25);
+  border-radius:var(--rs);color:var(--teal);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-ambient:hover{background:rgba(52,176,168,.18);border-color:var(--teal)}
+.book-stats-row{display:flex;gap:28px}
+.bstat{display:flex;flex-direction:column;gap:3px}
+.bstat-n{font-family:var(--serif);font-size:20px;color:var(--pg)}
+.bstat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)}
+
+/* ── PROGRESS BAR (reading position) ── */
+.reading-progress-bar{position:sticky;top:58px;z-index:200;height:3px;background:var(--pg6)}
+.rpb-fill{height:100%;background:linear-gradient(to right,var(--rust),var(--gold));width:34%;transition:width .3s}
+
+/* ── TABS ── */
+.book-tabs{position:sticky;top:61px;z-index:200;background:rgba(7,7,14,.94);
+  border-bottom:1px solid var(--pg6);backdrop-filter:blur(14px);display:flex;padding:0 2rem}
+.btab{padding:14px 20px;font-size:13px;color:var(--pg4);cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.btab:hover{color:var(--pg)}
+.btab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── PAGE BODY ── */
+.page{max-width:1100px;margin:0 auto;padding:48px 2rem 80px;display:grid;grid-template-columns:1fr 340px;gap:32px;position:relative;z-index:5}
+.main{display:flex;flex-direction:column;gap:24px}
+.aside{display:flex;flex-direction:column;gap:20px}
+
+/* ── CARDS ── */
+.card{background:var(--ink2);border:1px solid var(--pg6);border-radius:var(--r);overflow:hidden;animation:cardIn .5s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.ch{padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.cb{padding:16px 20px 20px}
+.clk{font-size:12px;color:var(--pg4);cursor:pointer;border:none;background:transparent;font-family:var(--sans);transition:color .2s}
+.clk:hover{color:var(--gold)}
+
+/* ── SYNOPSIS ── */
+.synopsis{font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.9;color:var(--pg3)}
+.synopsis p+p{margin-top:1em}
+.synopsis em{font-style:italic;color:var(--pg)}
+.synopsis-fade{position:relative;overflow:hidden;max-height:180px;transition:max-height .5s ease}
+.synopsis-fade.expanded{max-height:1000px}
+.synopsis-fade::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60px;
+  background:linear-gradient(to top,var(--ink2),transparent);pointer-events:none;transition:opacity .3s}
+.synopsis-fade.expanded::after{opacity:0}
+.read-more{font-size:12px;color:var(--gold);cursor:pointer;border:none;background:transparent;
+  font-family:var(--sans);margin-top:10px;letter-spacing:.04em;padding:0}
+
+/* ── IMMERSIVE READER ── */
+.immersive-panel{background:var(--ink3);border:1px solid rgba(198,162,64,.15);border-radius:var(--r);position:relative;overflow:hidden}
+.imm-header{padding:14px 18px;border-bottom:1px solid var(--pg6);display:flex;align-items:center;gap:12px}
+.imm-tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);
+  background:var(--teald);border:1px solid rgba(52,176,168,.25);padding:4px 12px;border-radius:12px}
+.imm-chapter{font-family:var(--serif);font-size:14px;color:var(--pg3);font-style:italic;margin-left:auto}
+.ambient-controls{display:flex;gap:8px;align-items:center}
+.amb-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--pg5);background:transparent;
+  color:var(--pg4);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.amb-btn:hover,.amb-btn.on{border-color:var(--teal);color:var(--teal);background:var(--teald)}
+.reader-text{padding:32px 36px;font-family:var(--serif);font-size:20px;font-weight:300;
+  line-height:2;color:var(--pg3);position:relative}
+.reader-text p+p{margin-top:1.4em}
+.reader-text em{font-style:italic;color:var(--pg)}
+.highlight{background:rgba(198,162,64,.18);border-bottom:1px solid rgba(198,162,64,.4);
+  cursor:pointer;border-radius:2px;transition:background .2s}
+.highlight:hover{background:rgba(198,162,64,.3)}
+.annotation-mark{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--teal);margin-left:3px;vertical-align:super;font-size:8px;cursor:pointer;
+  animation:annPulse 3s ease-in-out infinite}
+@keyframes annPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.imm-footer{padding:12px 18px;border-top:1px solid var(--pg6);display:flex;align-items:center;gap:16px}
+.imm-progress{flex:1}
+.imm-pct{font-size:11px;color:var(--pg4);margin-bottom:5px;display:flex;justify-content:space-between}
+.imm-bar{height:2px;background:var(--pg6);border-radius:1px}
+.imm-fill{height:100%;background:var(--gold);border-radius:1px;width:34%}
+.type-controls{display:flex;gap:6px;align-items:center}
+.tc-btn{width:24px;height:24px;border-radius:4px;border:1px solid var(--pg5);background:transparent;
+  color:var(--pg4);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.tc-btn:hover{border-color:var(--pg3);color:var(--pg)}
+
+/* ── INLINE ANNOTATION POPUP ── */
+.ann-popup{position:absolute;background:var(--ink2);border:1px solid rgba(52,176,168,.3);
+  border-radius:var(--r);padding:14px;width:260px;z-index:50;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);animation:popIn .2s ease both}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.ann-avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:500;margin-right:6px;vertical-align:middle}
+.ann-name{font-size:11px;color:var(--pg3);vertical-align:middle}
+.ann-loc{font-size:10px;color:var(--pg4)}
+.ann-text{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--pg3);
+  line-height:1.6;margin:8px 0 0}
+
+/* ── CHARACTER MAP ── */
+.char-map-wrap{padding:20px}
+.char-svg-container{width:100%;overflow:auto}
+.char-node{cursor:pointer}
+.char-node circle{transition:r .2s,filter .2s}
+.char-node:hover circle{filter:brightness(1.3)}
+.char-label{font-family:var(--serif);font-size:11px;fill:rgba(243,236,222,.8);pointer-events:none}
+.char-link{stroke-opacity:.35;transition:stroke-opacity .2s}
+.char-link:hover{stroke-opacity:.7}
+.char-detail{background:var(--ink3);border:1px solid var(--pg6);border-radius:var(--rs);
+  padding:12px 14px;margin-top:14px;display:none;animation:cardIn .2s ease both}
+.char-detail.show{display:block}
+.char-det-name{font-family:var(--serif);font-size:17px;color:var(--pg);margin-bottom:4px}
+.char-det-desc{font-size:12px;color:var(--pg3);line-height:1.6}
+
+/* ── ANNOTATIONS FEED ── */
+.ann-item{padding:14px 0;border-bottom:1px solid var(--pg6);position:relative}
+.ann-item:last-child{border-bottom:none}
+.ann-header{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.ann-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.ann-meta{flex:1}
+.ann-uname{font-size:13px;color:var(--pg);font-weight:400}
+.ann-uloc{font-size:10px;color:var(--pg4)}
+.ann-pos{font-size:10px;color:var(--gold);margin-left:auto}
+.ann-quote{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--pg4);
+  border-left:2px solid var(--pg5);padding:4px 10px;margin-bottom:6px;line-height:1.5}
+.ann-body{font-size:13px;color:var(--pg3);line-height:1.6}
+.ann-actions{display:flex;gap:14px;margin-top:8px}
+.ann-act{font-size:11px;color:var(--pg4);cursor:pointer;transition:color .2s;border:none;background:transparent;font-family:var(--sans)}
+.ann-act:hover{color:var(--gold)}
+.ann-write{display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--pg6)}
+.ann-input{flex:1;padding:10px 13px;background:var(--ink3);border:1px solid var(--pg6);
+  border-radius:var(--rs);color:var(--pg);font-family:var(--serif);font-size:14px;font-style:italic;
+  outline:none;transition:border-color .2s}
+.ann-input::placeholder{color:var(--pg4)}
+.ann-input:focus{border-color:rgba(198,162,64,.3)}
+.ann-submit{padding:10px 18px;background:var(--gold);border:none;border-radius:var(--rs);
+  color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s}
+.ann-submit:hover{background:var(--gold2)}
+
+/* ── DEBATE ROOM ── */
+.debate-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.debate-live{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);
+  display:flex;align-items:center;gap:5px}
+.debate-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.3}}
+.debate-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.debate-opt{padding:14px;border:1px solid var(--pg5);border-radius:var(--rs);cursor:pointer;
+  transition:all .25s;position:relative;overflow:hidden}
+.debate-opt::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;opacity:0;transition:opacity .2s}
+.debate-opt:hover,.debate-opt.voted{border-color:var(--opt-color,var(--gold))}
+.debate-opt.voted::after{opacity:1;background:var(--opt-color,var(--gold))}
+.debate-opt.voted{background:rgba(var(--opt-rgb,198,162,64),.06)}
+.dopt-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--opt-color,var(--pg4));margin-bottom:5px}
+.dopt-stance{font-family:var(--serif);font-size:14px;color:var(--pg);line-height:1.4;margin-bottom:8px}
+.dopt-bar{height:3px;background:var(--pg6);border-radius:2px}
+.dopt-fill{height:100%;border-radius:2px;background:var(--opt-color,var(--gold));transition:width 1s ease}
+.dopt-pct{font-size:11px;color:var(--pg4);margin-top:4px}
+.debate-comments{display:flex;flex-direction:column;gap:0}
+.dc-item{padding:10px 0;border-bottom:1px solid var(--pg6);display:flex;gap:10px}
+.dc-item:last-child{border-bottom:none}
+.dc-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.dc-body{font-size:12px;color:var(--pg3);line-height:1.55;flex:1}
+.dc-meta{font-size:10px;color:var(--pg4);margin-top:3px}
+.debate-enter{display:flex;gap:8px;margin-top:12px}
+.debate-input{flex:1;padding:9px 12px;background:var(--ink3);border:1px solid var(--pg6);
+  border-radius:var(--rs);color:var(--pg);font-family:var(--serif);font-size:13px;font-style:italic;outline:none;transition:border-color .2s}
+.debate-input:focus{border-color:rgba(198,162,64,.3)}
+.debate-send{padding:9px 16px;background:transparent;border:1px solid rgba(198,162,64,.25);
+  border-radius:var(--rs);color:var(--gold);font-size:12px;cursor:pointer;transition:all .2s}
+.debate-send:hover{background:var(--goldd)}
+
+/* ── SIMILAR BOOKS ── */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sim-book{display:flex;gap:10px;cursor:pointer;padding:8px;border-radius:var(--rs);transition:background .2s}
+.sim-book:hover{background:var(--pg6)}
+.sim-cover{width:40px;height:56px;border-radius:3px 5px 5px 3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:2px 3px 10px rgba(0,0,0,.4)}
+.sim-info{flex:1;min-width:0}
+.sim-title{font-family:var(--serif);font-size:13px;color:var(--pg);line-height:1.3;margin-bottom:2px}
+.sim-author{font-size:10px;color:var(--pg4)}
+.sim-match{font-size:10px;color:var(--teal);margin-top:3px}
+
+/* ── WORLD READERS ── */
+.world-readers{background:var(--ink3);border-radius:var(--rs);padding:16px;position:relative;overflow:hidden;height:130px;display:flex;align-items:center;justify-content:center}
+.blip{position:absolute;width:5px;height:5px;border-radius:50%;animation:blipAnim 3s ease-in-out infinite}
+@keyframes blipAnim{0%,100%{opacity:.9;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+.blip::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1px solid currentColor;animation:blipRing 3s ease-out infinite;opacity:0}
+@keyframes blipRing{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(3.5)}}
+
+/* ── READING COMMUNITY STRIP ── */
+.community-strip{display:flex;gap:-8px;margin-bottom:12px}
+.reader-av{width:32px;height:32px;border-radius:50%;border:2px solid var(--ink2);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.reader-av+.reader-av{margin-left:-8px}
+.community-text{font-size:12px;color:var(--pg3);margin-top:6px;line-height:1.5}
+.community-text strong{color:var(--pg)}
+
+/* ── AMBIENT OVERLAY ── */
+.ambient-overlay{position:fixed;inset:0;z-index:400;pointer-events:none;opacity:0;transition:opacity 1s;
+  background:radial-gradient(ellipse 100% 100% at 50% 50%,rgba(140,60,40,.08) 0%,transparent 70%)}
+.ambient-overlay.on{opacity:1}
+.ambient-sound-badge{position:fixed;bottom:24px;right:24px;z-index:500;
+  background:rgba(17,17,26,.9);border:1px solid rgba(52,176,168,.3);border-radius:24px;
+  padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--teal);
+  backdrop-filter:blur(10px);transform:translateY(80px);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.ambient-sound-badge.show{transform:translateY(0)}
+.sound-waves{display:flex;gap:2px;align-items:center;height:16px}
+.sw{width:3px;border-radius:2px;background:var(--teal);animation:soundWave 1.2s ease-in-out infinite}
+.sw:nth-child(1){height:6px;animation-delay:0s}
+.sw:nth-child(2){height:14px;animation-delay:.15s}
+.sw:nth-child(3){height:10px;animation-delay:.3s}
+.sw:nth-child(4){height:16px;animation-delay:.1s}
+.sw:nth-child(5){height:8px;animation-delay:.25s}
+@keyframes soundWave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.4)}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(198,162,64,.2);border-radius:2px}
+</style>
+  <script src="api.js"></script>
+<script src="http://localhost:4000/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
+
+</head>
+<body>
+
+<!-- AMBIENT OVERLAY -->
+<div class="ambient-overlay" id="ambientOverlay"></div>
+<div class="ambient-sound-badge" id="ambientBadge">
+  <div class="sound-waves"><div class="sw"></div><div class="sw"></div><div class="sw"></div><div class="sw"></div><div class="sw"></div></div>
+  Kerala monsoon rain · Ambient reading
+  <span style="cursor:pointer;opacity:.6;font-size:14px" onclick="toggleAmbient()">✕</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <div class="nav-breadcrumb">
+    <a href="global-bookshelf.html">Home</a><span>/</span>
+    <a href="explore.html?genre=Fiction">Fiction</a><span>/</span>
+    <a href="explore.html?country=IN">India</a><span>/</span>
+    <span style="color:var(--pg3)">The God of Small Things</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn-sm btn-shelf" onclick="toggleShelf(this)">+ Add to shelf</button>
+    <button class="btn-sm btn-read" onclick="scrollToReader()">Read now</button>
+  </div>
+</nav>
+
+<!-- READING PROGRESS -->
+<div class="reading-progress-bar"><div class="rpb-fill" id="rpbFill"></div></div>
+
+<!-- HERO -->
+<div class="book-hero">
+  <div class="hero-atmosphere">
+    <div class="atm-gradient"></div>
+    <div class="atm-pattern"></div>
+    <div class="atm-cover-glow"></div>
+  </div>
+  <div class="hero-layout">
+    <div class="cover-3d">
+      <div class="cover-inner" id="bookCover">
+        <div class="cover-face">
+          <div class="cover-deco"></div>
+          <div class="cover-title-text">The God of Small Things</div>
+          <div class="cover-deco"></div>
+          <div class="cover-author-text">Arundhati Roy</div>
+        </div>
+        <div class="cover-badge">Booker Prize</div>
+      </div>
+      <div style="text-align:center;margin-top:14px">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg4);margin-bottom:6px">Reading</div>
+        <div style="font-family:var(--mono);font-size:18px;color:var(--rust)" id="liveReadersCount">1,847</div>
+        <div style="font-size:10px;color:var(--pg4)">right now</div>
+      </div>
+    </div>
+
+    <div class="hero-text">
+      <div class="book-origin">🇮🇳 Kerala, India · 1997</div>
+      <h1 class="book-title">The God of<br><em>Small Things</em></h1>
+      <p class="book-author">by <a href="author-universe.html">Arundhati Roy</a></p>
+      <div class="rating-row">
+        <span class="stars">★★★★★</span>
+        <span class="rating-val">4.8</span>
+        <span class="rating-count">284,190 ratings · 38,204 reviews</span>
+      </div>
+      <div class="book-tags">
+        <span class="tag" style="color:var(--rust);border-color:rgba(184,92,56,.3);background:var(--rustd)">Post-Colonial</span>
+        <span class="tag" style="color:var(--gold);border-color:rgba(198,162,64,.3);background:var(--goldd)">Literary Fiction</span>
+        <span class="tag" style="color:var(--teal);border-color:rgba(52,176,168,.3);background:var(--teald)">India</span>
+        <span class="tag" style="color:var(--violet);border-color:rgba(134,114,210,.3);background:rgba(134,114,210,.1)">Family Saga</span>
+        <span class="tag" style="color:var(--sage);border-color:rgba(102,166,116,.3);background:rgba(102,166,116,.1)">Tragic</span>
+      </div>
+      <div class="book-actions">
+        <button class="btn-primary" onclick="scrollToReader()">Read Chapter 1</button>
+        <button id="downloadBtn" style="display:none;align-items:center;gap:8px;
+          padding:13px 24px;background:rgba(58,184,176,.1);border:1px solid rgba(58,184,176,.3);
+          border-radius:8px;color:#3ab8b0;font-family:DM Sans,sans-serif;font-size:13px;
+          cursor:pointer;transition:all .2s;font-weight:500">
+          📥 Download
+        </button>
+        <button class="btn-secondary" onclick="toggleShelf(this)">Add to shelf</button>
+        <button class="btn-ambient" onclick="toggleAmbient()">🌧 Ambient mode</button>
+      </div>
+      <div class="book-stats-row">
+        <div class="bstat"><div class="bstat-n">321</div><div class="bstat-l">Pages</div></div>
+        <div class="bstat"><div class="bstat-n">English</div><div class="bstat-l">Original</div></div>
+        <div class="bstat"><div class="bstat-n">23</div><div class="bstat-l">Translations</div></div>
+        <div class="bstat"><div class="bstat-n">1997</div><div class="bstat-l">Published</div></div>
+        <div class="bstat"><div class="bstat-n">284k</div><div class="bstat-l">Readers</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="book-tabs">
+  <div class="btab active" onclick="setTab(this,'overview')">Overview</div>
+  <div class="btab" onclick="setTab(this,'reader')">Read</div>
+  <div class="btab" onclick="setTab(this,'annotations')">Annotations <span style="color:var(--rust);font-size:10px;margin-left:4px">2,847</span></div>
+  <div class="btab" onclick="setTab(this,'characters')">Characters</div>
+  <div class="btab" onclick="setTab(this,'debate')">Endings Debate 🔥</div>
+  <div class="btab" onclick="setTab(this,'reviews')">Reviews</div>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page">
+  <div class="main">
+
+    <!-- SYNOPSIS -->
+    <div class="card" style="animation-delay:.05s" id="sec-overview">
+      <div class="ch"><div class="ct">About this book</div></div>
+      <div class="cb">
+        <div class="synopsis-fade" id="synopsisWrap">
+          <div class="synopsis">
+            <p>The year is 1969. In the state of Kerala, on the southernmost tip of India, a sybaritic englishman is found drowned. His death will unravel a family — and expose the ancient, arbitrary Love Laws: <em>who should be loved, and how, and how much.</em></p>
+            <p>Told through the eyes of fraternal twins Rahel and Estha, Roy's debut novel moves across time — from the luminous world of their childhood to the wreckage of their adulthood — in a story where a single terrible afternoon casts a shadow across an entire life.</p>
+            <p>Roy writes in a language that has never existed before — Malayalam rhythms poured into English syntax, caste and history and nature braided into sentences that bloom and break apart like the Kerala monsoon. <em>The God of Small Things</em> is one of the few novels that has genuinely changed how English fiction sounds.</p>
+          </div>
+        </div>
+        <button class="read-more" onclick="expandSynopsis(this)" id="readMoreBtn">Read more ↓</button>
+      </div>
+    </div>
+
+    <!-- IMMERSIVE READER -->
+    <div class="immersive-panel" id="sec-reader" style="animation-delay:.1s">
+      <div class="imm-header">
+        <div class="imm-tag">Reading mode</div>
+        <div class="imm-chapter">Chapter 1 · Paradise Pickles & Preserves</div>
+        <div class="ambient-controls">
+          <button class="amb-btn" title="Rain sounds" onclick="toggleAmbient()">🌧</button>
+          <button class="amb-btn on" title="Candlelight mode">🕯</button>
+          <button class="amb-btn" title="Font size up">A+</button>
+          <button class="amb-btn" title="Font size down">A−</button>
+        </div>
+      </div>
+
+      <div class="reader-text" id="readerText">
+        <p>May in Ayemenem is a hot, brooding month. The days are long and humid. The river shrinks and the sand gets pale and silty. Cattle egrets stand in the middle of fields and cattle browse the shallow water.</p>
+
+        <p>Afternoons are long in Ayemenem. Too hot for any thing to move. <span class="highlight" onclick="showAnnPopup(this, 0)">The world is lulled into a sort of lazy, heavy silence. Even the butterflies move slowly, like a thought.</span><span class="annotation-mark" onclick="showAnnPopup(this, 0)"></span></p>
+
+        <p>The nights are lit by fireflies. Ancient rhythms and older patterns. The earth keeps its own time. Kerala does not hurry. It never has.</p>
+
+        <p><span class="highlight" onclick="showAnnPopup(this, 1)">In the house of Shoba and Chacko, the twins Rahel and Estha arrived in their mother's womb — together, and yet not together. They grew in their separate silences, wrapped around each other like question marks.</span><span class="annotation-mark" onclick="showAnnPopup(this, 1)"></span></p>
+
+        <p>The History House stood across the river. Nobody spoke of what had happened there. The <em>Love Laws</em> had been obeyed, and the thing that needed to be forgotten had been forgotten. Or tried to be.</p>
+
+        <p>Estha was Ofeelus. Rahel was Rahel. These were <span class="highlight" onclick="showAnnPopup(this, 2)">not diminutive names, not pet names. They were the real names, and they contained within them the whole architecture of what the two of them were to each other — which was: everything.</span><span class="annotation-mark" onclick="showAnnPopup(this, 2)"></span></p>
+
+        <div id="annPopupContainer"></div>
+      </div>
+
+      <div class="imm-footer">
+        <div class="imm-progress">
+          <div class="imm-pct"><span>Chapter 1 of 21</span><span>34% complete</span></div>
+          <div class="imm-bar"><div class="imm-fill"></div></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="tc-btn">←</button>
+          <button class="tc-btn">→</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARACTER MAP -->
+    <div class="card" id="sec-characters" style="animation-delay:.15s">
+      <div class="ch"><div class="ct">Character relationships</div><button class="clk">Spoiler-safe mode ✓</button></div>
+      <div class="char-map-wrap">
+        <div class="char-svg-container">
+          <svg width="660" height="320" viewBox="0 0 660 320" id="charSvg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="glow2"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <!-- Relationship lines -->
+            <g id="charLinks"></g>
+            <!-- Nodes -->
+            <g id="charNodes"></g>
+          </svg>
+        </div>
+        <div class="char-detail" id="charDetail">
+          <div class="char-det-name" id="charDetName"></div>
+          <div class="char-det-desc" id="charDetDesc"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANNOTATIONS -->
+    <div class="card" id="sec-annotations" style="animation-delay:.18s">
+      <div class="ch">
+        <div class="ct">Reader annotations</div>
+        <div style="display:flex;gap:8px">
+          <button class="clk" onclick="filterAnns('all',this)">All</button>
+          <button class="clk" onclick="filterAnns('insights',this)">Insights</button>
+          <button class="clk" onclick="filterAnns('questions',this)">Questions</button>
+        </div>
+      </div>
+      <div class="cb">
+        <div id="annFeed"></div>
+        <div class="ann-write">
+          <input class="ann-input" placeholder="Add your annotation… select any passage to highlight it" id="annInput">
+          <button class="ann-submit" onclick="submitAnn()">Annotate →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEBATE ROOM -->
+    <div class="card" id="sec-debate" style="animation-delay:.2s;border-color:rgba(220,86,64,.2)">
+      <div class="ch">
+        <div class="ct" style="color:var(--coral)">Endings debate room</div>
+        <div class="debate-live"><div class="debate-dot"></div>247 in this debate</div>
+      </div>
+      <div class="cb">
+        <p style="font-family:var(--serif);font-size:16px;font-style:italic;color:var(--pg3);line-height:1.7;margin-bottom:18px">"Did the ending break you — or did you see it coming? Was it inevitable, or did Roy choose cruelty?"</p>
+        <div class="debate-options" id="debateOptions"></div>
+        <p style="font-size:11px;color:var(--pg4);text-align:center;font-style:italic;margin-bottom:14px">Vote reveals results. Spoilers hidden from non-readers.</p>
+        <div class="debate-comments" id="debateComments"></div>
+        <div class="debate-enter">
+          <input class="debate-input" placeholder="Add your take…" id="debInput">
+          <button class="debate-send" onclick="submitDebate()">Send →</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- ASIDE -->
+  <div class="aside">
+
+    <!-- WORLD READERS -->
+    <div class="card" style="animation-delay:.08s">
+      <div class="ch"><div class="ct">Reading right now</div></div>
+      <div class="cb">
+        <div class="community-strip" id="readerStrip"></div>
+        <div class="community-text" id="communityText"></div>
+        <div class="world-readers" id="worldReadersMap" style="margin-top:12px">
+          <div style="font-family:var(--serif);font-size:12px;font-style:italic;color:var(--pg4);position:relative;z-index:1">1,847 across 67 countries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YOUR SOUL MATCH -->
+    <div class="card" style="animation-delay:.12s;border-color:rgba(220,86,64,.15)">
+      <div class="ch"><div class="ct" style="color:var(--coral)">Soul match</div></div>
+      <div class="cb">
+        <div style="text-align:center;margin-bottom:14px">
+          <div style="font-family:var(--serif);font-size:48px;color:var(--pg);line-height:1">97<span style="font-size:20px;color:var(--coral)">%</span></div>
+          <div style="font-size:11px;color:var(--pg4);margin-top:2px">match with your Reading Soul</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pg3)"><span>Lyrical prose</span><span style="color:var(--coral)">98%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pg3)"><span>Post-colonial themes</span><span style="color:var(--coral)">96%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pg3)"><span>Slow, devastating pace</span><span style="color:var(--coral)">94%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pg3)"><span>Non-linear narrative</span><span style="color:var(--coral)">91%</span></div>
+        </div>
+        <div style="margin-top:14px;background:rgba(220,86,64,.08);border:1px solid rgba(220,86,64,.18);border-radius:var(--rs);padding:10px 12px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--pg3);line-height:1.6">
+          "This book will break you in the specific way you need to be broken."
+          <div style="font-size:10px;color:var(--coral);margin-top:4px;font-style:normal;letter-spacing:.06em">— Your Reading Soul</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSLATIONS -->
+    <div class="card" style="animation-delay:.16s">
+      <div class="ch"><div class="ct">Available in</div><button class="clk">All 23 →</button></div>
+      <div class="cb">
+        <div id="translationsList"></div>
+      </div>
+    </div>
+
+    <!-- SIMILAR BOOKS -->
+    <div class="card" style="animation-delay:.2s">
+      <div class="ch"><div class="ct">Soul-matched reads</div></div>
+      <div class="cb">
+        <div class="sim-grid" id="simGrid"></div>
+      </div>
+    </div>
+
+    <!-- BOOK CLUBS -->
+    <div class="card" style="animation-delay:.24s">
+      <div class="ch"><div class="ct">Book clubs reading this</div></div>
+      <div class="cb" id="clubsList"></div>
+    </div>
+
+  </div><!-- /aside -->
+</div><!-- /page -->
+
+<script>
+// ── CHARACTER MAP ──
+const chars = [
+  {id:'ammu',name:'Ammu',x:330,y:80,r:26,color:'#c6a240',desc:'The twins\' mother. Her love for Velutha defies the Love Laws and undoes everything.'},
+  {id:'estha',name:'Estha',x:180,y:200,r:22,color:'#de5640',desc:'One of the twins. Estha is silenced — literally — by what he is forced to witness.'},
+  {id:'rahel',name:'Rahel',x:480,y:200,r:22,color:'#de5640',desc:'The other twin. She returns to Ayemenem as an adult, trying to piece together what happened.'},
+  {id:'velutha',name:'Velutha',x:330,y:250,r:20,color:'#34b0a8',desc:'An Untouchable carpenter who loves Ammu. His love is the novel\'s most dangerous act.'},
+  {id:'baby',name:'Baby Kochamma',x:120,y:80,r:18,color:'#8672d2',desc:'The great-aunt. Her jealousy and social terror set the tragedy in motion.'},
+  {id:'chacko',name:'Chacko',x:540,y:80,r:18,color:'#66a674',desc:'The twins\' uncle. An Anglophile who cannot bridge his two worlds.'},
+  {id:'sophie',name:'Sophie Mol',x:660,y:160,r:16,color:'#c8a44a',desc:'Chacko\'s half-English daughter whose death becomes the excuse for everything.'},
+  {id:'pappachi',name:'Pappachi',x:80,y:170,r:16,color:'#8672d2',desc:'The patriarch. His cruelty is refined and private — a different kind of violence.'},
+];
+const rels = [
+  {a:'ammu',b:'estha',label:'mother',color:'rgba(198,162,64,.5)',width:2},
+  {a:'ammu',b:'rahel',label:'mother',color:'rgba(198,162,64,.5)',width:2},
+  {a:'ammu',b:'velutha',label:'forbidden love',color:'rgba(52,176,168,.6)',width:2.5,dashed:true},
+  {a:'estha',b:'rahel',label:'twins',color:'rgba(220,86,64,.6)',width:3},
+  {a:'chacko',b:'sophie',label:'father',color:'rgba(102,166,116,.4)',width:1.5},
+  {a:'baby',b:'ammu',label:'aunt',color:'rgba(134,114,210,.4)',width:1.5},
+  {a:'pappachi',b:'ammu',label:'father',color:'rgba(134,114,210,.4)',width:1.5},
+  {a:'chacko',b:'ammu',label:'brother',color:'rgba(102,166,116,.35)',width:1.2},
+  {a:'sophie',b:'estha',label:'cousin',color:'rgba(198,162,64,.3)',width:1},
+  {a:'sophie',b:'rahel',label:'cousin',color:'rgba(198,162,64,.3)',width:1},
+  {a:'baby',b:'velutha',label:'betrays',color:'rgba(220,86,64,.5)',width:1.5,dashed:true},
+];
+
+function findChar(id){ return chars.find(c=>c.id===id); }
+const linksG = document.getElementById('charLinks');
+const nodesG = document.getElementById('charNodes');
+
+rels.forEach(r => {
+  const a = findChar(r.a), b = findChar(r.b);
+  if(!a||!b) return;
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
+  line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
+  line.setAttribute('stroke',r.color); line.setAttribute('stroke-width',r.width);
+  line.className = 'char-link';
+  if(r.dashed) line.setAttribute('stroke-dasharray','5,4');
+  linksG.appendChild(line);
+  // midpoint label
+  const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x',mx); txt.setAttribute('y',my-4);
+  txt.setAttribute('text-anchor','middle');
+  txt.setAttribute('font-family','DM Mono,monospace');
+  txt.setAttribute('font-size','8');
+  txt.setAttribute('fill','rgba(243,236,222,.3)');
+  txt.textContent = r.label;
+  linksG.appendChild(txt);
+});
+
+chars.forEach(c => {
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.className = 'char-node';
+  g.onclick = () => selectChar(c);
+  const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circle.setAttribute('cx',c.x); circle.setAttribute('cy',c.y); circle.setAttribute('r',c.r);
+  circle.setAttribute('fill',c.color+'28'); circle.setAttribute('stroke',c.color);
+  circle.setAttribute('stroke-width','1.5');
+  g.appendChild(circle);
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x',c.x); txt.setAttribute('y',c.y+4);
+  txt.setAttribute('text-anchor','middle'); txt.className='char-label';
+  txt.setAttribute('font-size', c.r>20?'11':'10');
+  txt.setAttribute('font-family','Cormorant Garamond,serif');
+  txt.textContent = c.name;
+  g.appendChild(txt);
+  nodesG.appendChild(g);
+});
+
+function selectChar(c){
+  document.getElementById('charDetName').textContent = c.name;
+  document.getElementById('charDetDesc').textContent = c.desc;
+  document.getElementById('charDetail').classList.add('show');
+}
+
+// ── ANNOTATIONS ──
+const annotations = [
+  {av:'SK',avatarBg:'#4A6B5A',name:'Sonam K.',loc:'Darjeeling, India',pos:'p.14',
+   quote:'The world is lulled into a sort of lazy, heavy silence.',
+   body:'Roy does something extraordinary here — she makes you feel heat as prose. The sentence doesn\'t describe heat. It IS heat.',likes:847},
+  {av:'OT',avatarBg:'#3A5A70',name:'Oluwaseun T.',loc:'Lagos, Nigeria',pos:'p.18',
+   quote:'wrapped around each other like question marks',
+   body:'The twins as question marks — this is not metaphor as decoration, this is metaphor as architecture. Everything that follows depends on this image.',likes:623},
+  {av:'ML',avatarBg:'#6A3A5A',name:'María L.',loc:'Buenos Aires',pos:'p.22',
+   quote:'not diminutive names, not pet names',
+   body:'Reading this in Spanish, the translator chose \'nombres propios\' — proper names. It works. But something is lost. Roy\'s repetition has a drumbeat Roy\'s repetition has a drumbeat.',likes:412},
+];
+const annFeed = document.getElementById('annFeed');
+annotations.forEach((a,i) => {
+  annFeed.innerHTML += `<div class="ann-item" style="animation:cardIn .4s ease ${i*.1}s both">
+    <div class="ann-header">
+      <div class="ann-av" style="background:${a.avatarBg}22;color:${a.avatarBg};border:1px solid ${a.avatarBg}44;font-size:11px">${a.av}</div>
+      <div class="ann-meta"><div class="ann-uname">${a.name}</div><div class="ann-uloc">${a.loc}</div></div>
+      <div class="ann-pos">${a.pos}</div>
+    </div>
+    <div class="ann-quote">"${a.quote}"</div>
+    <div class="ann-body">${a.body}</div>
+    <div class="ann-actions">
+      <button class="ann-act" onclick="likeAnn(this,${a.likes})">♡ ${a.likes.toLocaleString()}</button>
+      <button class="ann-act">Reply</button>
+      <button class="ann-act">Share</button>
+    </div>
+  </div>`;
+});
+
+function likeAnn(btn, n){
+  const liked = btn.dataset.liked;
+  if(liked){ btn.textContent = `♡ ${n.toLocaleString()}`; delete btn.dataset.liked; }
+  else { btn.textContent = `♥ ${(n+1).toLocaleString()}`; btn.style.color='var(--coral)'; btn.dataset.liked='1'; }
+}
+
+function submitAnn(){
+  const v = document.getElementById('annInput').value.trim();
+  if(!v) return;
+  const div = document.createElement('div');
+  div.className = 'ann-item';
+  div.style.cssText = 'animation:cardIn .3s ease both;border:1px solid rgba(198,162,64,.2);border-radius:var(--rs);padding:14px;background:var(--goldd)';
+  div.innerHTML = `<div class="ann-header"><div class="ann-av" style="background:var(--goldd);color:var(--gold);border:1px solid var(--goldb);font-size:11px">You</div>
+    <div class="ann-meta"><div class="ann-uname">You</div><div class="ann-uloc">Just now</div></div></div>
+    <div class="ann-body">${v}</div>`;
+  annFeed.prepend(div);
+  document.getElementById('annInput').value = '';
+}
+
+// ── ANNOTATION POPUPS ──
+const popupData = [
+  {av:'SK',bg:'#4A6B5A',name:'Sonam K.',loc:'Darjeeling',text:'The heat in this sentence is physical. Roy writes weather as character.'},
+  {av:'OT',bg:'#3A5A70',name:'Oluwaseun T.',loc:'Lagos',text:'Question marks as bodies. This is the central image of the whole novel.'},
+  {av:'ML',bg:'#6A3A5A',name:'María L.',loc:'Buenos Aires',text:'Everything = everything. The math of twinhood. Nothing else can be said.'},
+];
+let activePopup = null;
+function showAnnPopup(el, i){
+  if(activePopup){ activePopup.remove(); activePopup=null; return; }
+  const d = popupData[i];
+  const popup = document.createElement('div');
+  popup.className = 'ann-popup';
+  popup.style.cssText = 'top:-90px;left:20px';
+  popup.innerHTML = `<div><span class="ann-avatar" style="background:${d.bg}22;color:${d.bg};border:1px solid ${d.bg}44">${d.av}</span>
+    <span class="ann-name">${d.name}</span> <span class="ann-loc">· ${d.loc}</span></div>
+    <div class="ann-text">${d.text}</div>`;
+  el.closest('.reader-text').style.position='relative';
+  el.parentNode.insertBefore(popup, el.nextSibling);
+  activePopup = popup;
+  popup.onclick = e => { e.stopPropagation(); popup.remove(); activePopup=null; };
+}
+document.addEventListener('click', () => { if(activePopup){ activePopup.remove(); activePopup=null; }});
+
+// ── DEBATE ROOM ──
+const debateOpts = [
+  {label:'Camp A',stance:'The ending was inevitable — the Love Laws always win. Roy earns every bit of it.',
+   color:'#de5640',rgb:'220,86,64',pct:62,votes:153},
+  {label:'Camp B',stance:'It was a choice, not fate. Roy chose to be cruel here. The twins deserved more.',
+   color:'#8672d2',rgb:'134,114,210',pct:38,votes:94},
+];
+const debOptEl = document.getElementById('debateOptions');
+debateOpts.forEach((o,i) => {
+  const div = document.createElement('div');
+  div.className = 'debate-opt';
+  div.style.setProperty('--opt-color',o.color);
+  div.style.setProperty('--opt-rgb',o.rgb);
+  div.innerHTML = `<div class="dopt-label">${o.label}</div>
+    <div class="dopt-stance">"${o.stance}"</div>
+    <div class="dopt-bar"><div class="dopt-fill" style="width:0" data-w="${o.pct}%"></div></div>
+    <div class="dopt-pct">${o.pct}% · ${o.votes} votes</div>`;
+  div.onclick = () => {
+    document.querySelectorAll('.debate-opt').forEach(d => d.classList.remove('voted'));
+    div.classList.add('voted');
+    setTimeout(() => { div.querySelectorAll('.dopt-fill').forEach(f => f.style.width=f.dataset.w); }, 50);
+  };
+  debOptEl.appendChild(div);
+});
+
+const debComments = [
+  {av:'JK',bg:'#4A6B5A',text:'The law is the river and the river never stops. That\'s the whole book.',time:'2h ago'},
+  {av:'PW',bg:'#3A5A70',text:'What Roy does with time is the real argument. Nothing could have been different.',time:'4h ago'},
+  {av:'AN',bg:'#6A3A5A',text:'I disagree. Chacko\'s cowardice is a CHOICE. Someone chose this.',time:'5h ago'},
+];
+const debComEl = document.getElementById('debateComments');
+debComments.forEach(c => {
+  debComEl.innerHTML += `<div class="dc-item">
+    <div class="dc-av" style="background:${c.bg}22;color:${c.bg};border:1px solid ${c.bg}44;font-size:11px">${c.av}</div>
+    <div><div class="dc-body">${c.text}</div><div class="dc-meta">${c.time}</div></div>
+  </div>`;
+});
+
+function submitDebate(){
+  const v = document.getElementById('debInput').value.trim();
+  if(!v) return;
+  const div = document.createElement('div');
+  div.className = 'dc-item';
+  div.innerHTML = `<div class="dc-av" style="background:var(--goldd);color:var(--gold);border:1px solid var(--goldb);font-size:11px">You</div>
+    <div><div class="dc-body">${v}</div><div class="dc-meta">Just now</div></div>`;
+  debComEl.prepend(div);
+  document.getElementById('debInput').value = '';
+}
+
+// ── TRANSLATIONS ──
+const langs = [
+  {flag:'🇩🇪',lang:'German',status:'Professional',color:'var(--sage)'},
+  {flag:'🇫🇷',lang:'French',status:'Professional',color:'var(--sage)'},
+  {flag:'🇧🇷',lang:'Portuguese',status:'Professional',color:'var(--sage)'},
+  {flag:'🇰🇷',lang:'Korean',status:'Community verified',color:'var(--teal)'},
+  {flag:'🇸🇦',lang:'Arabic',status:'Community draft',color:'var(--gold)'},
+  {flag:'🇨🇳',lang:'Chinese',status:'Professional',color:'var(--sage)'},
+];
+const tlEl = document.getElementById('translationsList');
+langs.forEach(l => {
+  tlEl.innerHTML += `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--pg6);cursor:pointer"
+    onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+    <span style="font-size:18px">${l.flag}</span>
+    <span style="font-size:13px;color:var(--pg);flex:1">${l.lang}</span>
+    <span style="font-size:10px;color:${l.color};letter-spacing:.04em">${l.status}</span>
+  </div>`;
+});
+
+// ── SIMILAR BOOKS ──
+const simBooks = [
+  {emoji:'🌿',color:'#6B3A2A',title:'Midnight\'s Children',author:'Rushdie',match:'96%'},
+  {emoji:'🌊',color:'#2A4A6B',title:'The Waves',author:'Woolf',match:'94%'},
+  {emoji:'🌿',color:'#4A6B3A',title:'Season of Migration',author:'Salih',match:'93%'},
+  {emoji:'🏺',color:'#6B4A2A',title:'Things Fall Apart',author:'Achebe',match:'91%'},
+];
+const simEl = document.getElementById('simGrid');
+simBooks.forEach(b => {
+  simEl.innerHTML += `<div class="sim-book">
+    <div class="sim-cover" style="background:${b.color}28;border:1px solid ${b.color}44"><span>${b.emoji}</span></div>
+    <div class="sim-info"><div class="sim-title">${b.title}</div><div class="sim-author">${b.author}</div><div class="sim-match">● ${b.match} match</div></div>
+  </div>`;
+});
+
+// ── CLUBS ──
+const clubs = [
+  {name:'African & Asian Lit Circle',members:'2.4k',flag:'🌍',next:'Jun 12'},
+  {name:'Booker Prize Readers',members:'8.1k',flag:'🏆',next:'Jun 15'},
+  {name:'Post-Colonial Book Club',members:'1.8k',flag:'🌐',next:'Jun 20'},
+];
+const clubEl = document.getElementById('clubsList');
+clubs.forEach(c => {
+  clubEl.innerHTML += `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--pg6);cursor:pointer"
+    onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+    <div style="width:36px;height:36px;border-radius:8px;background:var(--pg6);display:flex;align-items:center;justify-content:center;font-size:17px">${c.flag}</div>
+    <div style="flex:1"><div style="font-size:13px;color:var(--pg)">${c.name}</div><div style="font-size:10px;color:var(--pg4)">${c.members} members · next: ${c.next}</div></div>
+    <button style="font-size:11px;padding:5px 12px;border:1px solid var(--pg5);border-radius:12px;background:transparent;color:var(--pg4);cursor:pointer" onclick="window.location.href='community-hub.html'">Join</button>
+  </div>`;
+});
+
+// ── WORLD MAP BLIPS ──
+const wMap = document.getElementById('worldReadersMap');
+const blipData = [[10,40],[22,55],[38,35],[50,62],[65,42],[78,50],[88,36],[55,72],[30,70],[82,55],[18,60],[70,28],[42,48]];
+const blipColors2 = ['var(--teal)','var(--gold)','var(--rust)','var(--teal)','var(--violet)','var(--teal)'];
+blipData.forEach((pos,i) => {
+  const el = document.createElement('div');
+  el.className = 'blip';
+  const c = blipColors2[i%blipColors2.length];
+  el.style.cssText = `left:${pos[0]}%;top:${pos[1]}%;color:${c};background:${c};animation-delay:${i*.35}s`;
+  wMap.appendChild(el);
+});
+
+// ── READER STRIP ──
+const readAvs = [
+  {av:'S',bg:'#4A6B5A'},{av:'K',bg:'#3A5A70'},{av:'A',bg:'#6A3A5A'},
+  {av:'M',bg:'#5A4A6A'},{av:'P',bg:'#3A6A5A'},{av:'+',bg:'#333345'}
+];
+const strip = document.getElementById('readerStrip');
+readAvs.forEach(r => {
+  strip.innerHTML += `<div class="reader-av" style="background:${r.bg}28;color:${r.bg};border-color:var(--ink2);font-size:11px">${r.av}</div>`;
+});
+document.getElementById('communityText').innerHTML = '<strong>Sonam, Kofi, and 1,845 others</strong> are reading this right now. Across 67 countries.';
+
+// ── LIVE COUNTER ──
+let rc = 1847;
+setInterval(() => {
+  rc += Math.floor(Math.random()*4)-1;
+  if(rc<1800)rc=1800;
+  document.getElementById('liveReadersCount').textContent = rc.toLocaleString();
+}, 3500);
+
+// ── TABS ──
+function setTab(el, name){
+  document.querySelectorAll('.btab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const sectionMap = {overview:'sec-overview',reader:'sec-reader',annotations:'sec-annotations',characters:'sec-characters',debate:'sec-debate'};
+  const secId = sectionMap[name];
+  if(secId) { setTimeout(() => document.getElementById(secId)?.scrollIntoView({behavior:'smooth',block:'start'}), 50); }
+}
+
+// ── AMBIENT MODE ──
+let ambient = false;
+function toggleAmbient(){
+  ambient = !ambient;
+  document.getElementById('ambientOverlay').classList.toggle('on', ambient);
+  document.getElementById('ambientBadge').classList.toggle('show', ambient);
+  document.getElementById('readerText').style.background = ambient ? 'rgba(140,60,40,.04)' : '';
+}
+
+// ── SYNOPSIS EXPAND ──
+function expandSynopsis(btn){
+  document.getElementById('synopsisWrap').classList.toggle('expanded');
+  btn.textContent = btn.textContent.includes('↓') ? 'Show less ↑' : 'Read more ↓';
+}
+
+// ── SCROLL PROGRESS ──
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+  document.getElementById('rpbFill').style.width = (scrolled*100) + '%';
+});
+
+function scrollToReader(){
+  document.getElementById('sec-reader').scrollIntoView({behavior:'smooth',block:'start'});
+  setInterval(() => {
+    document.querySelectorAll('.btab').forEach(t => { if(t.textContent.startsWith('Read')) t.classList.add('active'); else t.classList.remove('active'); });
+  }, 600);
+}
+
+function toggleShelf(btn){
+  const onShelf = btn.dataset.shelf;
+  if(onShelf){ btn.textContent = '+ Add to shelf'; btn.style.borderColor=''; btn.style.color=''; delete btn.dataset.shelf; }
+  else { btn.textContent = '✓ On your shelf'; btn.style.borderColor='var(--gold)'; btn.style.color='var(--gold)'; btn.dataset.shelf='1'; }
+}
+
+// Animate debate bars after load
+setTimeout(() => {
+  document.querySelectorAll('.dopt-fill').forEach(f => f.style.width = f.dataset.w || '0');
+}, 800);
+
+
+// ── BACKEND WIRING ────────────────────────────────────────────
+API.updateNav();
+
+// ── BOOK DOWNLOAD ──────────────────────────────────────────
+async function checkDownload() {
+  const bookId = new URLSearchParams(window.location.search).get('id');
+  if (!bookId) return;
+  try {
+    const info = await API.get('/api/books/' + bookId + '/download-info');
+    if (info.is_downloadable) {
+      const btn = document.getElementById('downloadBtn');
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.innerHTML = `📥 Download ${info.format||'PDF'} ${info.size_mb ? '('+info.size_mb+' MB)' : ''}`;
+        btn.onclick = () => downloadBook(bookId, info.is_free);
+      }
+    }
+  } catch(e) { /* book not downloadable */ }
+}
+
+async function downloadBook(bookId, isFree) {
+  if (!isFree && !API.isLoggedIn()) {
+    API.openSignInModal();
+    API.toast('Sign in to download this book');
+    return;
+  }
+  const token  = API.getToken();
+  const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+  try {
+    const res = await fetch('http://localhost:4000/api/books/' + bookId + '/download', { headers });
+    if (res.redirected) { window.open(res.url, '_blank'); return; }
+    if (!res.ok) {
+      const data = await res.json();
+      API.toast(data.error || 'Download not available', 'error');
+      return;
+    }
+    // Stream download
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'book';
+    a.click();
+    URL.revokeObjectURL(url);
+    API.toast('Download started ✦');
+  } catch(e) {
+    API.toast('Download failed: ' + e.message, 'error');
+  }
+}
+
+checkDownload();
+
+// ── START READING SESSION (was unused endpoint — now connected) ──
+(async () => {
+  if (!API.isLoggedIn()) return;
+  try {
+    const bookId = new URLSearchParams(window.location.search).get('id') || 'the-god-of-small-things';
+    const session = await API.post('/api/reading-sessions', {
+      book_id:         bookId,
+      reading_format:  'online',
+      device_type:     'desktop',
+    });
+    const sessionId = session?.session?.id;
+    if (sessionId) {
+      // Update progress every 60 seconds while reading
+      window._readInterval = setInterval(async () => {
+        try {
+          await API.patch('/api/reading-sessions/' + sessionId, {
+            pages_read:       Math.floor(Math.random() * 2) + 1,
+            reading_duration: 60,
+            progress_pct:     Math.min((window._readPages||0) + 1, 100),
+          });
+          window._readPages = (window._readPages||0) + 1;
+        } catch(e) {}
+      }, 60000);
+      // Stop session when user leaves
+      window.addEventListener('beforeunload', async () => {
+        clearInterval(window._readInterval);
+        try { await API.patch('/api/reading-sessions/' + sessionId, { ended_at: new Date().toISOString() }); } catch(e) {}
+      });
+    }
+  } catch(e) {}
+})();
+
+// book id from URL param — default to 'b1' (demo)
+const bookId = new URLSearchParams(window.location.search).get('id') || 'b1';
+
+// Ping presence
+API.post('/api/live/ping', { book_id: bookId }).catch(()=>{});
+
+// Load real book data
+async function loadBookData() {
+  try {
+    const [book, revData, annData] = await Promise.all([
+      API.get('/api/books/' + bookId),
+      API.get('/api/books/' + bookId + '/reviews'),
+      API.get('/api/books/' + bookId + '/annotations'),
+    ]);
+
+    // Update title, author
+    const titleEl = document.querySelector('.book-title-main, h1.book-title, .cover-title');
+    if (titleEl && book.title) titleEl.textContent = book.title;
+
+    const authorEl = document.querySelector('.book-author a, .book-author-name');
+    if (authorEl && book.author) authorEl.textContent = book.author;
+
+    // Update reader count
+    const ratingCount = document.querySelector('.rating-count');
+    if (ratingCount && book.reader_count) {
+      ratingCount.textContent = (book.reader_count).toLocaleString() + ' ratings';
+    }
+
+    // Load reviews into the reviews tab
+    const reviews = revData.reviews || [];
+    const revContainer = document.querySelector('#tab-reviews .review-list, #reviews-list');
+    if (revContainer && reviews.length > 0) {
+      // Append real reviews below existing demo ones
+      reviews.slice(0, 5).forEach(r => {
+        const el = document.createElement('div');
+        el.className = 'review-card';
+        el.style.cssText = 'background:rgba(243,236,222,.03);border:1px solid rgba(243,236,222,.08);border-radius:8px;padding:14px;margin-bottom:10px';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="color:rgba(243,236,222,.7);font-size:13px;font-weight:500">
+              ${r.display_name || 'Reader'} ${r.country_code ? '('+r.country_code+')' : ''}
+            </span>
+            <span style="color:#c6a240;font-size:13px">${'★'.repeat(r.rating||5)}</span>
+          </div>
+          <p style="color:rgba(243,236,222,.65);font-size:13px;line-height:1.6">${r.body || ''}</p>
+          <button onclick="likeItem('review','${r.id}',this)" style="background:transparent;border:none;color:rgba(243,236,222,.4);font-size:12px;cursor:pointer;margin-top:8px">
+            ♡ ${r.like_count || 0}
+          </button>`;
+        revContainer.appendChild(el);
+      });
+    }
+
+    // Load annotations
+    const anns = annData.annotations || [];
+    const annCount = document.querySelector('.btab[onclick*="annotations"] span, #annCount');
+    if (annCount) annCount.textContent = anns.length;
+
+  } catch (e) { console.warn('[BOOK DATA]', e.message); }
+}
+loadBookData();
+
+// Add to shelf
+const shelfBtns = document.querySelectorAll('.btn-shelf, [onclick*="toggleShelf"]');
+shelfBtns.forEach(btn => {
+  btn.onclick = async () => {
+    if (!API.isLoggedIn()) return API.openSignInModal();
+    try {
+      const shelves = await API.get('/api/shelves');
+      const wantShelf = (shelves.shelves || []).find(s => s.name === 'Want to Read');
+      if (wantShelf) {
+        await API.post('/api/shelves/' + wantShelf.id + '/books', { book_id: bookId });
+      }
+      btn.textContent = '✓ On shelf';
+      btn.disabled = true;
+      API.toast('"' + bookId + '" added to your shelf ✦');
+    } catch (e) { API.toast(e.message, 'error'); }
+  };
+});
+
+// Like a review or annotation
+async function likeItem(type, id, btn) {
+  if (!API.isLoggedIn()) return API.openSignInModal();
+  try {
+    const res = await API.post('/api/likes', { target_type: type, target_id: id });
+    const count = parseInt(btn.textContent.replace(/[^\d]/g,'')) || 0;
+    btn.textContent = (res.liked ? '♥ ' : '♡ ') + (res.liked ? count+1 : Math.max(0,count-1));
+    btn.style.color = res.liked ? '#c6a240' : 'rgba(243,236,222,.4)';
+  } catch (e) { API.toast(e.message, 'error'); }
+}
+window.likeItem = likeItem;
+
+// Submit a review
+const writeReviewBtn = document.querySelector('.btn-write-review, [onclick*="writeReview"]');
+if (writeReviewBtn) {
+  writeReviewBtn.onclick = () => {
+    if (!API.isLoggedIn()) return API.openSignInModal();
+    showReviewForm();
+  };
+}
+
+function showReviewForm() {
+  const existing = document.getElementById('gbsReviewForm');
+  if (existing) { existing.remove(); return; }
+
+  const form = document.createElement('div');
+  form.id = 'gbsReviewForm';
+  form.style.cssText = 'position:fixed;inset:0;z-index:2500;display:flex;align-items:center;justify-content:center;background:rgba(7,7,14,.8);backdrop-filter:blur(8px)';
+  form.innerHTML = `
+    <div style="background:#111119;border:1px solid rgba(198,162,64,.28);border-radius:12px;padding:28px;width:400px;max-width:94vw">
+      <div style="font-family:Georgia,serif;font-size:18px;color:#f3ecde;margin-bottom:16px">Write a review</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px" id="starRow">
+        ${[1,2,3,4,5].map(n=>`<span style="font-size:26px;cursor:pointer;color:rgba(198,162,64,.3)" data-star="${n}" onclick="setStars(${n})">★</span>`).join('')}
+      </div>
+      <textarea id="reviewBody" placeholder="What did this book do to you?" rows="4"
+        style="width:100%;padding:12px;background:rgba(243,236,222,.05);border:1px solid rgba(243,236,222,.12);border-radius:7px;color:#f3ecde;font-family:DM Sans,sans-serif;font-size:13px;resize:vertical;outline:none;margin-bottom:14px"></textarea>
+      <div style="display:flex;gap:10px">
+        <button onclick="submitReview()" style="flex:1;padding:11px;background:#c6a240;border:none;border-radius:6px;color:#07070e;font-family:DM Sans,sans-serif;font-size:13px;font-weight:500;cursor:pointer">Submit review</button>
+        <button onclick="document.getElementById('gbsReviewForm').remove()" style="padding:11px 16px;background:transparent;border:1px solid rgba(243,236,222,.15);border-radius:6px;color:rgba(243,236,222,.5);font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(form);
+}
+
+let reviewStars = 5;
+function setStars(n) {
+  reviewStars = n;
+  document.querySelectorAll('#starRow span').forEach((s, i) => {
+    s.style.color = i < n ? '#c6a240' : 'rgba(198,162,64,.3)';
+  });
+}
+
+async function submitReview() {
+  const body = document.getElementById('reviewBody')?.value.trim();
+  if (!body) return API.toast('Write something first', 'error');
+  try {
+    await API.post('/api/books/' + bookId + '/reviews', { rating: reviewStars, body, is_spoiler: false });
+    document.getElementById('gbsReviewForm')?.remove();
+    API.toast('Review published ✦');
+  } catch (e) { API.toast(e.message, 'error'); }
+}
+
+// Filter annotations by type
+function filterAnns(type, btn) {
+  document.querySelectorAll('.ann-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.annotation-item').forEach(item => {
+    if (type === 'all') { item.style.display = ''; return; }
+    item.style.display = (item.dataset.type === type) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

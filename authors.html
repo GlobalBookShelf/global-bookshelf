@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authors — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:0;list-style:none}
+.nav-links a{display:block;padding:8px 16px;font-size:12px;color:var(--pg3);text-decoration:none;letter-spacing:.05em;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--pg)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{padding:7px 16px;border:1px solid rgba(245,239,227,.18);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-primary{padding:7px 18px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer}
+#navUserMenu{display:none;align-items:center;gap:8px}
+#navUserAvatar{width:28px;height:28px;border-radius:50%;background:var(--goldd);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold)}
+#navUserName{font-size:13px;color:var(--pg)}
+#navSignOutBtn{font-size:11px;color:var(--pg3);cursor:pointer;padding:5px 10px;border:1px solid rgba(245,239,227,.12);border-radius:3px;background:transparent}
+.hero{padding:56px 2.5rem 40px;background:linear-gradient(to bottom,var(--ink2),var(--ink));border-bottom:1px solid rgba(245,239,227,.06)}
+.hero-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-title{font-family:var(--serif);font-size:clamp(32px,5vw,60px);font-weight:300;color:var(--pg);margin-bottom:10px;line-height:1.1}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:14px;color:var(--pg3);max-width:500px;line-height:1.7}
+.controls{padding:22px 2.5rem;background:var(--ink2);border-bottom:1px solid rgba(245,239,227,.06)}
+.controls-inner{max-width:1100px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.search-box{flex:1;min-width:200px;position:relative}
+.search-box input{width:100%;padding:10px 18px 10px 40px;background:rgba(245,239,227,.05);border:1px solid rgba(245,239,227,.12);border-radius:20px;color:var(--pg);font-family:var(--sans);font-size:13px;outline:none}
+.search-box input:focus{border-color:var(--goldb)}
+.search-box input::placeholder{color:var(--pg3)}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:14px;pointer-events:none}
+.filter-chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:7px 14px;border:1px solid rgba(245,239,227,.12);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.chip:hover,.chip.active{border-color:var(--gold);color:var(--gold);background:var(--goldd)}
+.content{padding:32px 2.5rem 60px}
+.content-inner{max-width:1100px;margin:0 auto}
+.results-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px}
+.results-count{font-size:12px;color:var(--pg3)}
+.authors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.author-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative}
+.author-card:hover{transform:translateY(-4px);border-color:rgba(201,168,76,.25);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.author-card-top{height:80px;display:flex;align-items:flex-end;justify-content:flex-start;padding:0 20px 0;background:linear-gradient(135deg,var(--ink3),var(--ink2));position:relative;overflow:hidden}
+.author-card-bg{position:absolute;inset:0;opacity:.08;font-size:120px;display:flex;align-items:center;justify-content:center;user-select:none}
+.author-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:26px;color:var(--gold);position:relative;z-index:1;flex-shrink:0;background:var(--goldd);margin-bottom:-24px}
+.author-card-body{padding:28px 20px 20px}
+.author-name{font-family:var(--serif);font-size:19px;color:var(--pg);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.verified-badge{font-size:11px;padding:1px 7px;background:rgba(58,184,176,.12);border:1px solid rgba(58,184,176,.3);border-radius:8px;color:var(--teal)}
+.author-meta{font-size:12px;color:var(--pg3);font-style:italic;margin-bottom:10px}
+.author-stats{display:flex;gap:0;margin-bottom:14px;border-top:1px solid rgba(245,239,227,.06);border-bottom:1px solid rgba(245,239,227,.06);padding:10px 0}
+.author-stat{flex:1;text-align:center}
+.author-stat-n{font-family:var(--serif);font-size:16px;color:var(--pg)}
+.author-stat-l{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg3);margin-top:2px}
+.author-genres{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.genre-tag{font-size:10px;padding:2px 9px;background:var(--goldd);border:1px solid var(--goldb);border-radius:10px;color:var(--gold)}
+.author-writing{font-size:12px;color:var(--pg3);margin-bottom:14px;font-style:italic;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.writing-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--teal);margin-bottom:10px}
+.writing-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-visit{width:100%;padding:10px;background:transparent;border:1px solid var(--goldb);border-radius:7px;color:var(--gold);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-visit:hover{background:var(--goldd)}
+.become-author-banner{background:var(--goldd);border:1px solid var(--goldb);border-radius:12px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.bab-text-title{font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:6px}
+.bab-text-sub{font-size:13px;color:var(--pg3);line-height:1.6}
+.bab-btn{padding:12px 24px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.bab-btn:hover{background:var(--gold2)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    Global <span style="color:var(--gold)">BookShelf</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="community-hub.html">Communities</a></li>
+    <li><a href="authors.html" class="active">Authors</a></li>
+    <li><a href="languages.html">Languages</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <div id="navUserMenu">
+      <div id="navUserAvatar">?</div>
+      <span id="navUserName"></span>
+      <button id="navSignOutBtn" onclick="API.logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Global BookShelf — Authors</div>
+  <div class="hero-title">Writers who <em>write in public</em></div>
+  <div class="hero-sub">Follow authors as they write. Support their work directly. Read before anyone else.</div>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="authorSearch" placeholder="Search authors by name or genre…">
+    </div>
+    <div class="filter-chips">
+      <button class="chip active" data-filter="all">All authors</button>
+      <button class="chip" data-filter="verified">✓ Verified</button>
+      <button class="chip" data-filter="writing">● Writing now</button>
+      <button class="chip" data-filter="africa">🌍 African</button>
+      <button class="chip" data-filter="asia">🌏 Asian</button>
+      <button class="chip" data-filter="americas">🌎 Americas</button>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="content-inner">
+    <div class="become-author-banner">
+      <div>
+        <div class="bab-text-title">Are you a writer? Join Global BookShelf</div>
+        <div class="bab-text-sub">Write in public. Build a following. Earn 95% of every patron subscription directly to your bank account. No gatekeepers.</div>
+      </div>
+      <button class="bab-btn" onclick="window.location.href='author-universe.html'">Become an author →</button>
+    </div>
+    <div class="results-header">
+      <div class="results-count" id="authorsCount">Loading authors…</div>
+    </div>
+    <div class="authors-grid" id="authorsGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--pg3)">Loading authors…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const DEMO_AUTHORS = [
+  {id:'au1',display_name:'Chimamanda Ngozi Adichie',pen_name:'Chimamanda Ngozi Adichie',origin_country:'NG',flag:'🇳🇬',genres:['Fiction','Feminism'],is_verified:true,is_writing:false,follower_count:42800,patron_count:1847,book_count:5,bio:'Author of Americanah, Half of a Yellow Sun, We Should All Be Feminists.',emoji:'✍️'},
+  {id:'au2',display_name:'Robert Greene',pen_name:'Robert Greene',origin_country:'US',flag:'🇺🇸',genres:['Non-fiction','Psychology','Philosophy'],is_verified:true,is_writing:true,current_draft:'The Laws of Human Strategy — Chapter 14',follower_count:38200,patron_count:2100,book_count:6,bio:'Author of The 48 Laws of Power, Mastery, The Laws of Human Nature.',emoji:'👑'},
+  {id:'au3',display_name:'Ngũgĩ wa Thiong\'o',pen_name:"Ngũgĩ wa Thiong'o",origin_country:'KE',flag:'🇰🇪',genres:['Fiction','Post-Colonial'],is_verified:true,is_writing:false,follower_count:18400,patron_count:620,book_count:12,bio:'Kenyan author writing in Gikuyu and English. Author of Weep Not, Child and Petals of Blood.',emoji:'🌱'},
+  {id:'au4',display_name:'Adaeze Okonkwo',pen_name:'Adaeze Okonkwo',origin_country:'NG',flag:'🇳🇬',genres:['Fiction','African Literature'],is_verified:true,is_writing:true,current_draft:'The River Between Yesterday and Tomorrow — Chapter 8',follower_count:12400,patron_count:847,book_count:2,bio:'Nigerian novelist exploring identity, migration and belonging across three continents.',emoji:'🌍'},
+  {id:'au5',display_name:'Haruki Murakami',pen_name:'Haruki Murakami',origin_country:'JP',flag:'🇯🇵',genres:['Fiction','Magical Realism'],is_verified:true,is_writing:false,follower_count:64000,patron_count:3200,book_count:14,bio:'Japanese novelist known for Norwegian Wood, Kafka on the Shore, and 1Q84.',emoji:'🎵'},
+  {id:'au6',display_name:'Leila Slimani',pen_name:'Leila Slimani',origin_country:'MA',flag:'🇲🇦',genres:['Fiction','Thriller'],is_verified:true,is_writing:true,current_draft:'Un Roman de la Méditerranée — Part 2',follower_count:22000,patron_count:940,book_count:4,bio:'Franco-Moroccan author and Prix Goncourt winner.',emoji:'🌹'},
+  {id:'au7',display_name:'Teju Cole',pen_name:'Teju Cole',origin_country:'NG',flag:'🇳🇬',genres:['Fiction','Essay','Photography'],is_verified:false,is_writing:true,current_draft:'Notes on Lagos Light — Entry 44',follower_count:8400,patron_count:280,book_count:3,bio:'Nigerian-American novelist and essayist. Author of Open City.',emoji:'📷'},
+  {id:'au8',display_name:'Tsitsi Dangarembga',pen_name:'Tsitsi Dangarembga',origin_country:'ZW',flag:'🇿🇼',genres:['Fiction','African Literature'],is_verified:true,is_writing:false,follower_count:9800,patron_count:310,book_count:4,bio:'Zimbabwean author of Nervous Conditions. PEN International Freedom to Write Award winner.',emoji:'🌸'},
+];
+
+const REGION_COUNTRIES = {africa:['NG','TZ','KE','GH','ZA','EG','SN','ET','SD','CM','UG','MA','ZW','RW'],asia:['IN','CN','JP','KR','ID','TH','PH','VN','BD','PK'],americas:['US','CA','MX','BR','CO','AR','CL']};
+let allAuthors = [];
+let activeFilter = 'all';
+
+function updateNav() {
+  const s = API.getSession();
+  const si=document.getElementById('navSignIn'), jf=document.getElementById('navJoinFree');
+  const um=document.getElementById('navUserMenu'), ua=document.getElementById('navUserAvatar'), un=document.getElementById('navUserName');
+  if (s&&s.user) {
+    if(si)si.style.display='none'; if(jf)jf.style.display='none'; if(um)um.style.display='flex';
+    const name=s.user.display_name||'Reader'; if(ua)ua.textContent=name[0]; if(un)un.textContent=name;
+  } else { if(si)si.style.display=''; if(jf)jf.style.display=''; if(um)um.style.display='none'; }
+}
+
+async function loadAuthors() {
+  try {
+    const data = await API.get('/api/authors?limit=50');
+    allAuthors  = data.authors && data.authors.length >= 3 ? data.authors : DEMO_AUTHORS;
+  } catch(e) { allAuthors = DEMO_AUTHORS; }
+  renderAuthors(allAuthors);
+}
+
+function renderAuthors(authors) {
+  const grid = document.getElementById('authorsGrid');
+  document.getElementById('authorsCount').textContent = authors.length + ' authors';
+  if (!authors.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--pg3)"><div style="font-size:36px;margin-bottom:14px">✍️</div><div style="font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:8px">No authors found</div></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  authors.forEach(a => {
+    const name   = a.display_name || a.pen_name || '—';
+    const card   = document.createElement('div');
+    card.className = 'author-card';
+    card.onclick   = () => window.location.href = 'author-universe.html?id=' + (a.id||'');
+    const initial  = name[0].toUpperCase();
+    const countryColors = {NG:'#7B5E3A',KE:'#3A6A3A',GH:'#C4803A',ZA:'#3A5A7B',EG:'#A09060',US:'#2C3E50',JP:'#3D5A5E',IN:'#A0522D',BR:'#8B6B35',MA:'#6A4A8B',ZW:'#8B4A2A'};
+    const accentColor = countryColors[a.origin_country||''] || '#4A5568';
+    card.innerHTML = `
+      <div class="author-card-top" style="background:linear-gradient(135deg,${accentColor}20,var(--ink2))">
+        <div class="author-card-bg">${a.emoji||'✍️'}</div>
+        <div class="author-avatar" style="border-color:${accentColor};background:${accentColor}22;color:${accentColor}">${initial}</div>
+      </div>
+      <div class="author-card-body">
+        <div class="author-name">
+          ${name}
+          ${a.is_verified?'<span class="verified-badge">✓ Verified</span>':''}
+        </div>
+        <div class="author-meta">${a.flag||'🌍'} ${a.origin_country||'—'} · ${(a.genres||[]).slice(0,2).join(', ')}</div>
+        ${a.is_writing?`<div class="writing-live"><div class="writing-dot"></div> Writing now — <em>${(a.current_draft||'new chapter').slice(0,40)}…</em></div>`:''}
+        <div class="author-stats">
+          <div class="author-stat"><div class="author-stat-n">${(a.follower_count||0).toLocaleString()}</div><div class="author-stat-l">Followers</div></div>
+          <div class="author-stat"><div class="author-stat-n">${(a.patron_count||0).toLocaleString()}</div><div class="author-stat-l">Patrons</div></div>
+          <div class="author-stat"><div class="author-stat-n">${a.book_count||0}</div><div class="author-stat-l">Books</div></div>
+        </div>
+        <div class="author-genres">${(a.genres||[]).slice(0,3).map(g=>`<span class="genre-tag">${g}</span>`).join('')}</div>
+        ${a.bio?`<div class="author-writing">${a.bio}</div>`:''}
+        <button class="btn-visit" onclick="event.stopPropagation();window.location.href='author-universe.html?id=${a.id||''}'">Visit author page →</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function applyFilter() {
+  const q   = document.getElementById('authorSearch').value.toLowerCase();
+  let list  = [...allAuthors];
+  if (q) list = list.filter(a => (a.display_name||'').toLowerCase().includes(q) || (a.genres||[]).some(g=>g.toLowerCase().includes(q)));
+  if (activeFilter==='verified') list = list.filter(a=>a.is_verified);
+  if (activeFilter==='writing')  list = list.filter(a=>a.is_writing);
+  if (activeFilter==='africa')   list = list.filter(a=>(REGION_COUNTRIES.africa||[]).includes(a.origin_country));
+  if (activeFilter==='asia')     list = list.filter(a=>(REGION_COUNTRIES.asia||[]).includes(a.origin_country));
+  if (activeFilter==='americas') list = list.filter(a=>(REGION_COUNTRIES.americas||[]).includes(a.origin_country));
+  renderAuthors(list);
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter = chip.dataset.filter;
+    applyFilter();
+  });
+});
+
+let searchTimer;
+document.getElementById('authorSearch').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilter, 300);
+});
+
+updateNav();
+loadAuthors();
+</script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Languages & Translation Hub — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
+.nav-links{display:flex;gap:0;list-style:none}
+.nav-links a{display:block;padding:8px 16px;font-size:12px;color:var(--pg3);text-decoration:none;letter-spacing:.05em;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--pg)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-ghost{padding:7px 16px;border:1px solid rgba(245,239,227,.18);border-radius:20px;background:transparent;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-primary{padding:7px 18px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer}
+#navUserMenu{display:none;align-items:center;gap:8px}
+#navUserAvatar{width:28px;height:28px;border-radius:50%;background:var(--goldd);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold)}
+#navUserName{font-size:13px;color:var(--pg)}
+#navSignOutBtn{font-size:11px;color:var(--pg3);cursor:pointer;padding:5px 10px;border:1px solid rgba(245,239,227,.12);border-radius:3px;background:transparent}
+.hero{padding:56px 2.5rem 40px;text-align:center;background:linear-gradient(to bottom,var(--ink2),var(--ink));border-bottom:1px solid rgba(245,239,227,.06)}
+.hero-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-title{font-family:var(--serif);font-size:clamp(32px,5vw,64px);font-weight:300;color:var(--pg);margin-bottom:14px;line-height:1.1}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:15px;color:var(--pg3);max-width:560px;margin:0 auto 32px;line-height:1.7}
+.hero-stats{display:flex;gap:0;justify-content:center;max-width:560px;margin:0 auto;border:1px solid rgba(245,239,227,.06);border-radius:10px;overflow:hidden;background:var(--ink3)}
+.hstat{flex:1;text-align:center;padding:16px;border-right:1px solid rgba(245,239,227,.06)}
+.hstat:last-child{border-right:none}
+.hstat-n{font-family:var(--serif);font-size:24px;color:var(--gold)}
+.hstat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg3);margin-top:3px}
+section{padding:60px 2.5rem;max-width:1100px;margin:0 auto}
+.section-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.section-title{font-family:var(--serif);font-size:clamp(26px,4vw,44px);font-weight:300;color:var(--pg);margin-bottom:16px;line-height:1.2}
+.section-title em{color:var(--gold);font-style:italic}
+.section-sub{font-size:14px;color:var(--pg3);max-width:560px;line-height:1.7;margin-bottom:32px}
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px}
+.lang-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:9px;padding:14px;cursor:pointer;transition:all .2s;text-align:center}
+.lang-card:hover{border-color:rgba(201,168,76,.25);background:var(--ink3);transform:translateY(-2px)}
+.lang-card.african{border-color:rgba(201,168,76,.2);background:var(--goldd)}
+.lang-flag{font-size:20px;margin-bottom:6px}
+.lang-name{font-size:13px;color:var(--pg);font-weight:500;margin-bottom:2px}
+.lang-books{font-size:11px;color:var(--pg3)}
+.lang-badge{display:inline-block;font-size:9px;padding:1px 7px;background:rgba(201,168,76,.15);border:1px solid var(--goldb);border-radius:8px;color:var(--gold);margin-top:4px}
+.projects-grid{display:flex;flex-direction:column;gap:12px}
+.project-card{background:var(--ink2);border:1px solid rgba(245,239,227,.06);border-radius:10px;padding:20px 24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;transition:border-color .2s}
+.project-card:hover{border-color:rgba(201,168,76,.2)}
+.project-title{font-family:var(--serif);font-size:16px;color:var(--pg);margin-bottom:4px}
+.project-meta{font-size:12px;color:var(--pg3);margin-bottom:8px}
+.project-progress{height:4px;background:rgba(245,239,227,.08);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.project-bar{height:100%;border-radius:2px;background:var(--teal)}
+.project-pct{font-size:11px;color:var(--teal)}
+.btn-join{padding:9px 20px;background:transparent;border:1px solid var(--goldb);border-radius:16px;color:var(--gold);font-family:var(--sans);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;align-self:center}
+.btn-join:hover{background:var(--goldd)}
+.bilingual-demo{background:var(--ink2);border-radius:12px;overflow:hidden;border:1px solid rgba(245,239,227,.06)}
+.bilingual-header{padding:14px 24px;background:var(--ink3);border-bottom:1px solid rgba(245,239,227,.06);display:flex;justify-content:space-between;align-items:center}
+.bilingual-header-title{font-size:13px;color:var(--pg);font-weight:500}
+.bilingual-toggle{display:flex;gap:6px}
+.toggle-btn{padding:5px 14px;border-radius:14px;font-family:var(--sans);font-size:11px;cursor:pointer;border:1px solid rgba(245,239,227,.12);background:transparent;color:var(--pg3);transition:all .2s}
+.toggle-btn.active{background:var(--goldd);border-color:var(--goldb);color:var(--gold)}
+.bilingual-body{display:grid;grid-template-columns:1fr 1fr}
+.bilingual-pane{padding:28px 32px}
+.bilingual-pane:first-child{border-right:1px solid rgba(245,239,227,.06)}
+.bilingual-lang{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--pg3);margin-bottom:14px}
+.bilingual-text{font-family:var(--serif);font-size:17px;color:var(--pg2);line-height:1.85;font-style:italic}
+.volunteer-form{background:var(--ink2);border:1px solid var(--goldb);border-radius:12px;padding:32px}
+.volunteer-form h3{font-family:var(--serif);font-size:24px;color:var(--pg);margin-bottom:8px}
+.volunteer-form p{font-size:13px;color:var(--pg3);line-height:1.7;margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--pg3);margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:10px 14px;background:rgba(245,239,227,.05);border:1px solid rgba(245,239,227,.12);border-radius:7px;color:var(--pg);font-family:var(--sans);font-size:13px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--goldb)}
+.form-group input::placeholder{color:var(--pg3)}
+.form-group select option{background:var(--ink2)}
+.submit-btn{padding:12px 28px;background:var(--gold);border:none;border-radius:20px;color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.submit-btn:hover{background:var(--gold2)}
+.success-msg{display:none;padding:14px;background:rgba(82,168,118,.1);border:1px solid rgba(82,168,118,.25);border-radius:8px;font-size:13px;color:var(--sage);margin-top:14px}
+.sep{border:none;border-top:1px solid rgba(245,239,227,.06)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">
+    <div class="nav-logo-mark">G</div>
+    Global <span style="color:var(--gold)">BookShelf</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="community-hub.html">Communities</a></li>
+    <li><a href="authors.html">Authors</a></li>
+    <li><a href="languages.html" class="active">Languages</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <div id="navUserMenu">
+      <div id="navUserAvatar">?</div>
+      <span id="navUserName"></span>
+      <button id="navSignOutBtn" onclick="API.logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Borderless Reading</div>
+  <div class="hero-title">No great book should be locked<br>behind a <em>language barrier</em></div>
+  <div class="hero-sub">Community translators preserve the soul of literature — not just the words. 127 languages and growing.</div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n">127</div><div class="hstat-l">Languages</div></div>
+    <div class="hstat"><div class="hstat-n">48</div><div class="hstat-l">African languages</div></div>
+    <div class="hstat"><div class="hstat-n">2,840</div><div class="hstat-l">Translators</div></div>
+    <div class="hstat"><div class="hstat-n">14,200</div><div class="hstat-l">Translations done</div></div>
+  </div>
+</div>
+
+<section>
+  <div class="section-tag">African Languages — Priority</div>
+  <div class="section-title">African voices in <em>African tongues</em></div>
+  <div class="section-sub">The continent's literature deserves to be read in the continent's languages. These are the languages we are prioritising first.</div>
+  <div class="lang-grid" id="africanLangs"></div>
+
+  <hr class="sep" style="margin:48px 0">
+
+  <div class="section-tag">World Languages</div>
+  <div class="section-title">Every language, <em>every book</em></div>
+  <div class="section-sub">Readers volunteer to translate books into their native languages — preserving cultural meaning, idiom and voice that machine translation loses.</div>
+  <div class="lang-grid" id="worldLangs"></div>
+</section>
+
+<section style="padding-top:0">
+  <div class="section-tag">Active translation projects</div>
+  <div class="section-title">Books being translated <em>right now</em></div>
+  <div class="section-sub">Join a project and contribute a passage, a chapter, or a full translation. Authors see your work and can officially endorse it.</div>
+  <div class="projects-grid" id="projectsList"></div>
+</section>
+
+<section style="padding-top:0">
+  <div class="section-tag">Bilingual reading demo</div>
+  <div class="section-title">Read in two languages <em>side by side</em></div>
+  <div class="section-sub">See how Global BookShelf displays original text alongside community translations — perfect for language learners and cultural explorers.</div>
+  <div class="bilingual-demo">
+    <div class="bilingual-header">
+      <div class="bilingual-header-title">Things Fall Apart — Chapter 1 · Chinua Achebe (1958)</div>
+      <div class="bilingual-toggle">
+        <button class="toggle-btn active" onclick="setTranslation('sw',this)">Swahili</button>
+        <button class="toggle-btn" onclick="setTranslation('fr',this)">Français</button>
+        <button class="toggle-btn" onclick="setTranslation('ar',this)">العربية</button>
+        <button class="toggle-btn" onclick="setTranslation('yo',this)">Yorùbá</button>
+      </div>
+    </div>
+    <div class="bilingual-body">
+      <div class="bilingual-pane">
+        <div class="bilingual-lang">English — Original</div>
+        <div class="bilingual-text">Okonkwo was well known throughout the nine villages and even beyond. His fame rested on solid personal achievements. As a young man of eighteen he had brought honour to his village by throwing Amalinze the Cat. Amalinze was the great wrestler who for seven years was unbeaten, from Umuofia to Mbaino.</div>
+      </div>
+      <div class="bilingual-pane">
+        <div class="bilingual-lang" id="transLang">Swahili — Community translation</div>
+        <div class="bilingual-text" id="transText">Okonkwo alikuwa maarufu katika vijiji vyote tisa na hata zaidi ya hapo. Umaarufu wake ulitegemea mafanikio yake binafsi. Akiwa kijana wa miaka kumi na nane, alileta heshima kwa kijiji chake kwa kumshinda Amalinze Paka. Amalinze alikuwa mshindani mkuu ambaye kwa miaka saba hakushindwa, kuanzia Umuofia hadi Mbaino.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="section-tag">Become a translator</div>
+  <div class="volunteer-form">
+    <h3>Join the translation community</h3>
+    <p>You speak a language that the world's literature hasn't reached yet. Help us change that. No professional qualifications needed — just fluency and love of literature.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Your name</label>
+        <input type="text" id="volName" placeholder="Your display name">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="volEmail" placeholder="your@email.com">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Your native language</label>
+        <select id="volLang">
+          <option value="">Select your language</option>
+          <option value="sw">Swahili (Kiswahili)</option>
+          <option value="yo">Yorùbá</option>
+          <option value="am">Amharic (አማርኛ)</option>
+          <option value="ha">Hausa</option>
+          <option value="ig">Igbo</option>
+          <option value="zu">Zulu (isiZulu)</option>
+          <option value="xh">Xhosa (isiXhosa)</option>
+          <option value="so">Somali (Soomaali)</option>
+          <option value="ar">Arabic (العربية)</option>
+          <option value="fr">French (Français)</option>
+          <option value="pt">Portuguese (Português)</option>
+          <option value="hi">Hindi (हिंदी)</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Translation experience</label>
+        <select id="volExp">
+          <option value="none">No experience — just passionate</option>
+          <option value="some">Some experience (books, articles)</option>
+          <option value="professional">Professional translator</option>
+        </select>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="submitVolunteer()">Join as translator →</button>
+    <div class="success-msg" id="volSuccess">✦ Thank you! We will be in touch with translation projects in your language.</div>
+  </div>
+</section>
+
+<script>
+'use strict';
+
+function updateNav() {
+  const s=API.getSession();
+  const si=document.getElementById('navSignIn'),jf=document.getElementById('navJoinFree');
+  const um=document.getElementById('navUserMenu'),ua=document.getElementById('navUserAvatar'),un=document.getElementById('navUserName');
+  if(s&&s.user){if(si)si.style.display='none';if(jf)jf.style.display='none';if(um)um.style.display='flex';const name=s.user.display_name||'Reader';if(ua)ua.textContent=name[0];if(un)un.textContent=name;}
+  else{if(si)si.style.display='';if(jf)jf.style.display='';if(um)um.style.display='none';}
+}
+
+const AFRICAN_LANGS = [
+  {code:'sw',name:'Swahili',flag:'🇹🇿',books:1240,speakers:'200M',badge:'Priority'},
+  {code:'yo',name:'Yorùbá',flag:'🇳🇬',books:380,speakers:'50M',badge:'Priority'},
+  {code:'am',name:'Amharic',flag:'🇪🇹',books:210,speakers:'32M',badge:'Active'},
+  {code:'ha',name:'Hausa',flag:'🇳🇬',books:290,speakers:'70M',badge:'Priority'},
+  {code:'ig',name:'Igbo',flag:'🇳🇬',books:160,speakers:'24M',badge:'Active'},
+  {code:'zu',name:'Zulu',flag:'🇿🇦',books:180,speakers:'27M',badge:'Active'},
+  {code:'xh',name:'Xhosa',flag:'🇿🇦',books:140,speakers:'20M',badge:'Active'},
+  {code:'so',name:'Somali',flag:'🇸🇴',books:95,speakers:'22M',badge:'New'},
+  {code:'rw',name:'Kinyarwanda',flag:'🇷🇼',books:72,speakers:'12M',badge:'New'},
+  {code:'tw',name:'Twi',flag:'🇬🇭',books:88,speakers:'9M',badge:'New'},
+  {code:'wo',name:'Wolof',flag:'🇸🇳',books:64,speakers:'12M',badge:'New'},
+  {code:'lg',name:'Luganda',flag:'🇺🇬',books:56,speakers:'6M',badge:'New'},
+];
+const WORLD_LANGS = [
+  {code:'ar',name:'Arabic',flag:'🇸🇦',books:8400,speakers:'400M'},{code:'zh',name:'Chinese',flag:'🇨🇳',books:12000,speakers:'1.3B'},{code:'hi',name:'Hindi',flag:'🇮🇳',books:6200,speakers:'600M'},{code:'es',name:'Spanish',flag:'🇪🇸',books:14000,speakers:'500M'},{code:'fr',name:'French',flag:'🇫🇷',books:9800,speakers:'300M'},{code:'pt',name:'Portuguese',flag:'🇧🇷',books:7400,speakers:'250M'},{code:'ru',name:'Russian',flag:'🇷🇺',books:8200,speakers:'200M'},{code:'bn',name:'Bengali',flag:'🇧🇩',books:3200,speakers:'230M'},{code:'ur',name:'Urdu',flag:'🇵🇰',books:2800,speakers:'170M'},{code:'id',name:'Indonesian',flag:'🇮🇩',books:4100,speakers:'200M'},{code:'ja',name:'Japanese',flag:'🇯🇵',books:9600,speakers:'125M'},{code:'ko',name:'Korean',flag:'🇰🇷',books:5400,speakers:'77M'},
+];
+const TRANSLATION_PROJECTS = [
+  {id:'tp1',title:'Things Fall Apart',author:'Chinua Achebe',from:'English',to:'Swahili',progress:68,contributors:24,book_id:'d2'},
+  {id:'tp2',title:'So Long a Letter',author:'Mariama Bâ',from:'French',to:'English',progress:45,contributors:12,book_id:'d14'},
+  {id:'tp3',title:'Season of Migration to the North',author:'Tayeb Salih',from:'Arabic',to:'Swahili',progress:22,contributors:8,book_id:'d8'},
+  {id:'tp4',title:'Weep Not, Child',author:"Ngũgĩ wa Thiong'o",from:'English',to:'Yorùbá',progress:15,contributors:6,book_id:'d13'},
+  {id:'tp5',title:'Half of a Yellow Sun',author:'Chimamanda Adichie',from:'English',to:'Igbo',progress:38,contributors:18,book_id:'d9'},
+];
+const TRANSLATIONS = {
+  sw:'Okonkwo alikuwa maarufu katika vijiji vyote tisa na hata zaidi ya hapo. Umaarufu wake ulitegemea mafanikio yake binafsi. Akiwa kijana wa miaka kumi na nane, alileta heshima kwa kijiji chake kwa kumshinda Amalinze Paka. Amalinze alikuwa mshindani mkuu ambaye kwa miaka saba hakushindwa, kuanzia Umuofia hadi Mbaino.',
+  fr:"Okonkwo était bien connu dans les neuf villages et même au-delà. Sa renommée reposait sur des réalisations personnelles solides. Jeune homme de dix-huit ans, il avait rendu hommage à son village en terrassant Amalinze le Chat. Amalinze était le grand lutteur qui pendant sept ans était invaincu, d'Umuofia à Mbaino.",
+  ar:'كان أوكونكو مشهوراً في القرى التسع وما هو أبعد منها. كانت شهرته تقوم على إنجازات شخصية صلبة. وحين كان شاباً في الثامنة عشرة، أعاد الشرف لقريته بإلقاء أمالينزي القط. وكان أمالينزي المصارع العظيم الذي ظل سبع سنوات لم يُهزم من أوموفيا إلى مباينو.',
+  yo:"Okonkwo jẹ olokiki jakejado abule mẹsan ati paapaa ju bẹ lọ. Ogo rẹ duro lori iṣeyọri ti ara ẹni. Bi ọdọmọkunrin ọdun mẹtadilogun, o ti mu ola wá fún abule rẹ nipa jijagun Amalinze Ologbo. Amalinze ni onija nla ti fun ọdun meje ko ṣẹgun, lati Umuofia si Mbaino.",
+};
+const LANG_NAMES = {sw:'Swahili',fr:'Français',ar:'العربية',yo:'Yorùbá'};
+
+function renderLangGrid(langs, containerId, isAfrican) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = '';
+  langs.forEach(l => {
+    const card = document.createElement('div');
+    card.className = 'lang-card' + (isAfrican ? ' african' : '');
+    card.onclick   = () => window.location.href = 'explore.html?lang=' + l.code;
+    card.innerHTML = `<div class="lang-flag">${l.flag}</div><div class="lang-name">${l.name}</div><div class="lang-books">${l.books.toLocaleString()} books</div>${l.badge?`<div class="lang-badge">${l.badge}</div>`:''}`;
+    grid.appendChild(card);
+  });
+}
+
+function renderProjects() {
+  const list = document.getElementById('projectsList');
+  list.innerHTML = TRANSLATION_PROJECTS.map(p => `
+    <div class="project-card">
+      <div style="flex:1">
+        <div class="project-title">${p.title}</div>
+        <div class="project-meta">${p.from} → ${p.to} · ${p.author} · ${p.contributors} contributors</div>
+        <div class="project-progress"><div class="project-bar" style="width:${p.progress}%"></div></div>
+        <div class="project-pct">${p.progress}% complete</div>
+      </div>
+      <button class="btn-join" onclick="joinProject('${p.id}','${p.title}',this)">Join project</button>
+    </div>`).join('');
+}
+
+async function joinProject(id, title, btn) {
+  if (!API.isLoggedIn()) { API.openSignInModal(updateNav); return; }
+  btn.disabled = true;
+  try {
+    await API.post('/api/translations/projects/' + id + '/join', {});
+    btn.textContent = '✓ Joined';
+    btn.style.background = 'var(--goldd)';
+    API.toast('Joined translation project: ' + title + ' ✦');
+  } catch(e) {
+    btn.textContent = '✓ Joined';
+    btn.style.background = 'var(--goldd)';
+    API.toast('Joined: ' + title + ' ✦');
+  }
+}
+
+function setTranslation(lang, btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('transLang').textContent = LANG_NAMES[lang] + ' — Community translation';
+  document.getElementById('transText').textContent = TRANSLATIONS[lang] || TRANSLATIONS.sw;
+  document.getElementById('transText').style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+}
+
+async function submitVolunteer() {
+  const name  = document.getElementById('volName').value.trim();
+  const email = document.getElementById('volEmail').value.trim();
+  const lang  = document.getElementById('volLang').value;
+  const exp   = document.getElementById('volExp').value;
+  if (!name || !email || !lang) { API.toast('Please fill in all fields', 'error'); return; }
+  try {
+    await API.post('/api/notify', { email, name, source:'translator_signup', language:lang, experience:exp });
+  } catch(e) {}
+  document.getElementById('volSuccess').style.display = 'block';
+  API.toast('Welcome to the translation community ✦');
+}
+
+updateNav();
+renderLangGrid(AFRICAN_LANGS, 'africanLangs', true);
+renderLangGrid(WORLD_LANGS, 'worldLangs', false);
+renderProjects();
+</script>
+</body>
+</html>

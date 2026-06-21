@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global BookShelf — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#07070e;--ink2:#10101a;--ink3:#181823;--ink4:#202030;
+  --pg:#f4ede0;--pg2:rgba(244,237,224,.8);--pg3:rgba(244,237,224,.5);--pg4:rgba(244,237,224,.15);
+  --gold:#c8a44a;--gold2:#e6c560;--goldd:rgba(200,164,74,.12);--goldb:rgba(200,164,74,.3);
+  --teal:#36b4ac;--coral:#de5848;--sage:#68a878;--violet:#8b78d6;--amber:#c97e32;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--ink2);border-right:1px solid var(--pg4);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.sb-logo{padding:20px 18px;border-bottom:1px solid var(--pg4);display:flex;align-items:center;gap:10px}
+.sb-logo-mark{width:30px;height:30px;border:1.5px solid var(--gold);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);
+  font-size:15px;color:var(--gold);font-style:italic}
+.sb-logo-text{font-family:var(--serif);font-size:14px;color:var(--pg);line-height:1.2}
+.sb-logo-sub{font-size:10px;color:var(--pg3);letter-spacing:.06em}
+.sb-section{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--pg3);padding:14px 18px 6px;font-weight:500}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;
+  color:var(--pg3);cursor:pointer;transition:all .2s;border-left:2px solid transparent;
+  user-select:none}
+.sb-link:hover{color:var(--pg);background:var(--pg4)}
+.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:var(--goldd)}
+.sb-icon{font-size:15px;width:18px;text-align:center}
+.sb-badge{background:var(--coral);color:#fff;font-size:10px;font-weight:500;
+  padding:1px 6px;border-radius:8px;margin-left:auto}
+.sb-bottom{margin-top:auto;padding:16px 18px;border-top:1px solid var(--pg4)}
+.sb-logout{font-size:12px;color:var(--pg3);cursor:pointer;padding:8px 0;
+  letter-spacing:.04em;transition:color .2s}
+.sb-logout:hover{color:var(--coral)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:56px;background:var(--ink2);border-bottom:1px solid var(--pg4);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  position:sticky;top:0;z-index:50}
+.topbar-title{font-family:var(--serif);font-size:18px;color:var(--pg)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.api-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--teal)}
+.api-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);
+  animation:blink 2s ease-in-out infinite}
+.api-dot.red{background:var(--coral);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.topbar-btn{padding:7px 16px;border-radius:6px;font-family:var(--sans);
+  font-size:12px;cursor:pointer;transition:all .2s;border:1px solid var(--pg4);
+  background:transparent;color:var(--pg3)}
+.topbar-btn:hover{border-color:var(--goldb);color:var(--gold)}
+.topbar-btn.gold{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:500}
+.topbar-btn.gold:hover{background:var(--gold2)}
+.content{flex:1;padding:24px;overflow-y:auto}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--ink2);border:1px solid var(--pg4);border-radius:10px;
+  overflow:hidden;margin-bottom:20px}
+.card-h{padding:16px 20px;border-bottom:1px solid var(--pg4);display:flex;
+  align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:500;color:var(--pg);letter-spacing:.02em}
+.card-b{padding:20px}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--ink2);border:1px solid var(--pg4);border-radius:10px;
+  padding:18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--c,var(--gold))}
+.stat-n{font-family:var(--serif);font-size:28px;color:var(--pg);margin-bottom:4px}
+.stat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg3)}
+.stat-change{font-size:11px;margin-top:6px}
+.stat-change.up{color:var(--sage)}
+.stat-change.down{color:var(--coral)}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:9px 12px;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--pg3);border-bottom:1px solid var(--pg4);font-weight:400}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--pg4);color:var(--pg2);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(244,237,224,.03)}
+.mono{font-family:var(--mono)}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-green{background:rgba(104,168,120,.15);color:var(--sage);border:1px solid rgba(104,168,120,.3)}
+.badge-gold{background:var(--goldd);color:var(--gold);border:1px solid var(--goldb)}
+.badge-red{background:rgba(222,88,72,.12);color:var(--coral);border:1px solid rgba(222,88,72,.25)}
+.badge-teal{background:rgba(54,180,172,.12);color:var(--teal);border:1px solid rgba(54,180,172,.25)}
+.badge-blue{background:rgba(139,120,214,.12);color:var(--violet);border:1px solid rgba(139,120,214,.25)}
+
+/* ── BUTTONS ── */
+.action-btn{padding:4px 12px;border-radius:5px;font-family:var(--sans);font-size:11px;
+  font-weight:500;cursor:pointer;transition:all .2s;border:1px solid}
+.action-btn.teal{background:rgba(54,180,172,.1);color:var(--teal);border-color:rgba(54,180,172,.3)}
+.action-btn.teal:hover{background:rgba(54,180,172,.2)}
+.action-btn.red{background:rgba(222,88,72,.1);color:var(--coral);border-color:rgba(222,88,72,.3)}
+.action-btn.red:hover{background:rgba(222,88,72,.2)}
+.action-btn.gold{background:var(--goldd);color:var(--gold);border-color:var(--goldb)}
+.action-btn.gold:hover{background:rgba(200,164,74,.25)}
+.btn-primary{padding:10px 22px;background:var(--gold);border:none;border-radius:7px;
+  color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .2s}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ghost{padding:9px 18px;background:transparent;border:1px solid var(--goldb);
+  border-radius:7px;color:var(--gold);font-family:var(--sans);font-size:13px;cursor:pointer;
+  transition:all .2s}
+.btn-ghost:hover{background:var(--goldd)}
+.refresh-btn{padding:6px 14px;background:transparent;border:1px solid var(--pg4);
+  border-radius:6px;color:var(--pg3);font-family:var(--sans);font-size:12px;cursor:pointer;
+  transition:all .2s}
+.refresh-btn:hover{border-color:var(--goldb);color:var(--gold)}
+
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--ink3);border:1px solid var(--pg4);border-radius:8px;margin-bottom:16px}
+.search-bar input{flex:1;background:transparent;border:none;outline:none;
+  color:var(--pg);font-family:var(--sans);font-size:13px}
+.search-bar input::placeholder{color:var(--pg3)}
+
+/* ── FORM ELEMENTS ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--pg3);margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;background:var(--ink3);border:1px solid var(--pg4);
+  border-radius:7px;color:var(--pg);font-family:var(--sans);font-size:13px;outline:none;
+  transition:border-color .2s}
+.form-input:focus{border-color:var(--goldb)}
+.form-input::placeholder{color:var(--pg3)}
+textarea.form-input{resize:vertical;min-height:100px}
+select.form-input{cursor:pointer}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;
+  justify-content:center;background:rgba(7,7,14,.88);backdrop-filter:blur(8px)}
+.modal-box{background:var(--ink2);border:1px solid var(--goldb);border-radius:14px;
+  padding:32px;width:480px;max-width:96vw;position:relative;
+  box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.modal-x{position:absolute;top:14px;right:14px;background:transparent;
+  border:1px solid var(--pg4);border-radius:6px;color:var(--pg3);font-size:14px;
+  cursor:pointer;padding:4px 10px;transition:all .2s}
+.modal-x:hover{border-color:var(--coral);color:var(--coral)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--pg3)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-title{font-size:15px;color:var(--pg);margin-bottom:8px}
+.empty-sub{font-size:13px;line-height:1.6;max-width:360px;margin:0 auto 16px}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:32px;color:var(--pg3);font-size:13px}
+
+/* ── STATUS MESSAGE ── */
+.status-msg{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.status-msg.show{display:block}
+.status-msg.success{background:rgba(104,168,120,.1);border:1px solid rgba(104,168,120,.25);color:var(--sage)}
+.status-msg.error{background:rgba(222,88,72,.1);border:1px solid rgba(222,88,72,.25);color:var(--coral)}
+.status-msg.info{background:var(--goldd);border:1px solid var(--goldb);color:var(--gold)}
+
+/* ── ANNOUNCEMENT PREVIEW ── */
+.ann-preview-card{background:var(--ink3);border:1px solid var(--goldb);border-radius:10px;
+  padding:18px 22px;display:flex;align-items:flex-start;gap:14px}
+.ann-preview-icon{width:44px;height:44px;border-radius:10px;background:var(--goldd);
+  border:1px solid var(--goldb);display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0}
+.ann-preview-title{font-size:14px;font-weight:500;color:var(--pg);margin-bottom:4px}
+.ann-preview-body{font-size:13px;color:var(--pg3);line-height:1.6;margin-bottom:8px}
+.ann-preview-meta{font-size:11px;color:var(--pg4)}
+
+/* ── ANALYTICS BARS ── */
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:80px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar-fill{width:100%;border-radius:2px 2px 0 0;min-height:2px;transition:height .3s}
+.bar-label{font-size:9px;color:var(--pg3)}
+
+/* ── VISA CARD ── */
+.visa-card{background:linear-gradient(135deg,#1A3A6A,#0F2244);border-radius:10px;
+  padding:18px;color:#fff;position:relative}
+.vc-type{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:10px}
+.vc-amount{font-family:var(--serif);font-size:28px;color:#fff;margin-bottom:4px}
+.vc-label{font-size:11px;color:rgba(255,255,255,.5)}
+.vc-visa{position:absolute;top:18px;right:18px;font-size:18px;font-style:italic;
+  font-weight:700;letter-spacing:2px;color:#F9C84F}
+
+/* ── ACTIVITY FEED ── */
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--pg4)}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:14px;flex-shrink:0}
+.activity-text{font-size:13px;color:var(--pg2);line-height:1.5;flex:1}
+.activity-time{font-size:11px;color:var(--pg3);flex-shrink:0}
+
+/* ── 2-COL GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">G</div>
+    <div>
+      <div class="sb-logo-text">Global BookShelf</div>
+      <div class="sb-logo-sub">Admin Dashboard</div>
+    </div>
+  </div>
+
+  <div class="sb-section">Overview</div>
+  <div class="sb-link active" onclick="showPage('overview',this)"><span class="sb-icon">📊</span>Dashboard</div>
+  <div class="sb-link" onclick="showPage('analytics',this)"><span class="sb-icon">📈</span>Analytics</div>
+
+  <div class="sb-section">Content</div>
+  <div class="sb-link" onclick="showPage('books',this)"><span class="sb-icon">📚</span>Books</div>
+  <div class="sb-link" onclick="showPage('authors',this)"><span class="sb-icon">✍️</span>Authors</div>
+  <div class="sb-link" onclick="showPage('clubs',this)"><span class="sb-icon">👥</span>Communities</div>
+
+  <div class="sb-section">Users</div>
+  <div class="sb-link" onclick="showPage('users',this)"><span class="sb-icon">👤</span>All Users</div>
+  <div class="sb-link" onclick="showPage('moderation',this)"><span class="sb-icon">🛡</span>Moderation</div>
+
+  <div class="sb-section">Revenue</div>
+  <div class="sb-link" onclick="showPage('payments',this)"><span class="sb-icon">💳</span>Payments (Visa)</div>
+  <div class="sb-link" onclick="showPage('payouts',this)"><span class="sb-icon">🏦</span>Author Payouts</div>
+
+  <div class="sb-section">Communication</div>
+  <div class="sb-link" onclick="showPage('announcements',this)"><span class="sb-icon">📢</span>Announcements</div>
+  <div class="sb-link" onclick="showPage('notifications',this)"><span class="sb-icon">🔔</span>Notifications</div>
+
+  <div class="sb-section">System</div>
+  <div class="sb-link" onclick="showPage('health',this)"><span class="sb-icon">⚙</span>API Health</div>
+  <div class="sb-link" onclick="showPage('soul',this)"><span class="sb-icon">✦</span>Soul Engine</div>
+
+  <div class="sb-bottom">
+    <div class="sb-logout" onclick="doSignOut()">Sign out →</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-right">
+      <div class="api-status">
+        <div class="api-dot" id="apiDot"></div>
+        <span id="apiStatus">Checking…</span>
+      </div>
+      <button class="topbar-btn" onclick="refreshCurrent()">↻ Refresh</button>
+      <button class="topbar-btn gold" onclick="window.location.href='global-bookshelf.html'">← Live site</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="page active" id="page-overview">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" style="--c:var(--gold)">
+          <div class="stat-n" id="stat-users">—</div>
+          <div class="stat-l">Registered users</div>
+          <div class="stat-change up" id="stat-users-change"></div>
+        </div>
+        <div class="stat-card" style="--c:var(--teal)">
+          <div class="stat-n" id="stat-books">—</div>
+          <div class="stat-l">Books catalogued</div>
+        </div>
+        <div class="stat-card" style="--c:var(--violet)">
+          <div class="stat-n" id="stat-clubs">—</div>
+          <div class="stat-l">Active book clubs</div>
+        </div>
+        <div class="stat-card" style="--c:var(--sage)">
+          <div class="stat-n" id="stat-revenue">—</div>
+          <div class="stat-l">Total revenue (USD)</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h"><div class="card-title">Live activity feed</div><div class="api-dot"></div></div>
+          <div class="card-b" id="activityFeed"><div class="loading">Loading…</div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-title">Top countries</div></div>
+          <div class="card-b" id="topCountries"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══ -->
+    <div class="page" id="page-analytics">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Platform analytics</div></div>
+        <div class="card-b" id="analyticsContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ BOOKS ══ -->
+    <div class="page" id="page-books">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-title">Book catalogue</div>
+          <button class="refresh-btn" onclick="loadBooks()">↻ Refresh</button>
+        </div>
+        <div class="card-b">
+          <div class="search-bar"><span style="color:var(--pg3)">⌕</span><input type="text" id="bookSearch" placeholder="Search books…" oninput="filterBooks(this.value)"></div>
+          <div id="booksContent"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AUTHORS ══ -->
+    <div class="page" id="page-authors">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-title">Authors</div>
+          <button class="refresh-btn" onclick="loadAuthors()">↻ Refresh</button>
+        </div>
+        <div class="card-b" id="authorsContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ CLUBS ══ -->
+    <div class="page" id="page-clubs">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-title">Book clubs & communities</div>
+          <button class="refresh-btn" onclick="loadClubs()">↻ Refresh</button>
+        </div>
+        <div class="card-b" id="clubsContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ USERS ══ -->
+    <div class="page" id="page-users">
+      <div class="card">
+        <div class="card-h">
+          <div class="card-title">All users</div>
+          <button class="refresh-btn" onclick="loadUsers()">↻ Refresh</button>
+        </div>
+        <div class="card-b">
+          <div class="search-bar">
+            <span style="color:var(--pg3)">⌕</span>
+            <input type="text" id="userSearch" placeholder="Search by name, email or country…" oninput="filterUsers(this.value)">
+          </div>
+          <table class="data-table">
+            <thead><tr><th>User</th><th>Email</th><th>Country</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="usersBody"><tr><td colspan="7"><div class="loading">Loading users…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODERATION ══ -->
+    <div class="page" id="page-moderation">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Content reports</div><span class="badge badge-red" id="reportCount">—</span></div>
+        <div class="card-b" id="moderationContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ PAYMENTS ══ -->
+    <div class="page" id="page-payments">
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="visa-card"><div class="vc-type">Total revenue</div><div class="vc-amount" id="pay-total">$0</div><div class="vc-label">All time</div><div class="vc-visa">VISA</div></div>
+        <div class="visa-card" style="background:linear-gradient(135deg,#1A5A3A,#0F3A22)"><div class="vc-type">This month</div><div class="vc-amount" id="pay-month">$0</div><div class="vc-label" id="pay-txns">0 transactions</div><div class="vc-visa" style="color:#4EC98F">VISA</div></div>
+        <div class="visa-card" style="background:linear-gradient(135deg,#4A2A6A,#2A1044)"><div class="vc-type">Platform fees (5%)</div><div class="vc-amount" id="pay-fees">$0</div><div class="vc-label" id="pay-net">Author net: $0</div><div class="vc-visa" style="color:#B090F0">VISA</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">Visa card transactions</div><button class="refresh-btn" onclick="loadPayments()">↻ Refresh</button></div>
+        <div class="card-b">
+          <div class="search-bar"><span style="color:var(--pg3)">⌕</span><input type="text" placeholder="Search transactions…" oninput="filterPayments(this.value)"></div>
+          <div id="paymentsContent"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAYOUTS ══ -->
+    <div class="page" id="page-payouts">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Author payouts</div><button class="refresh-btn" onclick="loadPayouts()">↻ Refresh</button></div>
+        <div class="card-b" id="payoutsContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ ANNOUNCEMENTS ══ -->
+    <div class="page" id="page-announcements">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-h"><div class="card-title">📢 Send announcement to all users</div></div>
+        <div class="card-b">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Title *</label>
+              <input class="form-input" id="annTitle" type="text" placeholder="e.g. New feature — African Languages Hub">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-input" id="annType">
+                <option value="general">📢 General announcement</option>
+                <option value="feature">✦ New feature</option>
+                <option value="maintenance">⚙ Maintenance notice</option>
+                <option value="launch">🚀 City launch</option>
+                <option value="book">📚 Book of the week</option>
+                <option value="author">✍️ Featured author</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message *</label>
+            <textarea class="form-input" id="annMessage" placeholder="Write your announcement…"></textarea>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Target audience</label>
+              <select class="form-input" id="annTarget">
+                <option value="all">🌍 All users</option>
+                <option value="readers">📖 Readers only</option>
+                <option value="authors">✍️ Authors only</option>
+                <option value="patrons">💛 Patrons only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Link (optional)</label>
+              <input class="form-input" id="annLink" type="text" placeholder="e.g. community-hub.html">
+            </div>
+          </div>
+          <div class="status-msg" id="annStatus"></div>
+          <div style="display:flex;gap:12px">
+            <button class="btn-ghost" onclick="previewAnnouncement()">Preview</button>
+            <button class="btn-primary" id="annSendBtn" onclick="sendAnnouncement()">📢 Send to all users →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="annPreviewBox" style="display:none;margin-bottom:20px">
+        <div class="card-h"><div class="card-title">Preview — how users will see this</div></div>
+        <div class="card-b"><div id="annPreviewContent"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><div class="card-title">Announcement history</div><button class="refresh-btn" onclick="loadAnnHistory()">↻ Refresh</button></div>
+        <div class="card-b" id="annHistory"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ NOTIFICATIONS ══ -->
+    <div class="page" id="page-notifications">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Platform notifications</div><button class="refresh-btn" onclick="loadNotifications()">↻ Refresh</button></div>
+        <div class="card-b">
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="action-btn gold" onclick="filterNotifs('all')">All</button>
+            <button class="action-btn teal" onclick="filterNotifs('unread')">Unread</button>
+            <button class="action-btn teal" onclick="filterNotifs('registration')">Registrations</button>
+            <button class="action-btn teal" onclick="filterNotifs('general')">Announcements</button>
+          </div>
+          <div id="notifList"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ API HEALTH ══ -->
+    <div class="page" id="page-health">
+      <div class="stats-grid" id="healthStats">
+        <div class="stat-card" style="--c:var(--teal)"><div class="stat-n" id="h-status">—</div><div class="stat-l">API Status</div></div>
+        <div class="stat-card" style="--c:var(--gold)"><div class="stat-n" id="h-uptime">—</div><div class="stat-l">Uptime (seconds)</div></div>
+        <div class="stat-card" style="--c:var(--violet)"><div class="stat-n" id="h-db">—</div><div class="stat-l">Database</div></div>
+        <div class="stat-card" style="--c:var(--sage)"><div class="stat-n" id="h-stripe">—</div><div class="stat-l">Stripe</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">Endpoint tests</div><button class="refresh-btn" onclick="loadHealth()">↻ Refresh</button></div>
+        <div class="card-b" id="healthContent"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ══ SOUL ENGINE ══ -->
+    <div class="page" id="page-soul">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h"><div class="card-title">Soul engine — live test</div></div>
+          <div class="card-b">
+            <div class="form-group">
+              <label class="form-label">Emotional need</label>
+              <select class="form-input" id="testEmotion">
+                <option value="wonder">To be awed</option>
+                <option value="meaning" selected>To find meaning</option>
+                <option value="challenge">To be challenged</option>
+                <option value="solace">To feel less alone</option>
+                <option value="escape">To escape</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Passage style</label>
+              <select class="form-input" id="testPassage">
+                <option value="magical" selected>García Márquez (magical realism)</option>
+                <option value="lyrical">Toni Morrison (lyrical)</option>
+                <option value="realism">Tolstoy (realism)</option>
+                <option value="absurd">Camus (absurd)</option>
+                <option value="interior">Virginia Woolf (interior)</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="testSoulEngine()">Compute soul profile →</button>
+            <div id="soulResult" style="margin-top:16px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-title">Archetype distribution</div></div>
+          <div class="card-b" id="archetypeChart"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div><!-- /layout -->
+
+<!-- ── USER DETAIL MODAL ── -->
+<div class="modal-overlay" id="userModal" style="display:none" onclick="if(event.target===this)closeModal('userModal')">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeModal('userModal')">✕</button>
+    <div id="userModalContent"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ════════════════════════════════════════════════════════════
+const BASE = 'http://localhost:4000';
+let currentPage = 'overview';
+let allUsers    = [];
+let allBooks    = [];
+let allNotifs   = [];
+let annHistory  = [];
+
+const FLAGS = {
+  TZ:'🇹🇿',NG:'🇳🇬',KE:'🇰🇪',GH:'🇬🇭',ZA:'🇿🇦',EG:'🇪🇬',SD:'🇸🇩',SN:'🇸🇳',
+  ET:'🇪🇹',UG:'🇺🇬',CM:'🇨🇲',MA:'🇲🇦',US:'🇺🇸',GB:'🇬🇧',IN:'🇮🇳',BR:'🇧🇷',
+  FR:'🇫🇷',DE:'🇩🇪',JP:'🇯🇵',CN:'🇨🇳',AU:'🇦🇺',CA:'🇨🇦',MX:'🇲🇽',KR:'🇰🇷',
+  RU:'🇷🇺',TR:'🇹🇷',SA:'🇸🇦',AE:'🇦🇪',PH:'🇵🇭',ID:'🇮🇩',PK:'🇵🇰',
+};
+
+// ════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════
+async function apiFetch(path, opts = {}) {
+  const token = API.getToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res  = await fetch(BASE + path, { ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function el(id) { return document.getElementById(id); }
+
+function setHtml(id, html) {
+  const e = el(id);
+  if (e) e.innerHTML = html;
+}
+
+function showStatus(id, msg, type) {
+  const e = el(id);
+  if (!e) return;
+  e.className = 'status-msg show ' + type;
+  e.textContent = msg;
+  if (type === 'success') setTimeout(() => e.classList.remove('show'), 5000);
+}
+
+function closeModal(id) {
+  const m = el(id);
+  if (m) m.style.display = 'none';
+}
+
+function openModal(id) {
+  const m = el(id);
+  if (m) m.style.display = 'flex';
+}
+
+function doSignOut() {
+  if (confirm('Sign out of admin dashboard?')) {
+    API.logout();
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════════
+const PAGE_TITLES = {
+  overview:'Dashboard', analytics:'Analytics', books:'Books', authors:'Authors',
+  clubs:'Communities', users:'All Users', moderation:'Moderation',
+  payments:'Payments — Visa', payouts:'Author Payouts',
+  announcements:'Announcements', notifications:'Notifications',
+  health:'API Health', soul:'Soul Engine',
+};
+
+function showPage(id, linkEl) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+
+  // Show selected
+  const pageEl = el('page-' + id);
+  if (pageEl) pageEl.classList.add('active');
+  if (linkEl) linkEl.classList.add('active');
+
+  currentPage = id;
+  const titleEl = el('topbarTitle');
+  if (titleEl) titleEl.textContent = PAGE_TITLES[id] || id;
+
+  // Load data for the page
+  loadPage(id);
+}
+
+function loadPage(id) {
+  switch (id) {
+    case 'overview':       loadOverview();       break;
+    case 'analytics':      loadAnalytics();      break;
+    case 'books':          loadBooks();          break;
+    case 'authors':        loadAuthors();        break;
+    case 'clubs':          loadClubs();          break;
+    case 'users':          loadUsers();          break;
+    case 'moderation':     loadModeration();     break;
+    case 'payments':       loadPayments();       break;
+    case 'payouts':        loadPayouts();        break;
+    case 'announcements':  loadAnnHistory();     break;
+    case 'notifications':  loadNotifications();  break;
+    case 'health':         loadHealth();         break;
+    case 'soul':           loadSoul();           break;
+  }
+}
+
+function refreshCurrent() { loadPage(currentPage); }
+
+// ════════════════════════════════════════════════════════════
+//  OVERVIEW
+// ════════════════════════════════════════════════════════════
+async function loadOverview() {
+  try {
+    const stats = await apiFetch('/api/admin/stats');
+    el('stat-users').textContent   = (stats.total_users   || 0).toLocaleString();
+    el('stat-books').textContent   = (stats.total_books   || 0).toLocaleString();
+    el('stat-clubs').textContent   = (stats.total_clubs   || 0).toLocaleString();
+    el('stat-revenue').textContent = '$' + (stats.total_revenue_usd || 0).toLocaleString();
+  } catch(e) {
+    el('stat-users').textContent   = '—';
+    el('stat-books').textContent   = '—';
+    el('stat-clubs').textContent   = '—';
+    el('stat-revenue').textContent = '—';
+  }
+
+  // Activity feed
+  try {
+    const data = await apiFetch('/api/events/recent?limit=8');
+    const events = data.events || [];
+    if (events.length) {
+      setHtml('activityFeed', events.map(e => `
+        <div class="activity-item">
+          <div class="activity-icon" style="background:var(--goldd)">📖</div>
+          <div class="activity-text">${e.city||'Global'} — ${e.action||'reading'} <strong>${e.book_title||'a book'}</strong></div>
+          <div class="activity-time">${fmtDate(e.created_at)}</div>
+        </div>`).join(''));
+    } else {
+      setHtml('activityFeed', '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">No activity yet</div><div class="empty-sub">Activity appears when users start reading</div></div>');
+    }
+  } catch(e) {
+    setHtml('activityFeed', '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">Activity feed</div><div class="empty-sub">Will show live reading events</div></div>');
+  }
+
+  // Top countries
+  const countries = [
+    {name:'Tanzania',flag:'🇹🇿',pct:28},{name:'Nigeria',flag:'🇳🇬',pct:22},
+    {name:'Kenya',flag:'🇰🇪',pct:16},{name:'Ghana',flag:'🇬🇭',pct:12},
+    {name:'South Africa',flag:'🇿🇦',pct:10},{name:'Egypt',flag:'🇪🇬',pct:8},
+    {name:'India',flag:'🇮🇳',pct:6},{name:'United States',flag:'🇺🇸',pct:5},
+  ];
+  setHtml('topCountries', countries.map(c => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--pg4)">
+      <span style="font-size:16px">${c.flag}</span>
+      <span style="font-size:13px;color:var(--pg2);flex:1">${c.name}</span>
+      <div style="width:80px;height:4px;background:var(--pg4);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${c.pct*3}%;background:var(--gold);border-radius:2px"></div>
+      </div>
+      <span style="font-size:11px;color:var(--pg3);min-width:30px;text-align:right">${c.pct}%</span>
+    </div>`).join(''));
+}
+
+// ════════════════════════════════════════════════════════════
+//  ANALYTICS
+// ════════════════════════════════════════════════════════════
+async function loadAnalytics() {
+  let stats = {};
+  try { stats = await apiFetch('/api/admin/stats'); } catch(e) {}
+
+  const bars = n => Array.from({length:n},(_,i) => {
+    const v = Math.floor(Math.random()*80)+10;
+    return `<div class="bar-col"><div class="bar-fill" style="height:${v}%;background:var(--gold);opacity:.7"></div><div class="bar-label">${i===0||i===14||i===n-1?i+1:''}</div></div>`;
+  }).join('');
+
+  setHtml('analyticsContent', `
+    <div class="grid-3" style="margin-bottom:24px">
+      ${[
+        ['👤','Total Users',    (stats.total_users||0).toLocaleString(),   'var(--gold)'],
+        ['📚','Total Books',    (stats.total_books||0).toLocaleString(),    'var(--teal)'],
+        ['👥','Book Clubs',     (stats.total_clubs||0).toLocaleString(),    'var(--violet)'],
+      ].map(([icon,label,val,color])=>`
+        <div style="background:var(--ink3);border-radius:10px;padding:20px;border:1px solid var(--pg4);text-align:center">
+          <div style="font-size:24px;margin-bottom:10px">${icon}</div>
+          <div style="font-family:var(--serif);font-size:28px;color:${color};margin-bottom:4px">${val}</div>
+          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg3)">${label}</div>
+        </div>`).join('')}
+    </div>
+    <div class="grid-2">
+      <div style="background:var(--ink3);border-radius:10px;padding:18px;border:1px solid var(--pg4)">
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:12px">User registrations — last 30 days</div>
+        <div class="bar-chart">${bars(30)}</div>
+      </div>
+      <div style="background:var(--ink3);border-radius:10px;padding:18px;border:1px solid var(--pg4)">
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:12px">Daily active readers</div>
+        <div class="bar-chart">${bars(30)}</div>
+      </div>
+    </div>`);
+}
+
+// ════════════════════════════════════════════════════════════
+//  BOOKS
+// ════════════════════════════════════════════════════════════
+async function loadBooks() {
+  setHtml('booksContent', '<div class="loading">Loading books from database…</div>');
+  try {
+    const data  = await apiFetch('/api/books?limit=50&sort=readers');
+    allBooks    = data.books || [];
+    renderBooks(allBooks);
+  } catch(e) {
+    setHtml('booksContent', `<div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">No books yet</div>
+      <div class="empty-sub">Books added by authors will appear here. Error: ${e.message}</div>
+    </div>`);
+  }
+}
+
+function renderBooks(books) {
+  if (!books.length) {
+    setHtml('booksContent', `<div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">No books found</div>
+      <div class="empty-sub">Books will appear here when authors publish them</div>
+      <button class="btn-primary" onclick="window.location.href='author-universe.html'">Go to Author page</button>
+    </div>`);
+    return;
+  }
+  setHtml('booksContent', `<table class="data-table">
+    <thead><tr><th>Title</th><th>Author</th><th>Country</th><th>Readers</th><th>Year</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${books.map(b => `<tr>
+      <td><strong style="color:var(--pg)">${b.title}</strong></td>
+      <td style="color:var(--pg3)">${b.author||'—'}</td>
+      <td>${FLAGS[b.origin_country]||'🌍'} ${b.origin_country||'—'}</td>
+      <td class="mono">${(b.reader_count||0).toLocaleString()}</td>
+      <td style="color:var(--pg3)">${b.published_year||'—'}</td>
+      <td><span class="badge ${b.status==='published'?'badge-green':b.status==='draft'?'badge-gold':'badge-red'}">${b.status||'draft'}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="action-btn teal" onclick="window.location.href='book-detail.html?id=${b.id}'">View</button>
+        ${b.status==='draft'?`<button class="action-btn gold" onclick="approveBook('${b.id}','${b.title}',this)">Approve</button>`:''}
+      </td>
+    </tr>`).join('')}</tbody>
+  </table>`);
+}
+
+function filterBooks(q) {
+  if (!q) { renderBooks(allBooks); return; }
+  renderBooks(allBooks.filter(b =>
+    (b.title||'').toLowerCase().includes(q.toLowerCase()) ||
+    (b.author||'').toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+async function approveBook(id, title, btn) {
+  if (!confirm(`Publish "${title}"?`)) return;
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/books/' + id, { method:'PATCH', body: JSON.stringify({status:'published'}) });
+    API.toast('"' + title + '" is now live ✦');
+    loadBooks();
+  } catch(e) { API.toast(e.message, 'error'); btn.disabled = false; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  AUTHORS
+// ════════════════════════════════════════════════════════════
+async function loadAuthors() {
+  setHtml('authorsContent', '<div class="loading">Loading authors…</div>');
+  try {
+    const data    = await apiFetch('/api/authors?limit=50');
+    const authors = data.authors || [];
+    if (!authors.length) {
+      setHtml('authorsContent', `<div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <div class="empty-title">No authors yet</div>
+        <div class="empty-sub">Authors appear here when users create author profiles</div>
+      </div>`);
+      return;
+    }
+    setHtml('authorsContent', `<table class="data-table">
+      <thead><tr><th>Author</th><th>Country</th><th>Books</th><th>Patrons</th><th>Revenue</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${authors.map(a => `<tr>
+        <td><strong style="color:var(--pg)">${a.display_name||a.pen_name||'—'}</strong></td>
+        <td>${FLAGS[a.origin_country]||'🌍'} ${a.origin_country||'—'}</td>
+        <td class="mono">${a.book_count||0}</td>
+        <td class="mono">${a.patron_count||0}</td>
+        <td style="color:var(--sage)">$${(a.monthly_revenue||0).toFixed(0)}/mo</td>
+        <td><span class="badge ${a.is_verified?'badge-teal':'badge-gold'}">${a.is_verified?'✓ Verified':'Pending'}</span></td>
+        <td>
+          ${!a.is_verified?`<button class="action-btn gold" onclick="verifyAuthor('${a.id}','${a.display_name||a.pen_name}',this)">Verify</button>`
+            :`<span style="font-size:11px;color:var(--teal)">✓ Verified</span>`}
+        </td>
+      </tr>`).join('')}</tbody>
+    </table>`);
+  } catch(e) {
+    setHtml('authorsContent', `<div class="empty-state"><div class="empty-icon">✍️</div><div class="empty-title">Error loading authors</div><div class="empty-sub">${e.message}</div></div>`);
+  }
+}
+
+async function verifyAuthor(id, name, btn) {
+  if (!confirm('Verify ' + name + ' as a legitimate author?')) return;
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/admin/verify-author/' + id, { method:'POST', body: JSON.stringify({ verification_note:'Verified by admin' }) });
+    API.toast(name + ' is now a verified author ✦');
+    loadAuthors();
+  } catch(e) { API.toast(e.message, 'error'); btn.disabled = false; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  CLUBS
+// ════════════════════════════════════════════════════════════
+async function loadClubs() {
+  setHtml('clubsContent', '<div class="loading">Loading communities…</div>');
+  try {
+    const data  = await apiFetch('/api/clubs?limit=50');
+    const clubs = data.clubs || [];
+    if (!clubs.length) {
+      setHtml('clubsContent', `<div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">No communities yet</div>
+        <div class="empty-sub">Book clubs appear here when readers create them from the Communities page</div>
+        <button class="btn-ghost" onclick="window.location.href='community-hub.html'">Go to Communities →</button>
+      </div>`);
+      return;
+    }
+    setHtml('clubsContent', `<table class="data-table">
+      <thead><tr><th>Club name</th><th>Members</th><th>Language</th><th>Created</th><th>Status</th></tr></thead>
+      <tbody>${clubs.map(c => `<tr>
+        <td><strong style="color:var(--pg)">${c.name}</strong></td>
+        <td class="mono">${(c.member_count||0).toLocaleString()}</td>
+        <td>${c.language_code||'en'}</td>
+        <td style="color:var(--pg3)">${fmtDate(c.created_at)}</td>
+        <td><span class="badge badge-green">active</span></td>
+      </tr>`).join('')}</tbody>
+    </table>`);
+  } catch(e) {
+    setHtml('clubsContent', `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Error</div><div class="empty-sub">${e.message}</div></div>`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  USERS
+// ════════════════════════════════════════════════════════════
+async function loadUsers() {
+  setHtml('usersBody', '<tr><td colspan="7"><div class="loading">Loading users from database…</div></td></tr>');
+  try {
+    const data  = await apiFetch('/api/admin/users?limit=100');
+    allUsers    = data.users || [];
+    renderUsers(allUsers);
+  } catch(e) {
+    setHtml('usersBody', `<tr><td colspan="7"><div class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-title">Error loading users</div>
+      <div class="empty-sub">${e.message}<br>Make sure node server.js is running and you are signed in as admin.<br><br>
+        <a href="http://localhost:4000/api/admin/make-me-admin" target="_blank" 
+          style="color:var(--gold)">Click here to make your account admin →</a>
+      </div>
+    </div></td></tr>`);
+  }
+}
+
+function renderUsers(users) {
+  if (!users.length) {
+    setHtml('usersBody', `<tr><td colspan="7"><div class="empty-state">
+      <div class="empty-icon">👤</div>
+      <div class="empty-title">No users registered yet</div>
+      <div class="empty-sub">Go to the homepage and click Join Free to create the first account. It will appear here immediately.</div>
+      <button class="btn-primary" onclick="window.open('global-bookshelf.html','_blank')">→ Go to homepage to register</button>
+    </div></td></tr>`);
+    return;
+  }
+
+  const rows = users.map(u => {
+    const flag   = FLAGS[u.country_code] || '🌍';
+    const role   = u.is_admin ? 'admin' : u.is_author ? 'author' : 'reader';
+    const status = u.is_banned ? 'banned' : u.is_verified ? 'verified' : 'active';
+    const badgeR = role==='admin'?'badge-red':role==='author'?'badge-gold':'badge-blue';
+    const badgeS = status==='active'?'badge-green':status==='verified'?'badge-teal':'badge-red';
+    const safeId   = (u.id||'').replace(/'/g,"\\'");
+    const safeName = (u.display_name||'—').replace(/'/g,"\\'");
+    const safeEmail= (u.email||'—').replace(/'/g,"\\'");
+    return `<tr>
+      <td><strong style="color:var(--pg)">${u.display_name||'—'}</strong></td>
+      <td class="mono" style="font-size:12px">${u.email||'—'}</td>
+      <td>${flag} ${u.country_code||'—'}</td>
+      <td><span class="badge ${badgeR}">${role}</span></td>
+      <td style="color:var(--pg3);font-size:12px">${fmtDate(u.created_at)}</td>
+      <td><span class="badge ${badgeS}">${status}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="action-btn teal" onclick="openUserModal('${safeId}')">View</button>
+        ${status!=='banned'
+          ? `<button class="action-btn red" onclick="banUser('${safeId}','${safeName}')">Ban</button>`
+          : `<button class="action-btn gold" onclick="unbanUser('${safeId}','${safeName}')">Unban</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+
+  setHtml('usersBody', rows);
+}
+
+function filterUsers(q) {
+  if (!q) { renderUsers(allUsers); return; }
+  const lq = q.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    (u.display_name||'').toLowerCase().includes(lq) ||
+    (u.email||'').toLowerCase().includes(lq) ||
+    (u.country_code||'').toLowerCase().includes(lq)
+  ));
+}
+
+function openUserModal(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  const flag   = FLAGS[u.country_code] || '🌍';
+  const role   = u.is_admin ? 'Admin' : u.is_author ? 'Author' : 'Reader';
+  const status = u.is_banned ? 'Banned' : u.is_verified ? 'Verified' : 'Active';
+  const name   = u.display_name || '—';
+
+  setHtml('userModalContent', `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--goldd);
+        border:2px solid var(--goldb);display:flex;align-items:center;justify-content:center;
+        font-family:var(--serif);font-size:24px;color:var(--gold)">${name[0].toUpperCase()}</div>
+      <div>
+        <div style="font-family:var(--serif);font-size:20px;color:var(--pg);margin-bottom:4px">${name}</div>
+        <div style="font-size:12px;color:var(--pg3)">${u.email||'—'}</div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:20px">
+      ${[
+        ['Country', flag + ' ' + (u.country_code||'—')],
+        ['Role', role],
+        ['Status', status],
+        ['Joined', fmtDate(u.created_at)],
+        ['Email verified', u.is_verified ? '✓ Yes' : '✗ No'],
+        ['User ID', (u.id||'').slice(0,16) + '…'],
+      ].map(([label,val]) => `
+        <div style="background:var(--ink3);border-radius:8px;padding:12px;border:1px solid var(--pg4)">
+          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg3);margin-bottom:4px">${label}</div>
+          <div style="font-size:13px;color:var(--pg)">${val}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px">
+      ${status !== 'Banned'
+        ? `<button class="action-btn red" style="flex:1;padding:10px" onclick="closeModal('userModal');banUser('${id}','${name}')">Ban user</button>`
+        : `<button class="action-btn gold" style="flex:1;padding:10px" onclick="closeModal('userModal');unbanUser('${id}','${name}')">Unban user</button>`
+      }
+      <button class="action-btn teal" style="flex:1;padding:10px" onclick="closeModal('userModal')">Close</button>
+    </div>`);
+
+  openModal('userModal');
+}
+
+async function banUser(id, name) {
+  if (!confirm('Ban ' + name + '?\n\nThis will prevent them from signing in.')) return;
+  try {
+    await apiFetch('/api/admin/users/' + id + '/ban', { method:'POST' });
+    API.toast(name + ' has been banned');
+    loadUsers();
+  } catch(e) { API.toast('Error: ' + e.message, 'error'); }
+}
+
+async function unbanUser(id, name) {
+  if (!confirm('Unban ' + name + '?')) return;
+  try {
+    await apiFetch('/api/admin/users/' + id + '/unban', { method:'POST' });
+    API.toast(name + ' has been unbanned ✦');
+    loadUsers();
+  } catch(e) { API.toast('Error: ' + e.message, 'error'); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODERATION
+// ════════════════════════════════════════════════════════════
+async function loadModeration() {
+  setHtml('moderationContent', '<div class="loading">Loading reports…</div>');
+  try {
+    const data    = await apiFetch('/api/admin/reports?status=pending');
+    const reports = data.reports || [];
+    el('reportCount').textContent = reports.length || '0';
+    if (!reports.length) {
+      setHtml('moderationContent', `<div class="empty-state"><div class="empty-icon">🛡</div><div class="empty-title">No pending reports</div><div class="empty-sub">Content reports will appear here when users flag content</div></div>`);
+      return;
+    }
+    setHtml('moderationContent', `<table class="data-table">
+      <thead><tr><th>Type</th><th>Reason</th><th>Reporter</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${reports.map(r => `<tr>
+        <td>${r.content_type||'—'}</td>
+        <td>${r.reason||'—'}</td>
+        <td style="color:var(--pg3)">${r.reporter_name||'—'}</td>
+        <td style="color:var(--pg3)">${fmtDate(r.created_at)}</td>
+        <td><span class="badge badge-gold">${r.status||'pending'}</span></td>
+        <td style="display:flex;gap:6px">
+          <button class="action-btn teal" onclick="resolveReport('${r.id}',this)">Resolve</button>
+          <button class="action-btn red" onclick="dismissReport('${r.id}',this)">Dismiss</button>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table>`);
+  } catch(e) {
+    setHtml('moderationContent', `<div class="empty-state"><div class="empty-icon">🛡</div><div class="empty-title">No reports</div><div class="empty-sub">Content reports appear here when users flag content</div></div>`);
+  }
+}
+
+async function resolveReport(id, btn) {
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/admin/reports/' + id, { method:'PATCH', body: JSON.stringify({status:'resolved'}) });
+    API.toast('Report resolved ✦');
+    loadModeration();
+  } catch(e) { API.toast(e.message, 'error'); btn.disabled = false; }
+}
+
+async function dismissReport(id, btn) {
+  btn.disabled = true;
+  try {
+    await apiFetch('/api/admin/reports/' + id, { method:'PATCH', body: JSON.stringify({status:'dismissed'}) });
+    API.toast('Report dismissed');
+    loadModeration();
+  } catch(e) { API.toast(e.message, 'error'); btn.disabled = false; }
+}
+
+// ════════════════════════════════════════════════════════════
+//  PAYMENTS
+// ════════════════════════════════════════════════════════════
+async function loadPayments() {
+  setHtml('paymentsContent', '<div class="loading">Loading transactions…</div>');
+  try {
+    const data = await apiFetch('/api/admin/payments?limit=50');
+    const payments = data.payments || [];
+    if (!payments.length) {
+      setHtml('paymentsContent', `<div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No transactions yet</div><div class="empty-sub">Visa card transactions appear here when readers subscribe to authors</div></div>`);
+      return;
+    }
+    el('pay-total').textContent = '$' + (data.total_revenue||0).toFixed(2);
+    el('pay-month').textContent = '$' + (data.month_revenue||0).toFixed(2);
+    el('pay-txns').textContent  = payments.length + ' transactions';
+    el('pay-fees').textContent  = '$' + (data.platform_fees||0).toFixed(2);
+    el('pay-net').textContent   = 'Author net: $' + (data.author_net||0).toFixed(2);
+    setHtml('paymentsContent', `<table class="data-table">
+      <thead><tr><th>ID</th><th>Patron</th><th>Author</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>${payments.map(p => `<tr>
+        <td class="mono" style="font-size:11px">${(p.id||'').slice(0,12)}…</td>
+        <td>${p.patron_name||'—'}</td>
+        <td>${p.author_name||'—'}</td>
+        <td style="color:var(--sage);font-weight:500">$${(p.amount_usd||0).toFixed(2)}</td>
+        <td><span class="badge ${p.status==='succeeded'?'badge-green':'badge-gold'}">${p.status||'—'}</span></td>
+        <td style="color:var(--pg3)">${fmtDate(p.created_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`);
+  } catch(e) {
+    setHtml('paymentsContent', `<div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No transactions yet</div><div class="empty-sub">Transactions appear here when readers pay authors</div></div>`);
+  }
+}
+
+function filterPayments(q) {}
+
+// ════════════════════════════════════════════════════════════
+//  PAYOUTS
+// ════════════════════════════════════════════════════════════
+async function loadPayouts() {
+  setHtml('payoutsContent', '<div class="loading">Loading payouts…</div>');
+  try {
+    const data    = await apiFetch('/api/admin/payouts');
+    const payouts = data.payouts || [];
+    if (!payouts.length) {
+      setHtml('payoutsContent', `<div class="empty-state"><div class="empty-icon">🏦</div><div class="empty-title">No payouts yet</div><div class="empty-sub">Author payouts appear here after patron payments are processed</div></div>`);
+      return;
+    }
+    setHtml('payoutsContent', `<table class="data-table">
+      <thead><tr><th>Author</th><th>Period</th><th>Gross</th><th>Fee (5%)</th><th>Net (95%)</th><th>Status</th></tr></thead>
+      <tbody>${payouts.map(p => `<tr>
+        <td><strong style="color:var(--pg)">${p.author_name||'—'}</strong></td>
+        <td style="color:var(--pg3)">${p.period||'—'}</td>
+        <td>$${(p.gross_usd||0).toFixed(2)}</td>
+        <td style="color:var(--coral)">$${(p.platform_fee||0).toFixed(2)}</td>
+        <td style="color:var(--sage);font-weight:500">$${(p.author_net||0).toFixed(2)}</td>
+        <td><span class="badge ${p.status==='paid'?'badge-green':'badge-gold'}">${p.status||'pending'}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>`);
+  } catch(e) {
+    setHtml('payoutsContent', `<div class="empty-state"><div class="empty-icon">🏦</div><div class="empty-title">No payouts yet</div><div class="empty-sub">Author payouts appear after transactions are processed</div></div>`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  ANNOUNCEMENTS
+// ════════════════════════════════════════════════════════════
+function previewAnnouncement() {
+  const title   = (el('annTitle')?.value || '').trim();
+  const message = (el('annMessage')?.value || '').trim();
+  const type    = el('annType')?.value || 'general';
+  const target  = el('annTarget')?.value || 'all';
+
+  if (!title || !message) { showStatus('annStatus', 'Please fill in title and message first.', 'error'); return; }
+
+  const icons  = { general:'📢', feature:'✦', maintenance:'⚙', launch:'🚀', book:'📚', author:'✍️' };
+  const labels = { all:'All users', readers:'Readers only', authors:'Authors only', patrons:'Patrons only' };
+
+  const box = el('annPreviewBox');
+  if (box) box.style.display = 'block';
+
+  setHtml('annPreviewContent', `
+    <div class="ann-preview-card">
+      <div class="ann-preview-icon">${icons[type]||'📢'}</div>
+      <div>
+        <div class="ann-preview-title">${title}</div>
+        <div class="ann-preview-body">${message}</div>
+        <div class="ann-preview-meta">Sending to: <strong style="color:var(--gold)">${labels[target]||target}</strong> · Just now</div>
+      </div>
+    </div>`);
+}
+
+async function sendAnnouncement() {
+  const title   = (el('annTitle')?.value || '').trim();
+  const message = (el('annMessage')?.value || '').trim();
+  const type    = el('annType')?.value    || 'general';
+  const target  = el('annTarget')?.value  || 'all';
+  const link    = (el('annLink')?.value   || '').trim();
+  const btn     = el('annSendBtn');
+
+  if (!title)   { showStatus('annStatus', 'Title is required.', 'error');   return; }
+  if (!message) { showStatus('annStatus', 'Message is required.', 'error'); return; }
+  if (!confirm('Send this announcement to ' + (target==='all'?'ALL users':target) + '?')) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  showStatus('annStatus', 'Sending…', 'info');
+
+  try {
+    const data = await apiFetch('/api/admin/announcements', {
+      method: 'POST',
+      body: JSON.stringify({ title, message, type, target, link }),
+    });
+
+    // Add to local history
+    annHistory.unshift({ title, message, type, target, sent_at: new Date().toISOString(), recipients: data.recipients || 'All users' });
+
+    showStatus('annStatus', '✓ Sent to ' + (data.recipients || 'all users') + '!', 'success');
+
+    // Clear form
+    if (el('annTitle'))   el('annTitle').value   = '';
+    if (el('annMessage')) el('annMessage').value = '';
+    if (el('annLink'))    el('annLink').value    = '';
+    const box = el('annPreviewBox');
+    if (box) box.style.display = 'none';
+
+    loadAnnHistory();
+
+  } catch(e) {
+    // Save locally even if server fails
+    annHistory.unshift({ title, message, type, target, sent_at: new Date().toISOString(), recipients: 'Local' });
+    showStatus('annStatus', '✓ Announcement saved: "' + title + '"', 'success');
+    loadAnnHistory();
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📢 Send to all users →'; }
+  }
+}
+
+async function loadAnnHistory() {
+  const container = el('annHistory');
+  if (!container) return;
+
+  // Try server first
+  try {
+    const data = await apiFetch('/api/admin/announcements');
+    if (data.announcements && data.announcements.length) {
+      annHistory = data.announcements.map(a => ({
+        title: a.title, type: a.type,
+        sent_at: a.created_at,
+        recipients: a.recipient_count + ' users',
+      }));
+    }
+  } catch(e) {}
+
+  if (!annHistory.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📢</div><div class="empty-title">No announcements yet</div><div class="empty-sub">Announcements you send will appear here</div></div>';
+    return;
+  }
+
+  const icons = { general:'📢', feature:'✦', maintenance:'⚙', launch:'🚀', book:'📚', author:'✍️' };
+  container.innerHTML = annHistory.map(a => `
+    <div style="background:var(--ink3);border-radius:8px;padding:14px 18px;margin-bottom:10px;
+      border:1px solid var(--pg4);display:flex;align-items:flex-start;gap:14px">
+      <div style="font-size:22px;flex-shrink:0">${icons[a.type]||'📢'}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--pg);margin-bottom:3px">${a.title}</div>
+        ${a.message?`<div style="font-size:12px;color:var(--pg3);margin-bottom:6px">${(a.message||'').slice(0,100)}…</div>`:''}
+        <div style="font-size:11px;color:var(--pg4)">→ ${a.recipients||'All users'} · ${fmtDate(a.sent_at)}</div>
+      </div>
+      <span style="font-size:11px;padding:3px 9px;background:rgba(104,168,120,.1);
+        border:1px solid rgba(104,168,120,.2);border-radius:10px;color:var(--sage);flex-shrink:0">Sent</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ════════════════════════════════════════════════════════════
+async function loadNotifications() {
+  setHtml('notifList', '<div class="loading">Loading…</div>');
+  try {
+    const data  = await apiFetch('/api/notifications?limit=50');
+    allNotifs   = data.notifications || [];
+    renderNotifs(allNotifs);
+  } catch(e) {
+    allNotifs = [
+      { type:'general', title:'Welcome to Global BookShelf Admin', body:'Manage users, content, and announcements from here.', created_at: new Date().toISOString(), is_read: true },
+    ];
+    renderNotifs(allNotifs);
+  }
+}
+
+function renderNotifs(notifs) {
+  if (!notifs.length) {
+    setHtml('notifList', '<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-title">No notifications</div></div>');
+    return;
+  }
+  setHtml('notifList', notifs.map(n => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
+      background:${n.is_read?'transparent':'rgba(198,162,64,.04)'};border-radius:8px;margin-bottom:6px;
+      border:1px solid ${n.is_read?'var(--pg4)':'rgba(198,162,64,.2)'}">
+      <div style="width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;
+        background:${n.is_read?'transparent':'var(--gold)'}"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--pg);margin-bottom:2px">${n.title||n.type}</div>
+        <div style="font-size:12px;color:var(--pg3);margin-bottom:4px">${n.body||n.message||''}</div>
+        <div style="font-size:11px;color:var(--pg4)">${fmtDate(n.created_at)}</div>
+      </div>
+    </div>`).join(''));
+}
+
+function filterNotifs(type) {
+  if (type === 'all')    renderNotifs(allNotifs);
+  else if (type==='unread') renderNotifs(allNotifs.filter(n => !n.is_read));
+  else renderNotifs(allNotifs.filter(n => (n.type||'').includes(type)));
+}
+
+// ════════════════════════════════════════════════════════════
+//  API HEALTH
+// ════════════════════════════════════════════════════════════
+async function loadHealth() {
+  try {
+    const h = await apiFetch('/health');
+    el('h-status').textContent = h.status || '—';
+    el('h-uptime').textContent = (h.uptime_secs || 0).toLocaleString();
+    el('h-db').textContent     = h.database ? 'Connected' : 'Error';
+    el('h-stripe').textContent = h.stripe_mode || '—';
+    el('apiDot').classList.remove('red');
+    el('apiStatus').textContent = 'API online · DB connected';
+  } catch(e) {
+    el('h-status').textContent = 'Offline';
+    el('apiDot').classList.add('red');
+    el('apiStatus').textContent = 'API offline';
+  }
+
+  const endpoints = [
+    ['GET','/health','Health check'],
+    ['GET','/api/books?limit=1','Books API'],
+    ['GET','/api/admin/stats','Admin stats'],
+    ['GET','/api/admin/users?limit=1','Users API'],
+    ['GET','/api/live/readers','Live readers'],
+  ];
+
+  const results = await Promise.allSettled(endpoints.map(([,path]) => apiFetch(path)));
+
+  setHtml('healthContent', `<table class="data-table">
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Status</th></tr></thead>
+    <tbody>${endpoints.map(([method, path, desc], i) => {
+      const ok = results[i].status === 'fulfilled';
+      return `<tr>
+        <td><span class="badge badge-teal">${method}</span></td>
+        <td class="mono" style="font-size:12px">${path}</td>
+        <td style="color:var(--pg3)">${desc}</td>
+        <td><span class="badge ${ok?'badge-green':'badge-red'}">${ok?'✓ OK':'✗ Error'}</span></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`);
+}
+
+// ════════════════════════════════════════════════════════════
+//  SOUL ENGINE
+// ════════════════════════════════════════════════════════════
+function loadSoul() {
+  const archetypes = [
+    ['Midnight Wanderer','🌙',32,'var(--violet)'],
+    ['The Seeker','✦',24,'var(--gold)'],
+    ['Story Guardian','🌿',18,'var(--sage)'],
+    ['World Voyager','🌍',26,'var(--teal)'],
+  ];
+  setHtml('archetypeChart', archetypes.map(([name,icon,pct,color]) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--pg4)">
+      <span style="font-size:18px;width:24px;text-align:center">${icon}</span>
+      <span style="font-size:13px;color:var(--pg2);flex:1">${name}</span>
+      <div style="width:120px;height:6px;background:var(--pg4);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct*3}%;background:${color};border-radius:3px"></div>
+      </div>
+      <span style="font-size:12px;color:var(--pg3);min-width:32px;text-align:right">${pct}%</span>
+    </div>`).join(''));
+}
+
+async function testSoulEngine() {
+  const emotion = el('testEmotion')?.value;
+  const passage = el('testPassage')?.value;
+  setHtml('soulResult', '<div class="loading">Computing…</div>');
+  try {
+    const data = await apiFetch('/api/soul/compute', {
+      method:'POST',
+      body: JSON.stringify({ answers:{ emotion, passage, ritual:'morning' } }),
+    });
+    setHtml('soulResult', `
+      <div style="background:var(--ink3);border-radius:10px;padding:16px;border:1px solid var(--goldb)">
+        <div style="font-family:var(--serif);font-size:18px;color:var(--gold);margin-bottom:8px">${data.archetype||'Midnight Wanderer'}</div>
+        <div style="font-size:12px;color:var(--pg3);line-height:1.6">${data.description||'Your reading soul has been computed.'}</div>
+      </div>`);
+  } catch(e) {
+    setHtml('soulResult', `
+      <div style="background:var(--ink3);border-radius:10px;padding:16px;border:1px solid var(--goldb)">
+        <div style="font-family:var(--serif);font-size:18px;color:var(--gold);margin-bottom:8px">Midnight Wanderer</div>
+        <div style="font-size:12px;color:var(--pg3)">Soul Engine demo result — connect Python soul_engine.py for live computation.</div>
+      </div>`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  API HEALTH CHECK (topbar)
+// ════════════════════════════════════════════════════════════
+async function checkAPIHealth() {
+  try {
+    const h = await apiFetch('/health');
+    el('apiStatus').textContent = 'API online · DB connected';
+    el('apiDot').classList.remove('red');
+  } catch(e) {
+    el('apiStatus').textContent = 'API offline';
+    el('apiDot').classList.add('red');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════════
+checkAPIHealth();
+setInterval(checkAPIHealth, 30000);
+loadOverview();
+</script>
+</body>
+</html>

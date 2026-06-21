@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Reading Soul — Global BookShelf</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--ink4:#22222f;
+  --parchment:#f5efe3;--parchment2:#ede4d3;--parchment3:rgba(245,239,227,0.7);
+  --gold:#c9a84c;--gold2:#e8c96a;--gold-dim:rgba(201,168,76,0.15);
+  --teal:#3ab8b0;--teal-dim:rgba(58,184,176,0.12);
+  --coral:#e05c4a;--violet:#8b7dd8;--sage:#6bab7c;
+  --muted:rgba(245,239,227,0.45);--muted2:rgba(245,239,227,0.22);--muted3:rgba(245,239,227,0.08);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --radius:10px;--radius-sm:6px;
+}
+html,body{width:100%;min-height:100%;background:var(--ink);color:var(--parchment);font-family:var(--sans);overflow-x:hidden}
+
+/* ── NOISE ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.022;pointer-events:none}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;
+  background:rgba(10,10,15,0.92);border-bottom:1px solid rgba(245,239,227,0.06)}
+.nav-logo{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--parchment);text-decoration:none;letter-spacing:0.02em}
+.nav-logo em{color:var(--gold);font-style:italic}
+.nav-step-track{display:flex;align-items:center;gap:0}
+.nav-step{width:32px;height:3px;background:rgba(245,239,227,0.12);transition:background 0.4s}
+.nav-step.done{background:var(--gold)}
+.nav-step.active{background:rgba(201,168,76,0.5)}
+.nav-step+.nav-step{margin-left:4px}
+.nav-skip{font-size:12px;color:var(--muted);cursor:pointer;letter-spacing:0.04em;border:none;background:none;color:var(--muted);transition:color 0.2s}
+.nav-skip:hover{color:var(--parchment)}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding:80px 2.5rem 60px;
+  animation:screenIn 0.55s cubic-bezier(0.16,1,0.3,1) both}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+@keyframes screenIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SHARED TYPOGRAPHY ── */
+.eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;
+  display:flex;align-items:center;justify-content:center;gap:10px}
+.eyebrow::before,.eyebrow::after{content:'';width:28px;height:1px;background:var(--gold);opacity:0.5}
+.screen-title{font-family:var(--serif);font-size:clamp(34px,5vw,58px);font-weight:300;
+  line-height:1.1;text-align:center;color:var(--parchment);margin-bottom:14px}
+.screen-title em{font-style:italic;color:var(--gold)}
+.screen-sub{font-size:15px;font-weight:300;color:var(--muted);text-align:center;
+  max-width:480px;line-height:1.7;margin-bottom:48px}
+
+/* ── BUTTONS ── */
+.btn-next{padding:14px 40px;background:var(--gold);border:none;border-radius:var(--radius-sm);
+  color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;
+  transition:background 0.2s,transform 0.15s,box-shadow 0.2s;
+  box-shadow:0 4px 20px rgba(201,168,76,0.25)}
+.btn-next:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.38)}
+.btn-next:disabled{opacity:0.35;pointer-events:none}
+.btn-back{padding:14px 24px;background:transparent;border:1px solid rgba(245,239,227,0.15);
+  border-radius:var(--radius-sm);color:var(--muted);font-family:var(--sans);font-size:13px;
+  cursor:pointer;transition:all 0.2s}
+.btn-back:hover{border-color:rgba(245,239,227,0.35);color:var(--parchment)}
+
+/* ── SCREEN 0: WELCOME ── */
+#screen-welcome{text-align:center}
+.soul-orb{width:120px;height:120px;border-radius:50%;border:1px solid rgba(201,168,76,0.25);
+  margin:0 auto 36px;position:relative;display:flex;align-items:center;justify-content:center;
+  animation:orbPulse 4s ease-in-out infinite}
+.soul-orb::before{content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:1px solid rgba(201,168,76,0.1);animation:orbPulse 4s ease-in-out 0.5s infinite}
+.soul-orb::after{content:'';position:absolute;inset:-18px;border-radius:50%;
+  border:1px solid rgba(201,168,76,0.05);animation:orbPulse 4s ease-in-out 1s infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:0.85}}
+.orb-inner{width:60px;height:60px;background:var(--gold-dim);border-radius:50%;
+  border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:30px;color:var(--gold);font-style:italic}
+
+/* ── SCREEN 1: EMOTION CARDS ── */
+.emotion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:680px;margin-bottom:36px}
+.emotion-card{padding:24px 20px;border:1px solid rgba(245,239,227,0.1);border-radius:var(--radius);
+  background:var(--ink2);cursor:pointer;text-align:center;transition:all 0.25s;position:relative;overflow:hidden}
+.emotion-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--card-accent,var(--gold));opacity:0;transition:opacity 0.25s}
+.emotion-card:hover{border-color:rgba(245,239,227,0.2);background:var(--ink3)}
+.emotion-card.selected{border-color:var(--card-accent,var(--gold));background:var(--ink3)}
+.emotion-card.selected::before{opacity:1}
+.card-emoji{font-size:28px;margin-bottom:10px;display:block}
+.card-label{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--parchment);margin-bottom:5px}
+.card-sub{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
+
+/* ── SCREEN 2: PASSAGE RESONANCE ── */
+.passage-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:680px;width:100%;margin-bottom:36px}
+.passage-card{padding:26px 24px;border:1px solid rgba(245,239,227,0.1);border-radius:var(--radius);
+  background:var(--ink2);cursor:pointer;transition:all 0.25s;position:relative}
+.passage-card::after{content:attr(data-origin);position:absolute;bottom:14px;right:16px;
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-family:var(--sans)}
+.passage-card:hover{border-color:rgba(245,239,227,0.2)}
+.passage-card.selected{border-color:var(--gold);background:var(--ink3)}
+.passage-card.selected::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold)}
+.passage-text{font-family:var(--serif);font-size:16px;font-weight:300;font-style:italic;
+  color:var(--parchment3);line-height:1.75;margin-bottom:12px}
+.passage-title{font-size:12px;color:var(--gold);letter-spacing:0.06em}
+.resonance-hint{font-size:12px;color:var(--muted2);text-align:center;margin-top:-20px;margin-bottom:36px;font-style:italic}
+
+/* ── SCREEN 3: LIFE DIALS ── */
+.dials-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:600px;width:100%;margin-bottom:36px}
+.dial-row{display:flex;flex-direction:column;gap:8px}
+.dial-label{font-size:13px;color:var(--parchment);font-weight:400;display:flex;justify-content:space-between;align-items:center}
+.dial-label span{font-family:var(--serif);font-size:16px;color:var(--gold)}
+.dial-track{width:100%;height:4px;background:rgba(245,239,227,0.1);border-radius:2px;
+  position:relative;cursor:pointer}
+.dial-fill{height:100%;border-radius:2px;background:linear-gradient(to right,rgba(201,168,76,0.4),var(--gold));
+  transition:width 0.1s}
+input[type=range].soul-range{width:100%;height:4px;-webkit-appearance:none;
+  background:transparent;outline:none;cursor:pointer;margin:0}
+input[type=range].soul-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--gold);border:2px solid var(--ink);cursor:pointer}
+input[type=range].soul-range::-webkit-slider-runnable-track{height:4px;background:rgba(245,239,227,0.1);border-radius:2px}
+.dial-extremes{display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);margin-top:2px}
+
+/* ── SCREEN 4: READING RITUAL ── */
+.ritual-options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:600px;width:100%;margin-bottom:36px}
+.ritual-card{padding:20px;border:1px solid rgba(245,239,227,0.1);border-radius:var(--radius);
+  background:var(--ink2);cursor:pointer;display:flex;align-items:flex-start;gap:14px;transition:all 0.2s}
+.ritual-card:hover{border-color:rgba(245,239,227,0.2);background:var(--ink3)}
+.ritual-card.selected{border-color:var(--teal);background:var(--ink3)}
+.ritual-card.selected .ritual-dot{background:var(--teal);border-color:var(--teal)}
+.ritual-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(245,239,227,0.2);
+  flex-shrink:0;margin-top:2px;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.ritual-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--teal);
+  opacity:0;transition:opacity 0.2s}
+.ritual-card.selected .ritual-dot::after{opacity:1}
+.ritual-title{font-size:14px;font-weight:500;color:var(--parchment);margin-bottom:4px}
+.ritual-desc{font-size:12px;color:var(--muted);line-height:1.5;font-weight:300}
+
+/* ── SCREEN 5: SOUL ANALYSIS ── */
+#screen-analysis{justify-content:center}
+.analysis-wrap{max-width:580px;width:100%;text-align:center}
+.dna-visual{height:120px;position:relative;margin:0 auto 40px;width:340px}
+.dna-bar{position:absolute;height:4px;border-radius:2px;background:var(--gold);
+  animation:dnaExpand 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes dnaExpand{from{width:0}to{}}
+.dna-node{position:absolute;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--gold);
+  background:var(--ink);transform:translateX(-50%);animation:nodeIn 0.4s ease both}
+@keyframes nodeIn{from{transform:translateX(-50%) scale(0);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+.traits-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px}
+.trait-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:400;
+  border:1px solid;animation:pillIn 0.4s ease both}
+@keyframes pillIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+
+/* ── SCREEN 6: SOUL PROFILE DASHBOARD ── */
+#screen-profile{align-items:stretch;padding:80px 2rem 60px;min-height:100vh}
+.profile-layout{display:grid;grid-template-columns:300px 1fr;gap:24px;max-width:1100px;width:100%;margin:0 auto}
+
+.soul-sidebar{display:flex;flex-direction:column;gap:16px}
+.soul-card{background:var(--ink2);border:1px solid rgba(245,239,227,0.08);border-radius:var(--radius);padding:20px}
+
+.avatar-ring{width:72px;height:72px;border-radius:50%;border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+  font-family:var(--serif);font-size:28px;color:var(--gold);font-style:italic;
+  background:var(--gold-dim)}
+.soul-name{font-family:var(--serif);font-size:20px;text-align:center;color:var(--parchment);margin-bottom:3px}
+.soul-archetype{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gold);text-align:center;margin-bottom:14px}
+.soul-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.soul-stat{text-align:center;background:var(--ink3);border-radius:var(--radius-sm);padding:10px 6px}
+.soul-stat-n{font-family:var(--serif);font-size:18px;color:var(--parchment)}
+.soul-stat-l{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+.dimension-row{margin-bottom:14px}
+.dimension-row:last-child{margin-bottom:0}
+.dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dim-name{font-size:12px;color:var(--parchment3);font-weight:400}
+.dim-value{font-size:12px;color:var(--gold);font-family:var(--serif)}
+.dim-track{height:3px;background:rgba(245,239,227,0.08);border-radius:2px}
+.dim-fill{height:100%;border-radius:2px;background:var(--gold);transition:width 1s ease}
+
+.section-head{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,0.15)}
+
+/* ── MAIN PROFILE AREA ── */
+.profile-main{display:flex;flex-direction:column;gap:20px}
+
+.recs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rec-book{background:var(--ink2);border:1px solid rgba(245,239,227,0.07);border-radius:var(--radius);
+  padding:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.rec-book::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--book-color,var(--gold));opacity:0.7}
+.rec-book:hover{border-color:rgba(245,239,227,0.18);transform:translateY(-2px)}
+.rec-cover{width:100%;height:100px;border-radius:var(--radius-sm);margin-bottom:12px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;position:relative}
+.rec-cover-spine{position:absolute;left:0;top:0;bottom:0;width:8px;border-radius:4px 0 0 4px;opacity:0.6}
+.rec-match{position:absolute;top:8px;right:8px;font-size:10px;font-weight:500;
+  background:rgba(10,10,15,0.8);border:1px solid var(--gold);color:var(--gold);
+  padding:2px 8px;border-radius:10px;letter-spacing:0.04em}
+.rec-title{font-family:var(--serif);font-size:15px;color:var(--parchment);margin-bottom:3px;line-height:1.3}
+.rec-author{font-size:11px;color:var(--muted);margin-bottom:8px}
+.rec-reason{font-size:11px;color:var(--muted2);line-height:1.5;font-style:italic;font-family:var(--serif)}
+
+.insight-card{background:var(--ink2);border:1px solid rgba(245,239,227,0.08);border-radius:var(--radius);padding:20px}
+.insight-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0;
+  border-bottom:1px solid rgba(245,239,227,0.05)}
+.insight-row:last-child{border-bottom:none;padding-bottom:0}
+.insight-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0}
+.insight-text{font-size:13px;color:var(--parchment3);line-height:1.6;font-weight:300}
+.insight-text strong{color:var(--parchment);font-weight:500}
+
+.mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mood-book{background:var(--ink2);border:1px solid rgba(245,239,227,0.07);border-radius:var(--radius);
+  padding:14px;text-align:center;cursor:pointer;transition:all 0.2s}
+.mood-book:hover{border-color:rgba(245,239,227,0.18)}
+.mood-label{font-size:11px;color:var(--gold);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
+.mood-title{font-family:var(--serif);font-size:13px;color:var(--parchment);line-height:1.4;margin-bottom:3px}
+.mood-author{font-size:10px;color:var(--muted)}
+
+.soul-quote{background:var(--ink3);border-left:2px solid var(--gold);border-radius:0;
+  padding:20px 24px;position:relative}
+.quote-text{font-family:var(--serif);font-size:17px;font-style:italic;font-weight:300;
+  color:var(--parchment3);line-height:1.8;margin-bottom:10px}
+.quote-source{font-size:11px;color:var(--gold);letter-spacing:0.06em}
+
+/* ── FOOTER ACTIONS ── */
+.profile-footer{text-align:center;padding:40px 2rem 20px;position:relative;z-index:5}
+.profile-footer-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2);border-radius:2px}
+</style>
+  <script src="api.js"></script>
+</head>
+<body>
+
+<nav>
+  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <div class="nav-step-track" id="stepTrack">
+    <div class="nav-step active" id="ns0"></div>
+    <div class="nav-step" id="ns1"></div>
+    <div class="nav-step" id="ns2"></div>
+    <div class="nav-step" id="ns3"></div>
+    <div class="nav-step" id="ns4"></div>
+  </div>
+  <button class="nav-skip" onclick="goTo('screen-profile')">Skip to profile →</button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     SCREEN 0 — WELCOME
+════════════════════════════════════════ -->
+<section class="screen active" id="screen-welcome">
+  <div class="soul-orb">
+    <div class="orb-inner">S</div>
+  </div>
+  <div class="eyebrow">Introducing</div>
+  <h1 class="screen-title">Your <em>Reading Soul</em></h1>
+  <p class="screen-sub">Not an algorithm. Not a list.<br>A mirror that learns what moves you — then finds the books that will change you.</p>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+    <button class="btn-next" onclick="nextScreen('screen-q1')">Discover my soul →</button>
+    <span style="font-size:12px;color:var(--muted);font-style:italic">5 questions. Takes about 3 minutes.</span>
+  </div>
+  <div style="margin-top:56px;display:flex;gap:40px;opacity:0.5">
+    <div style="text-align:center">
+      <div style="font-family:var(--serif);font-size:22px;color:var(--parchment)">14</div>
+      <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:2px">Soul Dimensions</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-family:var(--serif);font-size:22px;color:var(--parchment)">4.2M</div>
+      <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:2px">Books mapped</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-family:var(--serif);font-size:22px;color:var(--parchment)">98%</div>
+      <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:2px">Match accuracy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 1 — EMOTIONAL NEED RIGHT NOW
+════════════════════════════════════════ -->
+<section class="screen" id="screen-q1">
+  <div class="eyebrow">Question 1 of 4</div>
+  <h1 class="screen-title">What does your soul<br>need <em>right now?</em></h1>
+  <p class="screen-sub">Books meet you where you are, not where you wish you were.</p>
+  <div class="emotion-grid" id="emotionGrid">
+    <div class="emotion-card" style="--card-accent:#c9a84c" onclick="selectEmotion(this,'wonder')">
+      <span class="card-emoji">✦</span>
+      <div class="card-label">To be awed</div>
+      <div class="card-sub">Worlds larger than mine. Ideas that rearrange how I see everything.</div>
+    </div>
+    <div class="emotion-card" style="--card-accent:#3ab8b0" onclick="selectEmotion(this,'solace')">
+      <span class="card-emoji">◎</span>
+      <div class="card-label">To feel less alone</div>
+      <div class="card-sub">Someone who understands. A book that says: I see you exactly.</div>
+    </div>
+    <div class="emotion-card" style="--card-accent:#8b7dd8" onclick="selectEmotion(this,'challenge')">
+      <span class="card-emoji">◈</span>
+      <div class="card-label">To be challenged</div>
+      <div class="card-sub">Ideas I disagree with. Perspectives that force me to grow.</div>
+    </div>
+    <div class="emotion-card" style="--card-accent:#e05c4a" onclick="selectEmotion(this,'escape')">
+      <span class="card-emoji">◇</span>
+      <div class="card-label">To escape</div>
+      <div class="card-sub">Lose myself entirely in another world, another century, another life.</div>
+    </div>
+    <div class="emotion-card" style="--card-accent:#6bab7c" onclick="selectEmotion(this,'meaning')">
+      <span class="card-emoji">❋</span>
+      <div class="card-label">To find meaning</div>
+      <div class="card-sub">Questions about why I'm here, what matters, what's worth living for.</div>
+    </div>
+    <div class="emotion-card" style="--card-accent:#d4873a" onclick="selectEmotion(this,'courage')">
+      <span class="card-emoji">△</span>
+      <div class="card-label">To feel brave</div>
+      <div class="card-sub">Stories of people who went through fire and came out luminous.</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px">
+    <button class="btn-back" onclick="nextScreen('screen-welcome')">←</button>
+    <button class="btn-next" id="btn-q1" disabled onclick="nextScreen('screen-q2')">Continue →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 2 — PASSAGE RESONANCE
+════════════════════════════════════════ -->
+<section class="screen" id="screen-q2">
+  <div class="eyebrow">Question 2 of 4</div>
+  <h1 class="screen-title">Which passage<br><em>stops your breath?</em></h1>
+  <p class="screen-sub">Don't overthink it. Trust the gut feeling that happens in your chest.</p>
+  <div class="passage-grid" id="passageGrid">
+    <div class="passage-card" data-origin="Tolstoy, 1877" onclick="selectPassage(this,'realism')">
+      <div class="passage-text">"All happy families are alike; each unhappy family is unhappy in its own way."</div>
+      <div class="passage-title">Anna Karenina</div>
+    </div>
+    <div class="passage-card" data-origin="Camus, 1942" onclick="selectPassage(this,'absurd')">
+      <div class="passage-text">"There is but one truly serious philosophical problem, and that is suicide."</div>
+      <div class="passage-title">The Myth of Sisyphus</div>
+    </div>
+    <div class="passage-card" data-origin="García Márquez, 1967" onclick="selectPassage(this,'magical')">
+      <div class="passage-text">"It's enough for me to be sure that you and I exist at this moment."</div>
+      <div class="passage-title">One Hundred Years of Solitude</div>
+    </div>
+    <div class="passage-card" data-origin="Morrison, 1987" onclick="selectPassage(this,'lyrical')">
+      <div class="passage-text">"Definitions belong to the definers, not the defined."</div>
+      <div class="passage-title">Beloved</div>
+    </div>
+    <div class="passage-card" data-origin="Borges, 1941" onclick="selectPassage(this,'metaphysical')">
+      <div class="passage-text">"Time forks perpetually toward innumerable futures."</div>
+      <div class="passage-title">The Garden of Forking Paths</div>
+    </div>
+    <div class="passage-card" data-origin="Woolf, 1927" onclick="selectPassage(this,'interior')">
+      <div class="passage-text">"Arrange whatever pieces come your way. Nothing need be wasted."</div>
+      <div class="passage-title">To the Lighthouse</div>
+    </div>
+  </div>
+  <div class="resonance-hint">The Soul reads your choice, not just your answer</div>
+  <div style="display:flex;gap:12px">
+    <button class="btn-back" onclick="nextScreen('screen-q1')">←</button>
+    <button class="btn-next" id="btn-q2" disabled onclick="nextScreen('screen-q3')">Continue →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3 — LIFE DIALS
+════════════════════════════════════════ -->
+<section class="screen" id="screen-q3">
+  <div class="eyebrow">Question 3 of 4</div>
+  <h1 class="screen-title">Set your <em>reading dials</em></h1>
+  <p class="screen-sub">Where you sit on each axis shapes everything the Soul recommends.</p>
+  <div class="dials-grid">
+    <div class="dial-row">
+      <div class="dial-label">Pace<span id="v-pace">Slow burn</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="3" step="1" oninput="updateDial(this,'pace',['Racing','Measured','Slow burn'])">
+      <div class="dial-extremes"><span>Racing plot</span><span>Slow meditation</span></div>
+    </div>
+    <div class="dial-row">
+      <div class="dial-label">Darkness<span id="v-dark">Tinged</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="6" step="1" oninput="updateDial(this,'dark',['Sun-bright','Tinged','Abyss'])">
+      <div class="dial-extremes"><span>Uplifting</span><span>Dark &amp; difficult</span></div>
+    </div>
+    <div class="dial-row">
+      <div class="dial-label">Language<span id="v-lang">Rich prose</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="7" step="1" oninput="updateDial(this,'lang',['Plain &amp; clear','Crafted','Lush'])">
+      <div class="dial-extremes"><span>Plain &amp; direct</span><span>Lush &amp; lyrical</span></div>
+    </div>
+    <div class="dial-row">
+      <div class="dial-label">Geography<span id="v-geo">Far shores</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="9" step="1" oninput="updateDial(this,'geo',['Home','Mixed','Far shores'])">
+      <div class="dial-extremes"><span>Familiar world</span><span>Distant cultures</span></div>
+    </div>
+    <div class="dial-row">
+      <div class="dial-label">Time<span id="v-time">Ancient</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="2" step="1" oninput="updateDial(this,'time',['Now','Both','Ancient'])">
+      <div class="dial-extremes"><span>Contemporary</span><span>Historical</span></div>
+    </div>
+    <div class="dial-row">
+      <div class="dial-label">Length<span id="v-len">Immense</span></div>
+      <input type="range" class="soul-range" min="1" max="10" value="9" step="1" oninput="updateDial(this,'len',['Short','Medium','Immense'])">
+      <div class="dial-extremes"><span>Short &amp; sharp</span><span>Long &amp; immersive</span></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px">
+    <button class="btn-back" onclick="nextScreen('screen-q2')">←</button>
+    <button class="btn-next" onclick="nextScreen('screen-q4')">Continue →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 4 — READING RITUAL
+════════════════════════════════════════ -->
+<section class="screen" id="screen-q4">
+  <div class="eyebrow">Question 4 of 4</div>
+  <h1 class="screen-title">When do you read?<br><em>Tell me your ritual.</em></h1>
+  <p class="screen-sub">The same book reads differently at midnight than at noon. Your rhythm matters.</p>
+  <div class="ritual-options" id="ritualGrid">
+    <div class="ritual-card" onclick="selectRitual(this,'dawn')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">Before the world wakes</div>
+        <div class="ritual-desc">Early morning, first coffee, absolute quiet. Books that reward slow attention.</div>
+      </div>
+    </div>
+    <div class="ritual-card" onclick="selectRitual(this,'commute')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">In transit, in motion</div>
+        <div class="ritual-desc">Train, bus, stolen 20 minutes. Books that pull you in fast and hold tight.</div>
+      </div>
+    </div>
+    <div class="ritual-card" onclick="selectRitual(this,'afternoon')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">Afternoon light, sprawled</div>
+        <div class="ritual-desc">Long lazy hours. The kind of reading where you forget to eat.</div>
+      </div>
+    </div>
+    <div class="ritual-card selected" onclick="selectRitual(this,'midnight')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">Midnight when it's quiet</div>
+        <div class="ritual-desc">The whole world asleep. Books that feel secret, intimate, slightly dangerous.</div>
+      </div>
+    </div>
+    <div class="ritual-card" onclick="selectRitual(this,'bath')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">Bath, bed, full surrender</div>
+        <div class="ritual-desc">Complete escape mode. Deeply immersive, beautifully written, impossible to put down.</div>
+      </div>
+    </div>
+    <div class="ritual-card" onclick="selectRitual(this,'anywhere')">
+      <div class="ritual-dot"></div>
+      <div>
+        <div class="ritual-title">Everywhere, always</div>
+        <div class="ritual-desc">Books are my constant. I read between every heartbeat of the day.</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px">
+    <button class="btn-back" onclick="nextScreen('screen-q3')">←</button>
+    <button class="btn-next" onclick="startAnalysis()">Reveal my soul →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 5 — SOUL ANALYSIS ANIMATION
+════════════════════════════════════════ -->
+<section class="screen" id="screen-analysis">
+  <div class="analysis-wrap">
+    <div class="eyebrow">Reading your soul</div>
+    <h1 class="screen-title" style="margin-bottom:36px">Mapping your<br><em>literary universe</em></h1>
+    <div id="analysisBars" style="margin-bottom:40px"></div>
+    <div id="analysisTraits" class="traits-row"></div>
+    <div id="analysisMsg" style="font-family:var(--serif);font-size:16px;font-style:italic;color:var(--muted);min-height:28px;text-align:center;margin-top:8px"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SCREEN 6 — SOUL PROFILE DASHBOARD
+════════════════════════════════════════ -->
+<section class="screen" id="screen-profile" style="display:none">
+  <div style="max-width:1100px;width:100%;margin:0 auto">
+    <div style="margin-bottom:28px">
+      <div class="eyebrow" style="justify-content:flex-start">Your reading soul</div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,46px);font-weight:300;color:var(--parchment)">Amara, you are a <em style="color:var(--gold);font-style:italic">Midnight Wanderer</em></h1>
+        <button class="btn-next" style="padding:10px 24px;font-size:12px" onclick="shareProfile()">Share my soul ↗</button>
+      </div>
+    </div>
+
+    <div class="profile-layout">
+      <!-- SIDEBAR -->
+      <div class="soul-sidebar">
+        <div class="soul-card" style="text-align:center;padding:24px 20px">
+          <div class="avatar-ring">A</div>
+          <div class="soul-name">Amara K.</div>
+          <div class="soul-archetype">Midnight Wanderer</div>
+          <div class="soul-stats">
+            <div class="soul-stat"><div class="soul-stat-n">247</div><div class="soul-stat-l">Read</div></div>
+            <div class="soul-stat"><div class="soul-stat-n">34</div><div class="soul-stat-l">Countries</div></div>
+            <div class="soul-stat"><div class="soul-stat-n">12</div><div class="soul-stat-l">Languages</div></div>
+          </div>
+        </div>
+
+        <div class="soul-card">
+          <div class="section-head">Soul dimensions</div>
+          <div id="soulDimensions"></div>
+        </div>
+
+        <div class="soul-card">
+          <div class="section-head">Literary DNA</div>
+          <div id="literaryDNA" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        </div>
+
+        <div class="soul-card">
+          <div class="section-head">Reading ritual</div>
+          <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--parchment3);line-height:1.6">
+            "Midnight when it's quiet. Secret books. The kind that feel slightly dangerous."
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="profile-main">
+        <div class="soul-card">
+          <div class="section-head">Books chosen for your soul tonight</div>
+          <div class="recs-grid" id="recsGrid"></div>
+        </div>
+
+        <div class="soul-card">
+          <div class="section-head">What your soul reveals</div>
+          <div class="insight-card" style="background:transparent;border:none;padding:0">
+            <div id="insightsRows"></div>
+          </div>
+        </div>
+
+        <div class="soul-card">
+          <div class="section-head">Matched to your mood</div>
+          <div class="mood-grid" id="moodGrid"></div>
+        </div>
+
+        <div class="soul-quote">
+          <div class="quote-text">"The reading soul doesn't just match you to books — it maps the contours of who you are becoming."</div>
+          <div class="quote-source">Global BookShelf · Soul Intelligence v2.4</div>
+        </div>
+
+        <!-- ─── RETURN TO HOMEPAGE — added fix ─── -->
+        <div style="display:flex;gap:14px;justify-content:center;margin-top:32px;padding:28px 0 40px">
+          <button onclick="goToHomepageWithSoul()"
+            style="padding:14px 36px;background:var(--gold);border:none;border-radius:6px;
+                   color:var(--ink);font-family:var(--sans);font-size:14px;font-weight:500;
+                   letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+                   box-shadow:0 4px 24px rgba(201,168,76,.3);transition:all .2s">
+            Explore your books on the map →
+          </button>
+          <button onclick="window.location.href='global-bookshelf.html'"
+            style="padding:14px 28px;background:transparent;
+                   border:1px solid rgba(245,239,227,.2);border-radius:6px;
+                   color:rgba(245,239,227,.7);font-family:var(--sans);font-size:14px;
+                   cursor:pointer;transition:all .2s">
+            Return to homepage
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+let selections = {emotion:null, passage:null, ritual:'midnight'};
+
+function nextScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  requestAnimationFrame(() => { requestAnimationFrame(() => { el.classList.add('active'); }); });
+  updateStepTrack(id);
+  window.scrollTo(0,0);
+}
+
+function goTo(id) { nextScreen(id); if(id==='screen-profile') buildProfile(); }
+
+function updateStepTrack(id) {
+  const order = ['screen-welcome','screen-q1','screen-q2','screen-q3','screen-q4','screen-analysis','screen-profile'];
+  const idx = order.indexOf(id);
+  for(let i=0;i<5;i++){
+    const el = document.getElementById('ns'+i);
+    if(!el) continue;
+    if(i < idx-1) { el.classList.add('done'); el.classList.remove('active'); }
+    else if(i === idx-1) { el.classList.add('active'); el.classList.remove('done'); }
+    else { el.classList.remove('done','active'); }
+  }
+}
+
+function selectEmotion(el, val) {
+  document.querySelectorAll('.emotion-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selections.emotion = val;
+  document.getElementById('btn-q1').disabled = false;
+}
+
+function selectPassage(el, val) {
+  document.querySelectorAll('.passage-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selections.passage = val;
+  document.getElementById('btn-q2').disabled = false;
+}
+
+function selectRitual(el, val) {
+  document.querySelectorAll('.ritual-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selections.ritual = val;
+}
+
+function updateDial(input, key, labels) {
+  const v = parseInt(input.value);
+  const idx = v <= 3 ? 2 : v <= 7 ? 1 : 0;
+  document.getElementById('v-'+key).textContent = labels[idx];
+}
+
+function startAnalysis() {
+  nextScreen('screen-analysis');
+  setTimeout(runAnalysis, 300);
+}
+
+function runAnalysis() {
+  const container = document.getElementById('analysisBars');
+  container.innerHTML = '';
+  const dims = [
+    {label:'Emotional depth', w:'87%', delay:0},
+    {label:'Narrative complexity', w:'74%', delay:180},
+    {label:'Cultural range', w:'92%', delay:360},
+    {label:'Philosophical appetite', w:'81%', delay:540},
+    {label:'Lyrical sensitivity', w:'78%', delay:720},
+    {label:'Darkness tolerance', w:'69%', delay:900},
+  ];
+  dims.forEach(d => {
+    const row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:14px';
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--parchment3)">${d.label}</span>
+        <span style="font-size:12px;font-family:var(--serif);color:var(--gold)">${d.w}</span>
+      </div>
+      <div style="height:3px;background:rgba(245,239,227,0.08);border-radius:2px;overflow:hidden">
+        <div style="height:100%;background:var(--gold);border-radius:2px;width:0;transition:width 0.9s cubic-bezier(0.34,1.56,0.64,1);transition-delay:${d.delay}ms" class="abar"></div>
+      </div>`;
+    container.appendChild(row);
+    setTimeout(() => {
+      row.querySelector('.abar').style.width = d.w;
+    }, 80);
+  });
+
+  const traits = ['Melancholic Wonder','Night Reader','Cross-Cultural','Lyrical','Philosophical','Solitude Seeker'];
+  const traitColors = [
+    {bg:'rgba(201,168,76,0.15)',border:'rgba(201,168,76,0.35)',text:'var(--gold)'},
+    {bg:'rgba(139,125,216,0.12)',border:'rgba(139,125,216,0.3)',text:'#a89ee0'},
+    {bg:'rgba(58,184,176,0.12)',border:'rgba(58,184,176,0.3)',text:'var(--teal)'},
+    {bg:'rgba(107,171,124,0.12)',border:'rgba(107,171,124,0.3)',text:'#8bc99b'},
+    {bg:'rgba(212,135,58,0.12)',border:'rgba(212,135,58,0.3)',text:'#d4873a'},
+    {bg:'rgba(224,92,74,0.12)',border:'rgba(224,92,74,0.3)',text:'#e07a6b'},
+  ];
+  const traitContainer = document.getElementById('analysisTraits');
+  traitContainer.innerHTML = '';
+  traits.forEach((t, i) => {
+    const pill = document.createElement('div');
+    const c = traitColors[i];
+    pill.className = 'trait-pill';
+    pill.style.cssText = `background:${c.bg};border-color:${c.border};color:${c.text};animation-delay:${1.4 + i*0.15}s`;
+    pill.textContent = t;
+    traitContainer.appendChild(pill);
+  });
+
+  const msgs = ['Mapping emotional landscape…','Reading your literary fingerprint…','Calibrating cultural range…','Matching soul to 4.2M books…','Archetype identified: Midnight Wanderer'];
+  let mi = 0;
+  const msgEl = document.getElementById('analysisMsg');
+  const ticker = setInterval(() => {
+    if(mi < msgs.length) { msgEl.textContent = msgs[mi++]; }
+    else {
+      clearInterval(ticker);
+      setTimeout(() => { nextScreen('screen-profile'); buildProfile(); }, 600);
+    }
+  }, 700);
+}
+
+function buildProfile() {
+  const dims = [
+    {name:'Emotional depth', v:87},
+    {name:'Cultural range', v:92},
+    {name:'Philosophical hunger', v:81},
+    {name:'Lyrical sensitivity', v:78},
+    {name:'Darkness tolerance', v:69},
+    {name:'Narrative complexity', v:74},
+  ];
+  const dimEl = document.getElementById('soulDimensions');
+  dimEl.innerHTML = '';
+  dims.forEach(d => {
+    dimEl.innerHTML += `<div class="dimension-row">
+      <div class="dim-header"><span class="dim-name">${d.name}</span><span class="dim-value">${d.v}%</span></div>
+      <div class="dim-track"><div class="dim-fill" style="width:0" data-w="${d.v}%"></div></div>
+    </div>`;
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.dim-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }, 200);
+
+  const dna = ['Magical Realism','Post-Colonial','Existentialism','Stream of Consciousness','Latin American Boom','African Literature','Russian Classics','Dark Lyricism'];
+  const dnaColors = ['var(--gold)','var(--teal)','#a89ee0','#d4873a','#8bc99b','var(--coral)','#85aad4','var(--muted)'];
+  const dnaEl = document.getElementById('literaryDNA');
+  dna.forEach((t,i) => {
+    const pill = document.createElement('span');
+    pill.style.cssText = `font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid;color:${dnaColors[i]};border-color:${dnaColors[i]}40;background:${dnaColors[i]}12`;
+    pill.textContent = t;
+    dnaEl.appendChild(pill);
+  });
+
+  const recs = [
+    {title:'The God of Small Things', author:'Arundhati Roy', flag:'🇮🇳', match:'97%', reason:'Your lyrical sensitivity and darkness tolerance align perfectly with Roy\'s devastating prose.',color:'#8B6B35',emoji:'🌿'},
+    {title:'Pedro Páramo', author:'Juan Rulfo', flag:'🇲🇽', match:'95%', reason:'A midnight book for midnight souls. Magical realism at its most haunting and profound.',color:'#7B4A3A',emoji:'👻'},
+    {title:'Season of Migration to the North', author:'Tayeb Salih', flag:'🇸🇩', match:'94%', reason:'Your cross-cultural hunger and philosophical depth meet in this singular masterpiece.',color:'#5A4A3A',emoji:'🌙'},
+    {title:'The Master and Margarita', author:'Bulgakov', flag:'🇷🇺', match:'93%', reason:'Secret, dangerous, brilliant. Written for someone reading it at midnight.',color:'#4A3A6A',emoji:'😈'},
+    {title:'Flights', author:'Olga Tokarczuk', flag:'🇵🇱', match:'91%', reason:'Your wandering soul matches Tokarczuk\'s meditation on movement, time and human longing.',color:'#3A5A6A',emoji:'✈️'},
+    {title:'So Long a Letter', author:'Mariama Bâ', flag:'🇸🇳', match:'90%', reason:'African literature meets your emotional depth and appetite for unflinching honesty.',color:'#6A4A2A',emoji:'✉️'},
+  ];
+  const recsEl = document.getElementById('recsGrid');
+  recsEl.innerHTML = '';
+  recs.forEach(r => {
+    recsEl.innerHTML += `<div class="rec-book" style="--book-color:${r.color}">
+      <div class="rec-cover" style="background:${r.color}22;border:1px solid ${r.color}44">
+        <div class="rec-cover-spine" style="background:${r.color}"></div>
+        <span style="font-size:32px">${r.emoji}</span>
+        <span class="rec-match">${r.match}</span>
+      </div>
+      <div class="rec-title">${r.title}</div>
+      <div class="rec-author">${r.author} ${r.flag}</div>
+      <div class="rec-reason">${r.reason}</div>
+    </div>`;
+  });
+
+  const insights = [
+    {icon:'◎',bg:'rgba(58,184,176,0.1)',color:'var(--teal)',text:'<strong>You read to understand suffering</strong>, not to escape it. Your soul gravitates toward books that illuminate the full weight of being human.'},
+    {icon:'✦',bg:'rgba(201,168,76,0.1)',color:'var(--gold)',text:'<strong>Geography is your religion.</strong> You consume books the way explorers consume maps — as portals, not entertainment.'},
+    {icon:'◈',bg:'rgba(139,125,216,0.12)',color:'#a89ee0',text:'<strong>You are a rare midnight reader</strong> — someone who meets books at their most honest. Your choices suggest you\'re unafraid of the dark.'},
+    {icon:'❋',bg:'rgba(107,171,124,0.1)',color:'#8bc99b',text:'<strong>Your literary DNA is non-Western dominant</strong> — 78% of your resonances come from African, Latin American, and Asian literature.'},
+  ];
+  const insightsEl = document.getElementById('insightsRows');
+  insightsEl.innerHTML = '';
+  insights.forEach(ins => {
+    insightsEl.innerHTML += `<div class="insight-row">
+      <div class="insight-icon" style="background:${ins.bg};color:${ins.color};font-size:18px">${ins.icon}</div>
+      <div class="insight-text">${ins.text}</div>
+    </div>`;
+  });
+
+  const moods = [
+    {mood:'Restless', title:'The Waves', author:'V. Woolf'},
+    {mood:'Melancholy', title:'Stoner', author:'J. Williams'},
+    {mood:'Fierce', title:'Half of a Yellow Sun', author:'Adichie'},
+    {mood:'Wondering', title:'Invisible Cities', author:'Calvino'},
+  ];
+  const moodEl = document.getElementById('moodGrid');
+  moodEl.innerHTML = '';
+  moods.forEach(m => {
+    moodEl.innerHTML += `<div class="mood-book">
+      <div class="mood-label">${m.mood}</div>
+      <div class="mood-title">${m.title}</div>
+      <div class="mood-author">${m.author}</div>
+    </div>`;
+  });
+}
+
+function shareProfile() {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);z-index:2000;background:rgba(17,17,26,0.95);border:1px solid rgba(200,164,74,0.35);border-radius:24px;padding:12px 24px;font-family:var(--sans);font-size:14px;color:var(--pg);backdrop-filter:blur(10px);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);white-space:nowrap';
+  toast.innerHTML = '✦ Soul profile link copied to clipboard!';
+  document.body.appendChild(toast);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{toast.style.transform='translateX(-50%) translateY(0)';}));
+  setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(80px)';setTimeout(()=>toast.remove(),400);},3000);
+  if(navigator.clipboard) navigator.clipboard.writeText(window.location.href+'?soul=midnight-wanderer');
+}
+
+
+// ── BACKEND WIRING ────────────────────────────────────────────
+API.updateNav();
+
+// Collect quiz answers as user progresses
+const quizAnswers = {};
+
+// Intercept each question selection to track answers
+const originalSelectOption = window.selectOption;
+document.querySelectorAll('.option-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const screen  = card.closest('.screen');
+    const screenId = screen?.id;
+    const val = card.dataset.value || card.querySelector('[data-value]')?.dataset.value;
+    if (screenId === 'screen-q1') quizAnswers.emotional_need  = val;
+    if (screenId === 'screen-q2') quizAnswers.passage_type    = val;
+    if (screenId === 'screen-q3') quizAnswers.pace            = val;
+    if (screenId === 'screen-q4') quizAnswers.reading_ritual  = val;
+  });
+});
+
+// Watch for slider changes (dials screen)
+document.querySelectorAll('.soul-slider').forEach(slider => {
+  slider.addEventListener('change', () => {
+    if (!quizAnswers.dials) quizAnswers.dials = {};
+    quizAnswers.dials[slider.dataset.dim] = Number(slider.value);
+  });
+});
+
+// When the profile screen renders, submit to the API
+const profileObserver = new MutationObserver(async (mutations) => {
+  for (const m of mutations) {
+    if (m.target.id === 'screen-profile' && m.target.classList.contains('active')) {
+      await submitSoulProfile();
+      profileObserver.disconnect();
+    }
+  }
+});
+profileObserver.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+
+async function submitSoulProfile() {
+  try {
+    if (!API.isLoggedIn()) return; // guest — local profile only
+
+    const payload = {
+      emotional_need: quizAnswers.emotional_need || 'wonder',
+      passage_type:   quizAnswers.passage_type   || 'magical',
+      reading_ritual: quizAnswers.reading_ritual || 'midnight',
+      dials: quizAnswers.dials || { pace:5, darkness:6, language:7, geography:8, time_period:5, length:7 },
+    };
+
+    const data = await API.post('/api/soul/profile', payload);
+    const prof = data.profile;
+    if (!prof) return;
+
+    // Update archetype display with real server response
+    const archEl  = document.querySelector('.soul-archetype-name, .archetype-name, [data-archetype]');
+    const descEl  = document.querySelector('.soul-archetype-desc, .archetype-desc');
+    if (archEl && prof.archetype) archEl.textContent = prof.archetype;
+    if (descEl && prof.archetype_desc) descEl.textContent = prof.archetype_desc;
+
+    // Update dimension bars with real server values
+    if (prof.dimensions) {
+      Object.entries(prof.dimensions).forEach(([key, val]) => {
+        const bar = document.querySelector(`[data-dim="${key}"] .dim-fill, [data-dimension="${key}"] .dim-bar-fill`);
+        if (bar) bar.style.width = Math.round(val * 100) + '%';
+        const label = document.querySelector(`[data-dim="${key}"] .dim-pct`);
+        if (label) label.textContent = Math.round(val * 100) + '%';
+      });
+    }
+
+    API.toast('Soul profile saved to your account ✦');
+  } catch (e) {
+    // Not logged in or server offline — profile still works locally
+    console.warn('[SOUL PROFILE]', e.message);
+  }
+}
+
+// Load existing profile on page open if user is logged in
+async function loadExistingProfile() {
+  if (!API.isLoggedIn()) return;
+  try {
+    const data = await API.get('/api/soul/profile');
+    if (data.profile) {
+      // User already has a soul profile — offer to skip to results
+      const skip = document.querySelector('.nav-skip');
+      if (skip) {
+        skip.style.display = 'flex';
+        skip.textContent   = 'View my soul profile →';
+      }
+    }
+  } catch { /* no profile yet */ }
+}
+loadExistingProfile();
+
+
+// ─── Return to homepage after soul quiz ───────────────────────
+function goToHomepageWithSoul() {
+  // Save soul profile to localStorage so homepage can show it
+  const profile = {
+    archetype:   'Midnight Wanderer',
+    emotion:     selections.emotion,
+    passage:     selections.passage,
+    ritual:      selections.ritual,
+    completedAt: new Date().toISOString(),
+  };
+  try {
+    localStorage.setItem('gbs_soul_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  // Also try to save to backend if server is running
+  const token = localStorage.getItem('gbs_token');
+  if (token) {
+    fetch('http://localhost:4000/api/soul/profile', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify(profile),
+    }).catch(() => {}); // silent if server offline
+  }
+
+  // Navigate to homepage — the homepage will show soul recommendations
+  window.location.href = 'global-bookshelf.html';
+}
+</script>
+</body>
+</html>

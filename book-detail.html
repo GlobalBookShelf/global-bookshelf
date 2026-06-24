@@ -323,7 +323,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
 ::-webkit-scrollbar-thumb{background:rgba(198,162,64,.2);border-radius:2px}
 </style>
   <script src="api.js"></script>
-<script src="http://localhost:4000/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
+<script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
 
 </head>
 <body>
@@ -967,7 +967,7 @@ async function downloadBook(bookId, isFree) {
   const token  = API.getToken();
   const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
   try {
-    const res = await fetch('http://localhost:4000/api/books/' + bookId + '/download', { headers });
+    const res = await fetch('https://global-bookshelf-production.up.railway.app/api/books/' + bookId + '/download', { headers });
     if (res.redirected) { window.open(res.url, '_blank'); return; }
     if (!res.ok) {
       const data = await res.json();

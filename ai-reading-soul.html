@@ -898,7 +898,7 @@ function goToHomepageWithSoul() {
   // Also try to save to backend if server is running
   const token = localStorage.getItem('gbs_token');
   if (token) {
-    fetch('http://localhost:4000/api/soul/profile', {
+    fetch('https://global-bookshelf-production.up.railway.app/api/soul/profile', {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
       body: JSON.stringify(profile),

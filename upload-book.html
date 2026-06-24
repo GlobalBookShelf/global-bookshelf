@@ -377,7 +377,7 @@ async function submitBook() {
       progressFill.style.width = prog + '%';
     }, 400);
 
-    const uploadRes  = await fetch('http://localhost:4000/api/upload/book', { method:'POST', headers, body:form });
+    const uploadRes  = await fetch('https://global-bookshelf-production.up.railway.app/api/upload/book', { method:'POST', headers, body:form });
     const uploadData = await uploadRes.json();
     clearInterval(progInterval);
 

@@ -547,7 +547,7 @@ select.form-input{cursor:pointer}
 // ════════════════════════════════════════════════════════════
 //  CONSTANTS & STATE
 // ════════════════════════════════════════════════════════════
-const BASE = 'http://localhost:4000';
+const BASE = 'https://global-bookshelf-production.up.railway.app';
 let currentPage = 'overview';
 let allUsers    = [];
 let allBooks    = [];
@@ -904,7 +904,7 @@ async function loadUsers() {
       <div class="empty-icon">⚠️</div>
       <div class="empty-title">Error loading users</div>
       <div class="empty-sub">${e.message}<br>Make sure node server.js is running and you are signed in as admin.<br><br>
-        <a href="http://localhost:4000/api/admin/make-me-admin" target="_blank" 
+        <a href="https://global-bookshelf-production.up.railway.app/api/admin/make-me-admin" target="_blank" 
           style="color:var(--gold)">Click here to make your account admin →</a>
       </div>
     </div></td></tr>`);

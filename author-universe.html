@@ -288,7 +288,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:62px;display:flex;ali
 ::-webkit-scrollbar-thumb{background:rgba(200,164,74,.2);border-radius:2px}
 </style>
   <script src="api.js"></script>
-<script src="http://localhost:4000/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
+<script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
 
 </head>
 <body>
@@ -1402,7 +1402,7 @@ async function uploadBookFile(file, bookId) {
       if (progressBar) progressBar.style.width = prog + '%';
     }, 300);
 
-    const res  = await fetch('http://localhost:4000/api/upload/book', { method:'POST', headers, body:form });
+    const res  = await fetch('https://global-bookshelf-production.up.railway.app/api/upload/book', { method:'POST', headers, body:form });
     const data = await res.json();
 
     clearInterval(progInterval);

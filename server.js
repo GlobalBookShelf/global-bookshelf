@@ -1242,7 +1242,7 @@ app.get('/', (req, res) => res.redirect('/health'));
 // Google OAuth routes
 app.get('/api/auth/google', (req, res, next) => {
   const p = require('passport');
-  p.authenticate('google', { scope:['profile','email'], session:false })(req, res, next);
+  p.authenticate('google', { scope:['profile','email'], session:false, prompt:'select_account' })(req, res, next);
 });
 app.get('/api/auth/google/callback', (req, res, next) => {
   const p = require('passport');
@@ -1305,7 +1305,7 @@ try {
 
     // GET /api/auth/google — redirect to Google
     app.get('/api/auth/google',
-      passport.authenticate('google', { scope:['profile','email'], session:false })
+      passport.authenticate('google', { scope:['profile','email'], session:false, prompt:'select_account' })
     );
 
     // GET /api/auth/google/callback — Google redirects back here

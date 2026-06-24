@@ -6,7 +6,7 @@
  * ================================================================
  */
 
-const API_BASE = 'http://localhost:4000';
+const API_BASE = 'https://global-bookshelf-production.up.railway.app';
 
 const API = (() => {
 

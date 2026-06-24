@@ -1431,7 +1431,7 @@ app.post('/api/books', requireAuth, async (req, res) => {
     // Link this author to the book in book_authors table
     await db.query(
       `INSERT INTO book_authors (book_id, author_id, role)
-       VALUES ($1, $2, 'primary')
+       VALUES ($1, $2, 'author')
        ON CONFLICT DO NOTHING`,
       [book.id, req.user.sub]
     );

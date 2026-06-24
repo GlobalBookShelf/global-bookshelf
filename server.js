@@ -1314,10 +1314,10 @@ try {
         console.log('[Google OAuth] Callback — err:', err?.message, '| user:', user?.id, '| info:', info);
         if (err || !user) {
           console.error('[Google OAuth] Auth failed:', err?.message || info);
-          return res.redirect((process.env.FRONTEND_URL || 'http://127.0.0.1:5500') + '/global-bookshelf.html?error=oauth');
+          return res.redirect((process.env.FRONTEND_URL || 'https://global-bookshelf-app.netlify.app') + '/global-bookshelf.html?error=oauth');
         }
         const token = jwt.sign({ sub:user.id, email:user.email }, JWT_SECRET, { expiresIn:'30d' });
-        const frontendUrl = process.env.FRONTEND_URL || 'http://127.0.0.1:5500';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://global-bookshelf-app.netlify.app';
         console.log('[Google OAuth] Success! Redirecting to:', frontendUrl);
         res.redirect(`${frontendUrl}/global-bookshelf.html?oauth_token=${token}&user=${encodeURIComponent(JSON.stringify({
           id: user.id,

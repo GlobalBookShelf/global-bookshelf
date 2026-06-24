@@ -41,7 +41,7 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors({
   origin: [
-    'http://127.0.0.1:5500',
+    'https://global-bookshelf-app.netlify.app',
     'http://localhost:5500',
     'http://127.0.0.1:3000',
     'http://localhost:3000',
@@ -1248,9 +1248,9 @@ app.get('/api/auth/google/callback', (req, res, next) => {
   const p = require('passport');
   p.authenticate('google', { session:false }, (err, user) => {
     console.log('[OAuth Early] err:', err?.message, 'user:', user?.id);
-    if (err || !user) return res.redirect('http://127.0.0.1:5500/global-bookshelf.html?error=oauth');
+    if (err || !user) return res.redirect('https://global-bookshelf-app.netlify.app/global-bookshelf.html?error=oauth');
     const token = require('jsonwebtoken').sign({ sub:user.id, email:user.email }, JWT_SECRET, { expiresIn:'30d' });
-    res.redirect(`http://127.0.0.1:5500/global-bookshelf.html?oauth_token=${token}&user=${encodeURIComponent(JSON.stringify({ id:user.id, display_name:user.display_name, email:user.email, avatar_url:user.avatar_url }))}`);
+    res.redirect(`https://global-bookshelf-app.netlify.app/global-bookshelf.html?oauth_token=${token}&user=${encodeURIComponent(JSON.stringify({ id:user.id, display_name:user.display_name, email:user.email, avatar_url:user.avatar_url }))}`);
   })(req, res, next);
 });
 // 404 + error handlers
@@ -1804,7 +1804,7 @@ let io;
 try {
   const { Server } = require('socket.io');
   io = new Server(server, {
-    cors: { origin:['http://127.0.0.1:5500','http://localhost:5500'], methods:['GET','POST'] }
+    cors: { origin:['https://global-bookshelf-app.netlify.app','http://localhost:5500'], methods:['GET','POST'] }
   });
 
   const liveReaders = new Map();

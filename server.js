@@ -1589,84 +1589,68 @@ app.post('/api/admin/verify-author/:id', requireAuth, requireAdmin, async (req, 
 });
 
 // ════════════════════════════════════════════════════════════
-//  FILE UPLOADS — Book covers & author photos
+//  FILE UPLOADS — Cloudinary cloud storage
 // ════════════════════════════════════════════════════════════
 try {
   const multer = require('multer');
   const path   = require('path');
-  const fs     = require('fs');
+  const cloudinary = require('cloudinary').v2;
+  const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-  // Create uploads directory if it doesn't exist
-  const uploadDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive:true });
+  // Configure Cloudinary
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename:    (req, file, cb) => {
-      const ext  = path.extname(file.originalname);
-      const name = Date.now() + '-' + Math.round(Math.random()*1e9) + ext;
-      cb(null, name);
-    },
+  // Storage for cover images
+  const imageStorage = new CloudinaryStorage({
+    cloudinary,
+    params: (req, file) => ({
+      folder: 'globalbookshelf/covers',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      transformation: [{ width: 800, crop: 'limit' }],
+      public_id: Date.now() + '-' + Math.round(Math.random()*1e9),
+    }),
   });
 
   const upload = multer({
-    storage,
+    storage: imageStorage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
-    fileFilter: (req, file, cb) => {
-      const allowed = ['.jpg','.jpeg','.png','.gif','.webp'];
-      const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, allowed.includes(ext));
-    },
   });
 
-  // Serve uploaded files
-  app.use('/uploads', require('express').static(uploadDir));
-
-  // POST /api/upload/image — upload a single image
-  app.post('/api/upload/image', requireAuth, upload.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error:'No image file provided or file type not allowed' });
-    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename, size: req.file.size });
-  });
-
-  // Book file storage (PDF, EPUB, DOCX)
-  const bookStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const bookDir = path.join(__dirname, 'uploads', 'books');
-      if (!fs.existsSync(bookDir)) fs.mkdirSync(bookDir, { recursive: true });
-      cb(null, bookDir);
-    },
-    filename: (req, file, cb) => {
-      const ext  = path.extname(file.originalname).toLowerCase();
-      const name = Date.now() + '-' + Math.round(Math.random()*1e9) + ext;
-      cb(null, name);
-    },
+  // Storage for book files (PDF, EPUB, DOCX etc)
+  const bookStorage = new CloudinaryStorage({
+    cloudinary,
+    params: (req, file) => ({
+      folder: 'globalbookshelf/books',
+      resource_type: 'raw',
+      allowed_formats: ['pdf', 'epub', 'docx', 'txt', 'mobi'],
+      public_id: Date.now() + '-' + Math.round(Math.random()*1e9),
+    }),
   });
 
   const bookUpload = multer({
     storage: bookStorage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max for books
-    fileFilter: (req, file, cb) => {
-      const allowed = ['.pdf', '.epub', '.docx', '.txt', '.mobi'];
-      const ext = path.extname(file.originalname).toLowerCase();
-      if (!allowed.includes(ext)) {
-        return cb(new Error('Only PDF, EPUB, DOCX, TXT and MOBI files allowed'));
-      }
-      cb(null, true);
-    },
   });
 
-  // Serve book files
-  app.use('/uploads/books', require('express').static(path.join(__dirname, 'uploads', 'books')));
+  // POST /api/upload/image — upload a single cover image
+  app.post('/api/upload/image', requireAuth, upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error:'No image file provided or file type not allowed' });
+    const url = req.file.path; // Cloudinary URL
+    res.json({ url, filename: req.file.filename, size: req.file.size });
+  });
 
   // POST /api/upload/book — upload a book file (PDF, EPUB etc)
   app.post('/api/upload/book', requireAuth, bookUpload.single('book'), async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No book file provided' });
 
-      const ext      = path.extname(req.file.originalname).toLowerCase().replace('.', '');
-      const url      = `${req.protocol}://${req.get('host')}/uploads/books/${req.file.filename}`;
-      const fileSize = req.file.size;
+      const ext        = path.extname(req.file.originalname).toLowerCase().replace('.', '');
+      const url        = req.file.path; // Cloudinary URL
+      const fileSize   = req.file.size;
       const fileSizeMB = (fileSize / (1024*1024)).toFixed(2);
 
       // If book_id provided, update the book record with the file URL
@@ -1784,10 +1768,10 @@ try {
     }
   });
 
-  console.log('[File Upload] Multer enabled — local storage ✓');
+  console.log('[File Upload] Cloudinary storage enabled ✓');
 } catch(e) {
   
-  console.log('[File Upload] multer not installed — run: npm install multer');
+  console.log('[File Upload] Cloudinary error —', e.message);
 }
 
 

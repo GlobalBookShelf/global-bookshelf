@@ -438,7 +438,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
       <div class="ch"><div class="ct">About this book</div></div>
       <div class="cb">
         <div class="synopsis-fade" id="synopsisWrap">
-          <div class="synopsis">
+          <div class="synopsis" id="synopsisText">
             <p>The year is 1969. In the state of Kerala, on the southernmost tip of India, a sybaritic englishman is found drowned. His death will unravel a family — and expose the ancient, arbitrary Love Laws: <em>who should be loved, and how, and how much.</em></p>
             <p>Told through the eyes of fraternal twins Rahel and Estha, Roy's debut novel moves across time — from the luminous world of their childhood to the wreckage of their adulthood — in a story where a single terrible afternoon casts a shadow across an entire life.</p>
             <p>Roy writes in a language that has never existed before — Malayalam rhythms poured into English syntax, caste and history and nature braided into sentences that bloom and break apart like the Kerala monsoon. <em>The God of Small Things</em> is one of the few novels that has genuinely changed how English fiction sounds.</p>
@@ -452,7 +452,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     <div class="immersive-panel" id="sec-reader" style="animation-delay:.1s">
       <div class="imm-header">
         <div class="imm-tag">Reading mode</div>
-        <div class="imm-chapter">Chapter 1 · Paradise Pickles & Preserves</div>
+        <div class="imm-chapter" id="readerChapterLabel">Chapter 1 · Paradise Pickles & Preserves</div>
         <div class="ambient-controls">
           <button class="amb-btn" title="Rain sounds" onclick="toggleAmbient()">🌧</button>
           <button class="amb-btn on" title="Candlelight mode">🕯</button>
@@ -477,7 +477,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
         <div id="annPopupContainer"></div>
       </div>
 
-      <div class="imm-footer">
+      <div class="imm-footer" id="readerFooter">
         <div class="imm-progress">
           <div class="imm-pct"><span>Chapter 1 of 21</span><span>34% complete</span></div>
           <div class="imm-bar"><div class="imm-fill"></div></div>
@@ -489,10 +489,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
       </div>
     </div>
 
+    <!-- UPLOADED FILE VIEWER (shown instead of demo reader for uploaded books) -->
+    <div class="card" id="sec-filereader" style="animation-delay:.1s;display:none">
+      <div class="ch"><div class="ct">Read this book</div></div>
+      <div class="cb">
+        <div id="fileViewerWrap" style="text-align:center;padding:20px 0">
+          <p style="color:var(--pg4);font-size:13px;margin-bottom:18px">This book is available as a downloadable file. Open it below to read.</p>
+          <a id="fileViewerLink" href="#" target="_blank" style="display:inline-block;padding:13px 32px;background:var(--gold);border-radius:var(--rs);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:.05em">Open book →</a>
+        </div>
+      </div>
+    </div>
+
     <!-- CHARACTER MAP -->
     <div class="card" id="sec-characters" style="animation-delay:.15s">
       <div class="ch"><div class="ct">Character relationships</div><button class="clk">Spoiler-safe mode ✓</button></div>
-      <div class="char-map-wrap">
+      <div class="char-map-wrap" id="charMapWrap">
         <div class="char-svg-container">
           <svg width="660" height="320" viewBox="0 0 660 320" id="charSvg" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -566,7 +577,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     </div>
 
     <!-- YOUR SOUL MATCH -->
-    <div class="card" style="animation-delay:.12s;border-color:rgba(220,86,64,.15)">
+    <div class="card" id="sec-soulmatch" style="animation-delay:.12s;border-color:rgba(220,86,64,.15)">
       <div class="ch"><div class="ct" style="color:var(--coral)">Soul match</div></div>
       <div class="cb">
         <div style="text-align:center;margin-bottom:14px">
@@ -587,7 +598,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     </div>
 
     <!-- TRANSLATIONS -->
-    <div class="card" style="animation-delay:.16s">
+    <div class="card" id="sec-translations" style="animation-delay:.16s">
       <div class="ch"><div class="ct">Available in</div><button class="clk">All 23 →</button></div>
       <div class="cb">
         <div id="translationsList"></div>
@@ -1181,9 +1192,48 @@ async function loadBookData() {
     const annCount = document.querySelector('.btab[onclick*="annotations"] span, #annCount');
     if (annCount) annCount.textContent = anns.length;
 
-    // Description
-    const synEl = document.querySelector('#tab-about .synopsis, .book-synopsis, #bookSynopsis');
-    if (synEl && book.description) synEl.textContent = book.description;
+    // Description / synopsis
+    const synEl = document.getElementById('synopsisText');
+    if (synEl) {
+      if (book.description) {
+        synEl.innerHTML = '<p>' + book.description.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+      } else {
+        synEl.innerHTML = '<p style="color:var(--pg4)">No description provided yet.</p>';
+      }
+    }
+
+    // ── Detect if this is a user-uploaded book (no curated demo data) ──
+    // Curated/seed books have rich data like character lists; uploads just have a download_url.
+    const isUploadedBook = !!book.download_url && (!book.rating_count || book.rating_count === 0);
+
+    if (isUploadedBook) {
+      // Hide demo-only sections that don't apply to plain uploaded files
+      ['sec-characters','sec-debate','sec-soulmatch','sec-translations'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      // Hide their tabs too
+      document.querySelectorAll('.btab').forEach(t => {
+        if (t.textContent.includes('Characters') || t.textContent.includes('Debate')) t.style.display = 'none';
+      });
+
+      // Hide the fake demo reader text, show the real file viewer instead
+      const demoReader = document.getElementById('sec-reader');
+      if (demoReader) demoReader.style.display = 'none';
+      const fileReaderCard = document.getElementById('sec-filereader');
+      if (fileReaderCard) {
+        fileReaderCard.style.display = 'block';
+        const link = document.getElementById('fileViewerLink');
+        if (link) link.href = book.download_url;
+      }
+
+      // "Read Chapter 1" button → open the real file instead of scrolling to fake text
+      const readBtn = document.querySelector('.btn-primary[onclick="scrollToReader()"]');
+      if (readBtn) {
+        readBtn.textContent = 'Read this book';
+        readBtn.onclick = () => window.open(book.download_url, '_blank');
+      }
+    }
 
   } catch (e) { console.warn('[BOOK DATA]', e.message); }
 }

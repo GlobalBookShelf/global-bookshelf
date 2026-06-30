@@ -50,8 +50,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '2mb' }));
 
 // Rate limiting
 const limiter      = rateLimit({ windowMs:15*60*1000, max:500, standardHeaders:true, legacyHeaders:false });
@@ -1682,6 +1681,33 @@ try {
     } catch(err) {
       res.status(500).json({ error: err.message });
     }
+  });
+
+
+  // PATCH /api/books/:id/file — save Cloudinary file URL to book record
+  app.patch("/api/books/:id/file", requireAuth, async (req, res) => {
+    try {
+      const { download_url, file_format, file_size_bytes } = req.body;
+      await db.query(
+        `UPDATE books SET download_url=$1, file_format=$2, file_size_bytes=$3, is_downloadable=TRUE, updated_at=NOW() WHERE id=$4`,
+        [download_url, file_format, file_size_bytes, req.params.id]
+      );
+      res.json({ success: true });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+  });
+
+  // POST /api/upload/book-url — save Cloudinary URL directly
+  app.post("/api/upload/book-url", requireAuth, async (req, res) => {
+    try {
+      const { book_id, url, format, size_bytes } = req.body;
+      if (book_id) {
+        await db.query(
+          `UPDATE books SET download_url=$1, file_format=$2, file_size_bytes=$3, is_downloadable=TRUE, updated_at=NOW() WHERE id=$4`,
+          [url, format, size_bytes, book_id]
+        );
+      }
+      res.json({ success: true, url });
+    } catch(err) { res.status(500).json({ error: err.message }); }
   });
 
   // GET /api/books/:id/download — download a book file

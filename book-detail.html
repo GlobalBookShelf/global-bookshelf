@@ -364,13 +364,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
   <div class="hero-layout">
     <div class="cover-3d">
       <div class="cover-inner" id="bookCover">
-        <div class="cover-face">
+        <div class="cover-face" id="coverFaceArt">
           <div class="cover-deco"></div>
-          <div class="cover-title-text">The God of Small Things</div>
+          <div class="cover-title-text" id="coverTitleText">The God of Small Things</div>
           <div class="cover-deco"></div>
-          <div class="cover-author-text">Arundhati Roy</div>
+          <div class="cover-author-text" id="coverAuthorText">Arundhati Roy</div>
         </div>
-        <div class="cover-badge">Booker Prize</div>
+        <div class="cover-badge" id="coverBadge" style="display:none">Booker Prize</div>
       </div>
       <div style="text-align:center;margin-top:14px">
         <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg4);margin-bottom:6px">Reading</div>
@@ -380,15 +380,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     </div>
 
     <div class="hero-text">
-      <div class="book-origin">🇮🇳 Kerala, India · 1997</div>
-      <h1 class="book-title">The God of<br><em>Small Things</em></h1>
-      <p class="book-author">by <a href="author-universe.html">Arundhati Roy</a></p>
-      <div class="rating-row">
-        <span class="stars">★★★★★</span>
-        <span class="rating-val">4.8</span>
-        <span class="rating-count">284,190 ratings · 38,204 reviews</span>
+      <div class="book-origin" id="bookOrigin" style="display:none">🇮🇳 Kerala, India · 1997</div>
+      <h1 class="book-title" id="bookTitleMain">The God of<br><em>Small Things</em></h1>
+      <p class="book-author">by <a href="author-universe.html" id="bookAuthorLink">Arundhati Roy</a></p>
+      <div class="rating-row" id="ratingRow">
+        <span class="stars" id="starsDisplay">★★★★★</span>
+        <span class="rating-val" id="ratingValDisplay">4.8</span>
+        <span class="rating-count" id="ratingCountDisplay">284,190 ratings · 38,204 reviews</span>
       </div>
-      <div class="book-tags">
+      <div class="book-tags" id="bookTagsContainer">
         <span class="tag" style="color:var(--rust);border-color:rgba(184,92,56,.3);background:var(--rustd)">Post-Colonial</span>
         <span class="tag" style="color:var(--gold);border-color:rgba(198,162,64,.3);background:var(--goldd)">Literary Fiction</span>
         <span class="tag" style="color:var(--teal);border-color:rgba(52,176,168,.3);background:var(--teald)">India</span>
@@ -406,18 +406,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
         <button class="btn-secondary" onclick="toggleShelf(this)">Add to shelf</button>
         <button class="btn-ambient" onclick="toggleAmbient()">🌧 Ambient mode</button>
       </div>
-      <div class="book-stats-row">
-        <div class="bstat"><div class="bstat-n">321</div><div class="bstat-l">Pages</div></div>
-        <div class="bstat"><div class="bstat-n">English</div><div class="bstat-l">Original</div></div>
-        <div class="bstat"><div class="bstat-n">23</div><div class="bstat-l">Translations</div></div>
-        <div class="bstat"><div class="bstat-n">1997</div><div class="bstat-l">Published</div></div>
-        <div class="bstat"><div class="bstat-n">284k</div><div class="bstat-l">Readers</div></div>
+      <div class="book-stats-row" id="bookStatsRow">
+        <div class="bstat"><div class="bstat-n" id="statPages">321</div><div class="bstat-l">Pages</div></div>
+        <div class="bstat"><div class="bstat-n" id="statLang">English</div><div class="bstat-l">Original</div></div>
+        <div class="bstat"><div class="bstat-n" id="statTranslations">23</div><div class="bstat-l">Translations</div></div>
+        <div class="bstat"><div class="bstat-n" id="statYear">1997</div><div class="bstat-l">Published</div></div>
+        <div class="bstat"><div class="bstat-n" id="statReaders">284k</div><div class="bstat-l">Readers</div></div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- TABS -->
+
+
 <div class="book-tabs">
   <div class="btab active" onclick="setTab(this,'overview')">Overview</div>
   <div class="btab" onclick="setTab(this,'reader')">Read</div>
@@ -1028,6 +1030,21 @@ const bookId = new URLSearchParams(window.location.search).get('id') || 'b1';
 // Ping presence
 API.post('/api/live/ping', { book_id: bookId }).catch(()=>{});
 
+// Color palette to cycle through for generated covers / tags
+const GBS_PALETTE = [
+  { c1:'#8B3A2A', c2:'#C25040', c3:'#A04535' },
+  { c1:'#2A5A8B', c2:'#4080C2', c3:'#355DA0' },
+  { c1:'#5A2A8B', c2:'#7E40C2', c3:'#5D35A0' },
+  { c1:'#2A6B3A', c2:'#40A058', c3:'#357A45' },
+  { c1:'#8B6B2A', c2:'#C29840', c3:'#A07D35' },
+];
+
+function gbsHashColor(str) {
+  let hash = 0;
+  for (let i = 0; i < (str||'').length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return GBS_PALETTE[Math.abs(hash) % GBS_PALETTE.length];
+}
+
 // Load real book data
 async function loadBookData() {
   try {
@@ -1037,47 +1054,136 @@ async function loadBookData() {
       API.get('/api/books/' + bookId + '/annotations'),
     ]);
 
-    // Update title, author
-    const titleEl = document.querySelector('.book-title-main, h1.book-title, .cover-title');
-    if (titleEl && book.title) titleEl.textContent = book.title;
+    document.title = (book.title || 'Book') + ' — Global BookShelf';
 
-    const authorEl = document.querySelector('.book-author a, .book-author-name');
-    if (authorEl && book.author) authorEl.textContent = book.author;
+    // Title & author
+    const titleEl = document.getElementById('bookTitleMain');
+    if (titleEl) titleEl.innerHTML = book.title || 'Untitled';
+    const authorEl = document.getElementById('bookAuthorLink');
+    if (authorEl) authorEl.textContent = book.author || 'Unknown author';
 
-    // Update reader count
+    // Cover
+    const coverFace = document.getElementById('coverFaceArt');
+    const coverTitleText  = document.getElementById('coverTitleText');
+    const coverAuthorText = document.getElementById('coverAuthorText');
+    const palette = gbsHashColor(book.title || bookId);
+
+    if (book.cover_url) {
+      if (coverFace) {
+        coverFace.style.background = "url('" + book.cover_url + "') center/cover no-repeat";
+        coverFace.innerHTML = '';
+      }
+    } else {
+      if (coverFace) coverFace.style.background =
+        'linear-gradient(135deg, ' + palette.c1 + ' 0%, ' + palette.c2 + ' 25%, ' + palette.c1 + ' 50%, ' + palette.c3 + ' 75%, ' + palette.c2 + ' 100%)';
+      if (coverTitleText)  coverTitleText.textContent  = book.title  || 'Untitled';
+      if (coverAuthorText) coverAuthorText.textContent = book.author || 'Unknown';
+    }
+
+    const badge = document.getElementById('coverBadge');
+    if (badge) {
+      if (book.rating_count > 100) { badge.style.display = 'block'; badge.textContent = '★ Featured'; }
+      else badge.style.display = 'none';
+    }
+
+    // Origin line
+    const originEl = document.getElementById('bookOrigin');
+    if (originEl) {
+      const parts = [];
+      if (book.origin_city) parts.push(book.origin_city);
+      if (book.origin_country) parts.push(book.origin_country);
+      if (book.published_year) parts.push(book.published_year);
+      if (parts.length) { originEl.textContent = parts.join(' · '); originEl.style.display = 'flex'; }
+      else originEl.style.display = 'none';
+    }
+
+    // Rating
+    const ratingRow = document.getElementById('ratingRow');
+    const starsEl = document.getElementById('starsDisplay');
+    const ratingValEl = document.getElementById('ratingValDisplay');
+    const ratingCountEl = document.getElementById('ratingCountDisplay');
+    const ratingNum = parseFloat(book.rating) || 0;
+    if (book.rating_count > 0) {
+      if (starsEl) starsEl.textContent = '★'.repeat(Math.round(ratingNum)) + '☆'.repeat(5 - Math.round(ratingNum));
+      if (ratingValEl) ratingValEl.textContent = ratingNum.toFixed(1);
+      if (ratingCountEl) ratingCountEl.textContent =
+        (book.rating_count||0).toLocaleString() + ' ratings · ' + (book.review_count||0).toLocaleString() + ' reviews';
+    } else {
+      if (ratingRow) ratingRow.innerHTML = '<span style="font-size:12px;color:var(--pg4)">No ratings yet — be the first to review</span>';
+    }
+
+    // Tags / genres
+    const tagsContainer = document.getElementById('bookTagsContainer');
+    if (tagsContainer) {
+      const allTags = [].concat(book.genres||[], book.themes||[], book.tags||[]).filter(Boolean);
+      if (allTags.length) {
+        tagsContainer.innerHTML = allTags.slice(0,5).map(function(t,i) {
+          const p = GBS_PALETTE[i % GBS_PALETTE.length];
+          return '<span class="tag" style="color:' + p.c2 + ';border-color:' + p.c2 + '55;background:' + p.c1 + '22">' + t + '</span>';
+        }).join('');
+      } else {
+        tagsContainer.innerHTML = '';
+      }
+    }
+
+    // Stats row
+    const statPages = document.getElementById('statPages');
+    if (statPages) statPages.textContent = book.page_count || '—';
+    const statLang = document.getElementById('statLang');
+    if (statLang) {
+      const langNames = { en:'English', sw:'Swahili', fr:'French', ar:'Arabic', yo:'Yorùbá', ha:'Hausa', ig:'Igbo', pt:'Portuguese', es:'Spanish' };
+      statLang.textContent = langNames[book.original_language] || book.original_language || '—';
+    }
+    const statTranslations = document.getElementById('statTranslations');
+    if (statTranslations) statTranslations.textContent = '0';
+    const statYear = document.getElementById('statYear');
+    if (statYear) statYear.textContent = book.published_year || '—';
+    const statReaders = document.getElementById('statReaders');
+    if (statReaders) {
+      const rc = book.reader_count || 0;
+      statReaders.textContent = rc >= 1000 ? (rc/1000).toFixed(1).replace('.0','') + 'k' : rc;
+    }
+
     const ratingCount = document.querySelector('.rating-count');
     if (ratingCount && book.reader_count) {
       ratingCount.textContent = (book.reader_count).toLocaleString() + ' ratings';
     }
 
-    // Load reviews into the reviews tab
+    // Reviews
     const reviews = revData.reviews || [];
     const revContainer = document.querySelector('#tab-reviews .review-list, #reviews-list');
-    if (revContainer && reviews.length > 0) {
-      // Append real reviews below existing demo ones
-      reviews.slice(0, 5).forEach(r => {
-        const el = document.createElement('div');
-        el.className = 'review-card';
-        el.style.cssText = 'background:rgba(243,236,222,.03);border:1px solid rgba(243,236,222,.08);border-radius:8px;padding:14px;margin-bottom:10px';
-        el.innerHTML = `
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-            <span style="color:rgba(243,236,222,.7);font-size:13px;font-weight:500">
-              ${r.display_name || 'Reader'} ${r.country_code ? '('+r.country_code+')' : ''}
-            </span>
-            <span style="color:#c6a240;font-size:13px">${'★'.repeat(r.rating||5)}</span>
-          </div>
-          <p style="color:rgba(243,236,222,.65);font-size:13px;line-height:1.6">${r.body || ''}</p>
-          <button onclick="likeItem('review','${r.id}',this)" style="background:transparent;border:none;color:rgba(243,236,222,.4);font-size:12px;cursor:pointer;margin-top:8px">
-            ♡ ${r.like_count || 0}
-          </button>`;
-        revContainer.appendChild(el);
-      });
+    if (revContainer) {
+      if (reviews.length === 0) {
+        revContainer.innerHTML = '<p style="color:var(--pg4);font-size:13px;padding:20px 0">No reviews yet — be the first to share your thoughts.</p>';
+      } else {
+        reviews.slice(0, 5).forEach(function(r) {
+          const el = document.createElement('div');
+          el.className = 'review-card';
+          el.style.cssText = 'background:rgba(243,236,222,.03);border:1px solid rgba(243,236,222,.08);border-radius:8px;padding:14px;margin-bottom:10px';
+          el.innerHTML =
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px">' +
+              '<span style="color:rgba(243,236,222,.7);font-size:13px;font-weight:500">' +
+                (r.display_name || 'Reader') + ' ' + (r.country_code ? '('+r.country_code+')' : '') +
+              '</span>' +
+              '<span style="color:#c6a240;font-size:13px">' + '★'.repeat(r.rating||5) + '</span>' +
+            '</div>' +
+            '<p style="color:rgba(243,236,222,.65);font-size:13px;line-height:1.6">' + (r.body || '') + '</p>' +
+            '<button onclick="likeItem(\'review\',\'' + r.id + '\',this)" style="background:transparent;border:none;color:rgba(243,236,222,.4);font-size:12px;cursor:pointer;margin-top:8px">' +
+              '♡ ' + (r.like_count || 0) +
+            '</button>';
+          revContainer.appendChild(el);
+        });
+      }
     }
 
-    // Load annotations
+    // Annotations
     const anns = annData.annotations || [];
     const annCount = document.querySelector('.btab[onclick*="annotations"] span, #annCount');
     if (annCount) annCount.textContent = anns.length;
+
+    // Description
+    const synEl = document.querySelector('#tab-about .synopsis, .book-synopsis, #bookSynopsis');
+    if (synEl && book.description) synEl.textContent = book.description;
 
   } catch (e) { console.warn('[BOOK DATA]', e.message); }
 }

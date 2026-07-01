@@ -414,18 +414,24 @@ async function submitBook() {
     progressFill.style.width  = '85%';
 
     if (bookId) {
-      await API.patch('/api/books/' + bookId + '/file', {
-        download_url:    fileUrl,
-        file_format:     ext,
-        file_size_bytes: cloudData.bytes,
-      }).catch(() => {
-        // If patch endpoint not found, try the upload/book route with just the URL
-        return fetch('https://global-bookshelf-production.up.railway.app/api/upload/book-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API.getToken() },
-          body: JSON.stringify({ book_id: bookId, url: fileUrl, format: ext, size_bytes: cloudData.bytes })
+      try {
+        await API.patch('/api/books/' + bookId + '/file', {
+          download_url:    fileUrl,
+          file_format:     ext,
+          file_size_bytes: cloudData.bytes,
         });
-      });
+      } catch(patchErr) {
+        // Fallback: try the book-url route
+        try {
+          await fetch('https://global-bookshelf-production.up.railway.app/api/upload/book-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API.getToken() },
+            body: JSON.stringify({ book_id: bookId, url: fileUrl, format: ext, size_bytes: cloudData.bytes })
+          });
+        } catch(fallbackErr) {
+          console.warn('[GBS] Could not save file URL:', fallbackErr.message);
+        }
+      }
     }
 
     progressFill.style.width  = '100%';

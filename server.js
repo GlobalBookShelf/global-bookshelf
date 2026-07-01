@@ -1387,10 +1387,9 @@ app.post('/api/books', requireAuth, async (req, res) => {
     if (!genres || genres.length === 0)
       return res.status(400).json({ error: 'At least one genre is required' });
 
-    // Check if author is verified — verified authors self-publish
+    // Always publish — authors self-publish on Global BookShelf
+    const status = 'published';
     const author = await db.users.findById(req.user.sub);
-    const isVerifiedAuthor = author?.is_verified && author?.is_author;
-    const status = isVerifiedAuthor ? 'published' : 'draft';
 
     const slug = title.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')

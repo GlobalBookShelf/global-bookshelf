@@ -565,7 +565,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
   <div class="aside">
 
     <!-- WORLD READERS -->
-    <div class="card" style="animation-delay:.08s">
+    <div class="card" id="sec-worldreaders" style="animation-delay:.08s">
       <div class="ch"><div class="ct">Reading right now</div></div>
       <div class="cb">
         <div class="community-strip" id="readerStrip"></div>
@@ -606,7 +606,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     </div>
 
     <!-- SIMILAR BOOKS -->
-    <div class="card" style="animation-delay:.2s">
+    <div class="card" id="sec-similar" style="animation-delay:.2s">
       <div class="ch"><div class="ct">Soul-matched reads</div></div>
       <div class="cb">
         <div class="sim-grid" id="simGrid"></div>
@@ -614,7 +614,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     </div>
 
     <!-- BOOK CLUBS -->
-    <div class="card" style="animation-delay:.24s">
+    <div class="card" id="sec-bookclubs" style="animation-delay:.24s">
       <div class="ch"><div class="ct">Book clubs reading this</div></div>
       <div class="cb" id="clubsList"></div>
     </div>
@@ -1208,13 +1208,14 @@ async function loadBookData() {
 
     if (isUploadedBook) {
       // Hide demo-only sections that don't apply to plain uploaded files
-      ['sec-characters','sec-debate','sec-soulmatch','sec-translations'].forEach(id => {
+      ['sec-characters','sec-debate','sec-soulmatch','sec-translations',
+       'sec-annotations','sec-worldreaders','sec-similar','sec-bookclubs'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
       // Hide their tabs too
       document.querySelectorAll('.btab').forEach(t => {
-        if (t.textContent.includes('Characters') || t.textContent.includes('Debate')) t.style.display = 'none';
+        if (t.textContent.includes('Characters') || t.textContent.includes('Debate') || t.textContent.includes('Annotations')) t.style.display = 'none';
       });
 
       // Hide the fake demo reader text, show the real file viewer instead

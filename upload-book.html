@@ -354,7 +354,7 @@ async function uploadCoverToCloudinary(file) {
 }
 
 async function submitBook() {
-  const title    = document.getElementById('bookTitle').value.trim();
+  let   title    = document.getElementById('bookTitle').value.trim();
   const author   = document.getElementById('authorName').value.trim();
   const desc     = document.getElementById('bookDesc').value.trim();
   const genre    = document.getElementById('bookGenre').value;
@@ -367,6 +367,11 @@ async function submitBook() {
   if (!author)       { showStatus('Author name is required', 'error'); return; }
   if (!selectedFile) { showStatus('Please select a book file to upload', 'error'); return; }
   if (!API.isLoggedIn()) { API.openSignInModal(); return; }
+
+  // Auto-append the GlobalBook Shelf suffix if not already present
+  if (!/\(\s*globalbook\s*shelf\s*\)/i.test(title)) {
+    title = title + ' (GlobalBook Shelf)';
+  }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;

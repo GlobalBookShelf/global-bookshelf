@@ -1380,7 +1380,7 @@ app.post('/api/books', requireAuth, async (req, res) => {
       title, subtitle, description, excerpt, genres,
       origin_country, original_language, published_year,
       isbn, page_count, cover_url, themes, tags,
-      content_warnings, age_rating,
+      content_warnings, age_rating, author_name,
     } = req.body;
 
     if (!title) return res.status(400).json({ error: 'Book title is required' });
@@ -1422,7 +1422,7 @@ app.post('/api/books', requireAuth, async (req, res) => {
         content_warnings || [],
         age_rating || 'all',
         status,
-        author.display_name,
+        author_name || author.display_name,
       ]
     );
     const book = rows[0];

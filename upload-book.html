@@ -6,6 +6,7 @@
 <title>Upload a Book — Global BookShelf</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="api.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
@@ -281,6 +282,64 @@ function processFile(file) {
   const titleInput = document.getElementById('bookTitle');
   if (!titleInput.value) {
     titleInput.value = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // Auto-extract description from the book's own text (PDF only)
+  if (extClean === 'pdf') {
+    extractPdfDescription(file);
+  }
+}
+
+// Extract first readable text from a PDF and auto-fill the description
+async function extractPdfDescription(file) {
+  const descBox = document.getElementById('bookDesc');
+  if (typeof pdfjsLib === 'undefined') return; // library not loaded
+
+  try {
+    descBox.placeholder = 'Reading book to auto-generate description…';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    // Try PDF metadata first (often has a real description/subject)
+    let metaDesc = '';
+    try {
+      const meta = await pdf.getMetadata();
+      if (meta?.info?.Subject) metaDesc = meta.info.Subject.trim();
+    } catch(e) {}
+
+    // Collect readable text from the first few pages
+    let collected = '';
+    const pagesToScan = Math.min(pdf.numPages, 4);
+    for (let i = 1; i <= pagesToScan && collected.length < 600; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(it => it.str).join(' ').replace(/\s+/g, ' ').trim();
+      collected += ' ' + pageText;
+    }
+    collected = collected.replace(/\s+/g, ' ').trim();
+
+    // Pick the best available text
+    let description = metaDesc && metaDesc.length > 40 ? metaDesc : collected;
+
+    // Trim to a clean ~400-char blurb ending at a sentence
+    if (description.length > 400) {
+      description = description.slice(0, 400);
+      const lastPeriod = description.lastIndexOf('.');
+      if (lastPeriod > 200) description = description.slice(0, lastPeriod + 1);
+      else description = description + '…';
+    }
+
+    if (description && description.length > 20) {
+      descBox.value = description;
+      descBox.placeholder = 'What is this book about?';
+    } else {
+      descBox.placeholder = 'Could not auto-read this book — please add a description.';
+    }
+  } catch(e) {
+    console.warn('[GBS] Auto-description failed:', e.message);
+    descBox.placeholder = 'What is this book about?';
   }
 }
 

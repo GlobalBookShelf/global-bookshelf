@@ -41,6 +41,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .club-header{border-radius:var(--r);overflow:hidden;border:1px solid var(--pg5);margin-bottom:24px;background:var(--ink2)}
 .club-banner{height:120px;display:flex;align-items:center;justify-content:center;position:relative}
 .club-banner-emoji{font-size:52px;position:relative;z-index:1}
+.banner-upload-btn{position:absolute;bottom:10px;right:12px;z-index:2;padding:7px 14px;background:rgba(7,7,16,.75);border:1px solid rgba(243,236,222,.25);border-radius:var(--rs);color:var(--pg);font-size:12px;font-family:var(--sans);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
+.banner-upload-btn:hover{background:rgba(7,7,16,.9);border-color:var(--gold)}
 .club-header-body{padding:22px 26px}
 .club-name{font-family:var(--serif);font-size:32px;font-weight:500;line-height:1.1;margin-bottom:8px}
 .club-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--pg4);margin-bottom:14px}
@@ -161,6 +163,7 @@ function timeAgo(dateStr){
 
 let clubData = null;
 let isMember = false;
+let isOwner  = false;
 
 async function loadClub() {
   if (!clubId) {
@@ -178,6 +181,8 @@ async function loadClub() {
 
     clubData = clubRes.club;
     isMember = clubRes.is_member || false;
+    const session = API.getSession();
+    isOwner = session?.user?.id && clubData.owner_id === session.user.id;
     const posts   = postsRes.posts || [];
     const members = membersRes.members || [];
 
@@ -202,8 +207,16 @@ function render(club, posts, members) {
   document.getElementById('clubContent').innerHTML = `
     <!-- HEADER -->
     <div class="club-header">
-      <div class="club-banner" style="background:linear-gradient(135deg, ${pal.c1}, ${pal.c2})">
-        <span class="club-banner-emoji">${emoji}</span>
+      <div class="club-banner" id="clubBanner" style="${club.image_url
+        ? `background:url('${club.image_url}') center/cover no-repeat`
+        : `background:linear-gradient(135deg, ${pal.c1}, ${pal.c2})`}">
+        ${club.image_url ? '' : `<span class="club-banner-emoji">${emoji}</span>`}
+        ${isOwner ? `
+          <button class="banner-upload-btn" onclick="document.getElementById('clubImageInput').click()" title="Change club image">
+            📷 ${club.image_url ? 'Change image' : 'Add image'}
+          </button>
+          <input type="file" id="clubImageInput" accept="image/*" style="display:none" onchange="uploadClubImage(this)">
+        ` : ''}
       </div>
       <div class="club-header-body">
         <div class="club-name">${club.name}</div>
@@ -351,6 +364,46 @@ function shareClub() {
     navigator.clipboard.writeText(url).then(() => toast('Club link copied ✦')).catch(() => toast('Club link: ' + url));
   } else {
     toast('Club link: ' + url);
+  }
+}
+
+// ── Upload club image ──
+const CLOUDINARY_CLOUD = 'daxtv3avw';
+const CLOUDINARY_PRESET = 'globalbookshelf_books';
+
+async function uploadClubImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const banner = document.getElementById('clubBanner');
+  const btn = banner.querySelector('.banner-upload-btn');
+  const originalBtnText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Uploading…'; btn.disabled = true; }
+
+  try {
+    // Upload to Cloudinary
+    const form = new FormData();
+    form.append('file', file);
+    form.append('upload_preset', CLOUDINARY_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST', body: form
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
+    const imageUrl = data.secure_url;
+
+    // Save to the club record
+    await API.patch('/api/clubs/' + clubId + '/image', { image_url: imageUrl });
+
+    // Update the banner live
+    banner.style.background = `url('${imageUrl}') center/cover no-repeat`;
+    const emojiEl = banner.querySelector('.club-banner-emoji');
+    if (emojiEl) emojiEl.remove();
+    if (btn) { btn.textContent = '📷 Change image'; btn.disabled = false; }
+    toast('Club image updated ✦');
+  } catch (e) {
+    if (btn) { btn.textContent = originalBtnText; btn.disabled = false; }
+    toast(e.message || 'Could not upload image', 'error');
   }
 }
 

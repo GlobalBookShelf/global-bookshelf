@@ -917,6 +917,19 @@ app.get('/api/clubs/:id/members', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// PATCH /api/clubs/:id/image — update club profile image (owner only)
+app.patch('/api/clubs/:id/image', requireAuth, async (req, res) => {
+  try {
+    const { image_url } = req.body;
+    if (!image_url) return res.status(400).json({ error:'image_url required' });
+    const club = await db.clubs.findById(req.params.id);
+    if (!club) return res.status(404).json({ error:'Club not found' });
+    if (club.owner_id !== req.user.sub) return res.status(403).json({ error:'Only the club owner can change the image' });
+    await db.query(`UPDATE book_clubs SET image_url=$1 WHERE id=$2`, [image_url, req.params.id]);
+    res.json({ success: true, image_url });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // POST /api/clubs
 app.post('/api/clubs', requireAuth, async (req, res) => {
   try {

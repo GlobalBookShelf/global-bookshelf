@@ -912,6 +912,28 @@ const clubs = {
     // member_count updated by trigger (sync_club_members)
   },
 
+  // List members of a club
+  async listMembers(clubId, { limit = 50 } = {}) {
+    return query(
+      `SELECT u.id, u.display_name, u.country_code, cm.role, cm.joined_at
+       FROM club_members cm
+       JOIN users u ON u.id = cm.user_id
+       WHERE cm.club_id = $1
+       ORDER BY cm.role = 'owner' DESC, cm.joined_at ASC
+       LIMIT $2`,
+      [clubId, limit]
+    );
+  },
+
+  // Check if a user is a member of a club
+  async isMember(clubId, userId) {
+    const rows = await query(
+      `SELECT 1 FROM club_members WHERE club_id = $1 AND user_id = $2`,
+      [clubId, userId]
+    );
+    return rows.length > 0;
+  },
+
   // Club discussion posts
   async listPosts(clubId, { limit = 20, offset = 0 } = {}) {
     return query(

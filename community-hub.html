@@ -249,8 +249,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
     <h1 class="hero-title-c">Books that cross <em>every border</em></h1>
     <p class="hero-sub-c">Join reading clubs that span continents. Read the same book as someone in Nairobi, Seoul, and São Paulo — then talk about it across language and timezone.</p>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <button class="btn-gold" style="padding:12px 28px;font-size:13px;border-radius:var(--rs)" onclick="document.getElementById('clubsGrid')?.scrollIntoView({behavior:'smooth'})">Find my club →</button>
-      <button style="padding:12px 24px;font-size:13px;border-radius:var(--rs);background:transparent;border:1px solid var(--pg5);color:var(--pg);cursor:pointer;font-family:var(--sans)" onclick="document.getElementById('clubsGrid')?.scrollIntoView({behavior:'smooth'})">Browse all clubs</button>
+      <button class="btn-gold" style="padding:12px 28px;font-size:13px;border-radius:var(--rs)">Find my club →</button>
+      <button style="padding:12px 24px;font-size:13px;border-radius:var(--rs);background:transparent;border:1px solid var(--pg5);color:var(--pg);cursor:pointer;font-family:var(--sans)">Browse all clubs</button>
     </div>
     <div class="hero-stats-c">
       <div class="hsc-item"><div class="hsc-n" id="liveClubs">38,204</div><div class="hsc-l">Active clubs</div></div>
@@ -310,7 +310,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
           <div class="sec-ey">Happening right now</div>
           <div class="sec-h">Live reading <em>rooms</em></div>
         </div>
-        <button class="clk" style="font-size:12px" onclick="API.toast('Live rooms launch in Phase 2 ✦')">See all 84 live →</button>
+        <button class="clk" style="font-size:12px">See all 84 live →</button>
       </div>
       <div class="live-rooms-grid" id="liveRooms"></div>
     </div>
@@ -322,7 +322,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
           <div class="sec-ey">Discover communities</div>
           <div class="sec-h">Clubs reading the <em>world</em></div>
         </div>
-        <button class="clk" onclick="API.toast('Member directory coming soon ✦')">See all 38k →</button>
+        <button class="clk">See all 38k →</button>
       </div>
       <div class="clubs-grid" id="clubsGrid"></div>
     </div>
@@ -348,7 +348,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
 
     <!-- MY CLUBS -->
     <div class="card" style="animation-delay:.08s">
-      <div class="ch"><div class="ct">My clubs</div><button class="clk" onclick="API.toast('Club management coming soon ✦')">Manage →</button></div>
+      <div class="ch"><div class="ct">My clubs</div><button class="clk">Manage →</button></div>
       <div class="cb" id="myClubs"></div>
     </div>
 
@@ -379,7 +379,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
       <div class="gen-title">Generational reading chains</div>
       <div class="gen-sub">Read the same book as someone from another generation. Discuss across decades.</div>
       <div class="gen-chain" id="genChain"></div>
-      <button style="width:100%;margin-top:12px;padding:9px;background:transparent;border:1px solid rgba(132,112,208,.3);border-radius:var(--rs);color:var(--violet);font-size:12px;font-family:var(--sans);cursor:pointer" onclick="API.toast('Reading chains launch in Phase 2 ✦')">Join a chain →</button>
+      <button style="width:100%;margin-top:12px;padding:9px;background:transparent;border:1px solid rgba(132,112,208,.3);border-radius:var(--rs);color:var(--violet);font-size:12px;font-family:var(--sans);cursor:pointer">Join a chain →</button>
     </div>
 
     <!-- TIMEZONE FINDER -->
@@ -398,7 +398,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
       <div class="cb">
         <div style="font-family:var(--serif);font-size:14px;font-style:italic;color:var(--pg3);line-height:1.6;margin-bottom:12px">"12 books are waiting to reach Swahili readers. Be the bridge."</div>
         <div id="translationCalls"></div>
-        <button style="width:100%;margin-top:12px;padding:9px;background:var(--teald);border:1px solid rgba(50,174,166,.3);border-radius:var(--rs);color:var(--teal);font-size:12px;font-family:var(--sans);cursor:pointer" onclick="window.location.href='languages.html'">Browse translation projects →</button>
+        <button style="width:100%;margin-top:12px;padding:9px;background:var(--teald);border:1px solid rgba(50,174,166,.3);border-radius:var(--rs);color:var(--teal);font-size:12px;font-family:var(--sans);cursor:pointer">Browse translation projects →</button>
       </div>
     </div>
 
@@ -444,7 +444,7 @@ soulClubs.forEach((c,i)=>{
     <div class="smc-club-meta">${c.members} members · Next: ${c.next}</div>
     <div class="smc-club-meta" style="margin-top:2px">Currently reading: <em style="color:var(--pg)">${c.reading}</em></div>
     <div class="smc-club-tags">${c.tags.map(t=>`<span class="smc-tag" style="color:${c.color};border-color:${c.color}40;background:${c.color}10">${t}</span>`).join('')}</div>
-    <button style="margin-top:10px;padding:7px 18px;background:${c.color};border:none;border-radius:var(--rs);color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'" onclick="API.isLoggedIn() ? API.toast('Request sent — the club owner will review it ✦') : API.openSignInModal()">Request to join →</button>
+    <button style="margin-top:10px;padding:7px 18px;background:${c.color};border:none;border-radius:var(--rs);color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Request to join →</button>
   </div>`;
 });
 
@@ -496,7 +496,7 @@ clubs.forEach((c,i)=>{
         <span class="ccr-label">Now reading</span>
         <span class="ccr-book">${c.reading}</span>
       </div>
-      <button class="club-join-btn" onclick="API.isLoggedIn() ? API.toast('Request sent — the club owner will review it ✦') : API.openSignInModal()">Request to join</button>
+      <button class="club-join-btn">Request to join</button>
     </div>
   </div>`;
 });
@@ -630,6 +630,12 @@ async function loadClubs() {
       el.className = 'club-card';
       el.dataset.live = '1';
       el.dataset.clubId = club.id;
+      el.style.cursor = 'pointer';
+      el.onclick = (e) => {
+        // Don't navigate if the join button was clicked
+        if (e.target.closest('.btn-join')) return;
+        window.location.href = 'club-detail.html?id=' + club.id;
+      };
       el.innerHTML = `
         <div class="club-card-banner" style="background:rgba(198,162,64,.1)">
           <span class="club-card-emoji">${icons[i % icons.length]}</span>
@@ -646,6 +652,11 @@ async function loadClubs() {
             onmouseout="this.style.background='transparent'"
             onclick="joinClub('${club.id}','${club.name}',this)">
             Join club →
+          </button>
+          <button
+            style="width:100%;margin-top:6px;padding:8px;background:var(--gold);border:none;border-radius:6px;color:var(--ink);font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;cursor:pointer"
+            onclick="window.location.href='club-detail.html?id=${club.id}'">
+            Open club →
           </button>
         </div>`;
       grid.appendChild(el);

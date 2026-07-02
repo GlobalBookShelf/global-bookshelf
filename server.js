@@ -898,6 +898,25 @@ app.get('/api/clubs', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// GET /api/clubs/:id — single club details
+app.get('/api/clubs/:id', optionalAuth, async (req, res) => {
+  try {
+    const club = await db.clubs.findById(req.params.id);
+    if (!club) return res.status(404).json({ error:'Club not found' });
+    let is_member = false;
+    if (req.user?.sub) is_member = await db.clubs.isMember(req.params.id, req.user.sub);
+    res.json({ club, is_member });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/clubs/:id/members — club member list
+app.get('/api/clubs/:id/members', async (req, res) => {
+  try {
+    const members = await db.clubs.listMembers(req.params.id, { limit: Number(req.query.limit) || 50 });
+    res.json({ members, total: members.length });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // POST /api/clubs
 app.post('/api/clubs', requireAuth, async (req, res) => {
   try {

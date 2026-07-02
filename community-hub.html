@@ -361,9 +361,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;display:flex;ali
         <input class="cc-input" placeholder="First book to read" id="ccBook">
         <select class="cc-select" id="ccLang">
           <option value="">Primary language…</option>
-          <option>English</option><option>Swahili</option><option>French</option>
-          <option>Spanish</option><option>Arabic</option><option>Yoruba</option>
-          <option>Portuguese</option><option>Korean</option><option>Hindi</option>
+          <option value="en">English</option><option value="sw">Swahili</option><option value="fr">French</option>
+          <option value="es">Spanish</option><option value="ar">Arabic</option><option value="yo">Yoruba</option>
+          <option value="pt">Portuguese</option><option value="ko">Korean</option><option value="hi">Hindi</option>
         </select>
         <select class="cc-select">
           <option>Public — anyone can join</option>
@@ -582,17 +582,37 @@ translCalls.forEach(t=>{
 });
 
 // ── CREATE CLUB ──
-function createClub(){
-  const name = document.getElementById('ccName').value.trim();
-  const book = document.getElementById('ccBook').value.trim();
-  if(!name || !book){ alert('Please fill in the club name and first book.'); return; }
-  // Feedback
+async function createClub(){
+  if (!API.isLoggedIn()) return API.openSignInModal();
+  const nameEl = document.getElementById('ccName');
+  const langEl = document.getElementById('ccLang');
+  const name = nameEl.value.trim();
+  const lang = langEl?.value || 'en';
+  if(!name){ API.toast('Enter a club name first', 'error'); return; }
+
   const btn = event.target;
-  btn.textContent = '✓ Club created!';
-  btn.style.background = 'var(--sage)';
-  setTimeout(()=>{ btn.textContent='Create club →'; btn.style.background='var(--gold)'; }, 3000);
-  document.getElementById('ccName').value = '';
-  document.getElementById('ccBook').value = '';
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  try {
+    const data = await API.post('/api/clubs', { name, language: lang, visibility: 'public' });
+    nameEl.value = '';
+    document.getElementById('ccBook').value = '';
+    btn.textContent = '✓ Club created!';
+    btn.style.background = 'var(--sage)';
+    API.toast('"' + data.club.name + '" created! ✦');
+    if (typeof loadClubs === 'function') loadClubs();
+    // Offer to open it
+    setTimeout(() => {
+      btn.textContent = 'Create club →';
+      btn.style.background = 'var(--gold)';
+      btn.disabled = false;
+      if (data.club?.id) window.location.href = 'club-detail.html?id=' + data.club.id;
+    }, 1200);
+  } catch(e) {
+    API.toast(e.message, 'error');
+    btn.textContent = 'Create club →';
+    btn.disabled = false;
+  }
 }
 
 function showCreateModal() {
@@ -678,34 +698,8 @@ async function joinClub(clubId, clubName, btn) {
   } catch (e) { API.toast(e.message, 'error'); }
 };
 
-// Create club form
-const createForm = document.getElementById('createClubForm') || document.querySelector('.create-club-form');
-const createBtn  = document.querySelector('.btn-create-club, [onclick*="createClub"], [onclick*="submitClub"]');
-if (createBtn) {
-  createBtn.onclick = async (e) => {
-    e.preventDefault();
-    if (!API.isLoggedIn()) return API.openSignInModal();
-
-    const nameEl = document.getElementById('ccName') || document.querySelector('[name="club-name"], #clubName');
-    const langEl = document.getElementById('ccLang') || document.querySelector('[name="club-lang"], #clubLang');
-    const name   = nameEl?.value.trim();
-    const lang   = langEl?.value || 'en';
-
-    if (!name) return API.toast('Enter a club name first', 'error');
-
-    try {
-      createBtn.disabled = true;
-      const data = await API.post('/api/clubs', { name, language: lang, visibility: 'public' });
-      nameEl.value = '';
-      API.toast('"' + data.club.name + '" created! ✦');
-      loadClubs(); // Refresh
-    } catch (e) {
-      API.toast(e.message, 'error');
-    } finally {
-      createBtn.disabled = false;
-    }
-  };
-}
+// Create club — handled by the inline createClub() function on the button
+// (kept the loadClubs refresh logic inside createClub itself)
 
 
 // ── REPORT CONTENT (was unused endpoint — now connected) ──

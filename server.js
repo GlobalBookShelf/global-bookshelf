@@ -930,6 +930,16 @@ app.patch('/api/clubs/:id/image', requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// PATCH /api/me/avatar — update the current user's own profile image
+app.patch('/api/me/avatar', requireAuth, async (req, res) => {
+  try {
+    const { avatar_url } = req.body;
+    if (!avatar_url) return res.status(400).json({ error:'avatar_url required' });
+    await db.query(`UPDATE users SET avatar_url=$1, updated_at=NOW() WHERE id=$2`, [avatar_url, req.user.sub]);
+    res.json({ success: true, avatar_url });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // POST /api/clubs
 app.post('/api/clubs', requireAuth, async (req, res) => {
   try {

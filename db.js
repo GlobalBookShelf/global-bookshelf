@@ -915,7 +915,7 @@ const clubs = {
   // List members of a club
   async listMembers(clubId, { limit = 50 } = {}) {
     return query(
-      `SELECT u.id, u.display_name, u.country_code, cm.role, cm.joined_at
+      `SELECT u.id, u.display_name, u.country_code, u.avatar_url, cm.role, cm.joined_at
        FROM club_members cm
        JOIN users u ON u.id = cm.user_id
        WHERE cm.club_id = $1
@@ -937,7 +937,7 @@ const clubs = {
   // Club discussion posts
   async listPosts(clubId, { limit = 20, offset = 0 } = {}) {
     return query(
-      `SELECT cp.*, u.display_name, u.country_code
+      `SELECT cp.*, u.display_name, u.country_code, u.avatar_url
        FROM club_posts cp
        JOIN users u ON u.id = cp.user_id
        WHERE cp.club_id = $1 AND cp.deleted_at IS NULL

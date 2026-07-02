@@ -100,7 +100,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .post{padding:16px 0;border-bottom:1px solid var(--pg6)}
 .post:last-child{border-bottom:none}
 .post-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.post-avatar{width:34px;height:34px;border-radius:50%;background:var(--goldd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gold);flex-shrink:0}
+.post-avatar{width:34px;height:34px;border-radius:50%;background:var(--goldd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gold);flex-shrink:0;overflow:hidden}
+.post-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .post-author{font-size:13px;font-weight:500;color:var(--pg2)}
 .post-time{font-size:11px;color:var(--pg4)}
 .post-topic{display:inline-block;font-size:10px;color:var(--violet);background:var(--violetd);border:1px solid rgba(132,112,208,.3);border-radius:20px;padding:2px 9px;margin-left:6px}
@@ -108,11 +109,22 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .empty{text-align:center;padding:40px 20px;color:var(--pg4);font-size:13px}
 .empty-emoji{font-size:32px;margin-bottom:10px;opacity:.6}
 
-/* MEMBERS */
-.member{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--pg6)}
+/* MEMBERS — the reading circle */
+.members-countries{font-size:11px;color:var(--pg4);padding:0 0 14px;margin-bottom:6px;border-bottom:1px solid var(--pg6);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.members-countries .flags{font-size:14px;letter-spacing:2px}
+.member{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--pg6)}
 .member:last-child{border-bottom:none}
-.member-avatar{width:30px;height:30px;border-radius:50%;background:var(--teald);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--teal);flex-shrink:0}
-.member-name{font-size:13px;color:var(--pg2)}
+.member-av{position:relative;width:34px;height:34px;flex-shrink:0}
+.member-avatar{width:34px;height:34px;border-radius:50%;background:var(--teald);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--teal);overflow:hidden}
+.member-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.member-flag{position:absolute;bottom:-2px;right:-3px;font-size:12px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.65))}
+.member-av.me{cursor:pointer}
+.member-veil{position:absolute;inset:0;border-radius:50%;background:rgba(7,7,16,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;z-index:3}
+.member-veil svg{width:14px;height:14px;stroke:var(--pg);fill:none;stroke-width:1.5;stroke-linejoin:round}
+.member-av.me:hover .member-veil,.member-av.me.uploading .member-veil{opacity:1}
+.member-av.me.uploading .member-veil svg{animation:veilpulse 1s ease-in-out infinite}
+.member-name{font-size:13px;color:var(--pg2);display:flex;align-items:center}
+.member-you{font-size:9px;color:var(--teal);border:1px solid var(--teald);border-radius:20px;padding:1px 6px;margin-left:6px;letter-spacing:.04em}
 .member-role{font-size:10px;color:var(--gold);margin-left:auto;text-transform:uppercase;letter-spacing:.05em}
 
 .loading{text-align:center;padding:40px;color:var(--pg4);font-size:13px}
@@ -179,6 +191,16 @@ function timeAgo(dateStr){
 let clubData = null;
 let isMember = false;
 let isOwner  = false;
+let currentUserId = null;
+let myAvatarUrl   = null;
+
+// ISO 3166-1 alpha-2 country code → flag emoji (e.g. TZ → 🇹🇿)
+function flagEmoji(cc){
+  if(!cc || cc.length !== 2) return '';
+  const up = cc.toUpperCase();
+  if(!/^[A-Z]{2}$/.test(up)) return '';
+  return String.fromCodePoint(0x1F1E6 + up.charCodeAt(0) - 65, 0x1F1E6 + up.charCodeAt(1) - 65);
+}
 
 async function loadClub() {
   if (!clubId) {
@@ -198,6 +220,8 @@ async function loadClub() {
     isMember = clubRes.is_member || false;
     const session = API.getSession();
     const uid = session?.user?.id;
+    currentUserId = uid || null;
+    myAvatarUrl   = session?.user?.avatar_url || null;
     isOwner = !!uid && (clubData.owner_id === uid || clubData.created_by === uid || clubData.creator_id === uid);
     const posts   = postsRes.posts || [];
     const members = membersRes.members || [];
@@ -219,6 +243,7 @@ function render(club, posts, members) {
   const emoji = pickEmoji(club.name);
   const langNames = { en:'English', sw:'Swahili', fr:'French', ar:'Arabic', pt:'Portuguese', es:'Spanish', yo:'Yorùbá', ha:'Hausa' };
   const lang  = langNames[club.language] || club.language || 'English';
+  const countries = [...new Set(members.map(m => m.country_code).filter(Boolean))];
 
   document.getElementById('clubContent').innerHTML = `
     <!-- HEADER -->
@@ -283,6 +308,11 @@ function render(club, posts, members) {
         <div class="card">
           <div class="card-h"><div class="card-t">Members</div></div>
           <div class="card-b">
+            ${countries.length ? `
+              <div class="members-countries">
+                <span class="flags">${countries.map(flagEmoji).join(' ')}</span>
+                <span>Readers from ${countries.length} ${countries.length === 1 ? 'country' : 'countries'}</span>
+              </div>` : ''}
             ${members.length === 0
               ? '<div class="empty" style="padding:20px"><div class="empty-emoji">👥</div>No members yet</div>'
               : members.map(renderMember).join('')}
@@ -290,17 +320,22 @@ function render(club, posts, members) {
         </div>
       </div>
     </div>
+    ${API.isLoggedIn() ? `<input type="file" id="memberAvatarInput" accept="image/*" style="display:none" onchange="uploadMemberAvatar(this)">` : ''}
   `;
 }
 
 function renderPost(p) {
+  const av = p.avatar_url
+    ? `<img src="${p.avatar_url}" alt="">`
+    : initials(p.display_name);
+  const flag = flagEmoji(p.country_code);
   return `
-    <div class="post">
+    <div class="post" data-uid="${p.user_id || ''}">
       <div class="post-head">
-        <div class="post-avatar">${initials(p.display_name)}</div>
+        <div class="post-avatar">${av}</div>
         <div>
           <span class="post-author">${p.display_name || 'Reader'}</span>
-          ${p.country_code ? '<span class="post-time"> · '+p.country_code+'</span>' : ''}
+          ${flag ? '<span class="post-time"> · '+flag+'</span>' : ''}
           ${p.topic ? '<span class="post-topic">'+p.topic+'</span>' : ''}
           <div class="post-time">${timeAgo(p.created_at)}</div>
         </div>
@@ -310,10 +345,19 @@ function renderPost(p) {
 }
 
 function renderMember(m) {
+  const isMe = m.id && m.id === currentUserId;
+  const flag = flagEmoji(m.country_code);
+  const inner = m.avatar_url
+    ? `<img src="${m.avatar_url}" alt="${m.display_name || 'Reader'}">`
+    : initials(m.display_name);
   return `
     <div class="member">
-      <div class="member-avatar">${initials(m.display_name)}</div>
-      <div class="member-name">${m.display_name || 'Reader'}${m.country_code ? ' · '+m.country_code : ''}</div>
+      <div class="member-av ${isMe ? 'me' : ''}" ${isMe ? `id="myMemberAvatar" onclick="document.getElementById('memberAvatarInput').click()" title="Add your photo"` : ''}>
+        <div class="member-avatar">${inner}</div>
+        ${flag ? `<span class="member-flag">${flag}</span>` : ''}
+        ${isMe ? `<div class="member-veil"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.4-2h7.2L18 8h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg></div>` : ''}
+      </div>
+      <div class="member-name">${m.display_name || 'Reader'}${isMe ? '<span class="member-you">you</span>' : ''}</div>
       ${m.role === 'owner' ? '<span class="member-role">Owner</span>' : ''}
     </div>`;
 }
@@ -370,6 +414,8 @@ async function submitPost() {
     const session = API.getSession();
     post.display_name = session?.user?.display_name || 'You';
     post.country_code = session?.user?.country_code || '';
+    post.avatar_url   = myAvatarUrl || null;
+    post.user_id      = currentUserId || session?.user?.id || '';
     feed.insertAdjacentHTML('afterbegin', renderPost(post));
     input.value = '';
     toast('Posted ✦');
@@ -447,6 +493,53 @@ async function uploadClubImage(input) {
     }
     input.value = '';
     toast(e.message || 'Could not upload image', 'error');
+  }
+}
+
+// ── Member takes their seat: upload own profile photo (used across every club & post) ──
+async function uploadMemberAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!API.isLoggedIn()) { API.openSignInModal(); return; }
+
+  const av = document.getElementById('myMemberAvatar');
+  if (av) av.classList.add('uploading');
+
+  try {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('upload_preset', CLOUDINARY_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method:'POST', body:form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
+    const imageUrl = data.secure_url;
+
+    // Save to my user record — this photo now follows me everywhere
+    await API.patch('/api/me/avatar', { avatar_url: imageUrl });
+    myAvatarUrl = imageUrl;
+
+    // Update my face in the member list
+    if (av) {
+      const veil = av.querySelector('.member-veil');
+      const box  = av.querySelector('.member-avatar');
+      if (box) box.innerHTML = `<img src="${imageUrl}" alt="you">`;
+      if (veil) av.appendChild(veil);
+      av.classList.remove('uploading');
+    }
+
+    // Update my face on every post I've written in this thread
+    if (currentUserId) {
+      document.querySelectorAll(`.post[data-uid="${currentUserId}"] .post-avatar`).forEach(el => {
+        el.innerHTML = `<img src="${imageUrl}" alt="">`;
+      });
+    }
+
+    input.value = '';
+    toast('You\u2019ve taken your seat \u2726 readers everywhere will see your face');
+  } catch (e) {
+    if (av) av.classList.remove('uploading');
+    input.value = '';
+    toast(e.message || 'Could not upload your photo', 'error');
   }
 }
 

@@ -939,7 +939,7 @@ const clubs = {
     return query(
       `SELECT cp.*, u.display_name, u.country_code
        FROM club_posts cp
-       JOIN users u ON u.id = cp.author_id
+       JOIN users u ON u.id = cp.user_id
        WHERE cp.club_id = $1 AND cp.deleted_at IS NULL
        ORDER BY cp.created_at DESC
        LIMIT $2 OFFSET $3`,
@@ -949,10 +949,10 @@ const clubs = {
 
   async createPost({ id, clubId, authorId, body, topic }) {
     const rows = await query(
-      `INSERT INTO club_posts (id, club_id, author_id, body, topic)
-       VALUES ($1,$2,$3,$4,$5)
+      `INSERT INTO club_posts (id, club_id, user_id, body)
+       VALUES ($1,$2,$3,$4)
        RETURNING *`,
-      [id, clubId, authorId, body, topic || null]
+      [id, clubId, authorId, body]
     );
     return rows[0];
   },
@@ -960,12 +960,10 @@ const clubs = {
   async updatePost(postId, authorId, { body, topic }) {
     const rows = await query(
       `UPDATE club_posts
-       SET body = COALESCE($1, body),
-           topic = COALESCE($2, topic),
-           edited_at = NOW()
-       WHERE id = $3 AND author_id = $4
+       SET body = COALESCE($1, body)
+       WHERE id = $2 AND user_id = $3
        RETURNING *`,
-      [body || null, topic || null, postId, authorId]
+      [body || null, postId, authorId]
     );
     return rows[0];
   },
@@ -974,7 +972,7 @@ const clubs = {
     await query(
       `UPDATE club_posts
        SET deleted_at = NOW(), body = '[deleted]'
-       WHERE id = $1 AND author_id = $2`,
+       WHERE id = $1 AND user_id = $2`,
       [postId, authorId]
     );
   },

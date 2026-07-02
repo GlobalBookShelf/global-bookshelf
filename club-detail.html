@@ -111,13 +111,18 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 
 /* MEMBERS — the reading circle */
 .members-countries{font-size:11px;color:var(--pg4);padding:0 0 14px;margin-bottom:6px;border-bottom:1px solid var(--pg6);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.members-countries .flags{font-size:14px;letter-spacing:2px}
+.members-countries .flags{display:inline-flex;align-items:center;gap:4px}
+.members-countries .flag-img{width:20px;height:14px}
+/* flag images render the same on every OS (Windows has no emoji flags) */
+.flag-img{display:inline-block;border-radius:2px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.post-time .flag-img{width:16px;height:11px;vertical-align:-1px;margin-left:1px}
 .member{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--pg6)}
 .member:last-child{border-bottom:none}
 .member-av{position:relative;width:34px;height:34px;flex-shrink:0}
 .member-avatar{width:34px;height:34px;border-radius:50%;background:var(--teald);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--teal);overflow:hidden}
 .member-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.member-flag{position:absolute;bottom:-2px;right:-3px;font-size:12px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.65))}
+.member-flag{position:absolute;bottom:-3px;right:-4px;width:17px;height:12px;border-radius:2px;overflow:hidden;box-shadow:0 0 0 2px var(--ink2),0 1px 3px rgba(0,0,0,.6)}
+.member-flag .flag-img{width:100%;height:100%;display:block;border-radius:0;box-shadow:none}
 .member-av.me{cursor:pointer}
 .member-veil{position:absolute;inset:0;border-radius:50%;background:rgba(7,7,16,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;z-index:3}
 .member-veil svg{width:14px;height:14px;stroke:var(--pg);fill:none;stroke-width:1.5;stroke-linejoin:round}
@@ -194,12 +199,12 @@ let isOwner  = false;
 let currentUserId = null;
 let myAvatarUrl   = null;
 
-// ISO 3166-1 alpha-2 country code → flag emoji (e.g. TZ → 🇹🇿)
+// ISO 3166-1 alpha-2 country code → flag image (renders identically on every device)
 function flagEmoji(cc){
   if(!cc || cc.length !== 2) return '';
-  const up = cc.toUpperCase();
-  if(!/^[A-Z]{2}$/.test(up)) return '';
-  return String.fromCodePoint(0x1F1E6 + up.charCodeAt(0) - 65, 0x1F1E6 + up.charCodeAt(1) - 65);
+  const low = cc.toLowerCase();
+  if(!/^[a-z]{2}$/.test(low)) return '';
+  return `<img class="flag-img" src="https://flagcdn.com/${low}.svg" alt="${cc.toUpperCase()}" loading="lazy">`;
 }
 
 async function loadClub() {

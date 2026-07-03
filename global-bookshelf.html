@@ -837,6 +837,11 @@
   }
   .african-author { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 5px; }
   .african-readers { font-size: 10px; color: var(--teal); }
+  .african-empty { max-width: 1100px; margin: 0 auto; padding: 40px 28px; border: 1px dashed rgba(201,168,76,0.28); border-radius: 16px; text-align: center; background: rgba(201,168,76,0.03); }
+  .african-empty-title { font-family: var(--serif, Georgia, serif); font-size: 20px; color: var(--gold); margin-bottom: 8px; }
+  .african-empty-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .african-empty-cta { display: inline-block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); text-decoration: none; border: 1px solid rgba(201,168,76,0.4); padding: 9px 18px; border-radius: 999px; transition: background 0.2s, border-color 0.2s; }
+  .african-empty-cta:hover { background: rgba(201,168,76,0.12); border-color: var(--gold); }
 
   /* ─── SOUL RECOMMENDATIONS (ADDED) ─── */
   .soul-section {
@@ -1525,17 +1530,8 @@ const marqueeItems = [
   ["🇳🇬 Lagos","became a patron of","Adaeze Okonkwo"],
 ];
 
-// African books fallback data
-const AFRICAN_BOOKS = [
-  { id:'a1', title:'Things Fall Apart', author:'Chinua Achebe', emoji:'🌿', color:'#7B5E3A', readers:'420,000' },
-  { id:'a2', title:'Americanah', author:'Chimamanda Ngozi Adichie', emoji:'✈️', color:'#8B4A2A', readers:'290,000' },
-  { id:'a3', title:'Season of Migration', author:'Tayeb Salih', emoji:'🏺', color:'#8B7355', readers:'98,000' },
-  { id:'a4', title:"Weep Not, Child", author:"Ngũgĩ wa Thiong'o", emoji:'🌱', color:'#3A6A3A', readers:'84,000' },
-  { id:'a5', title:'So Long a Letter', author:'Mariama Bâ', emoji:'✉️', color:'#6A4A8B', readers:'62,000' },
-  { id:'a6', title:'Half of a Yellow Sun', author:'Chimamanda Ngozi Adichie', emoji:'☀️', color:'#C4803A', readers:'180,000' },
-  { id:'a7', title:'Purple Hibiscus', author:'Chimamanda Ngozi Adichie', emoji:'🌺', color:'#8B2A6A', readers:'140,000' },
-  { id:'a8', title:'The Beautiful Ones Are Not Yet Born', author:'Ayi Kwei Armah', emoji:'🌍', color:'#3A5A7B', readers:'48,000' },
-];
+// African Voices: books are loaded live from your own uploads (no placeholder data)
+
 
 // ═══════════════════════════════════════════════════════════
 //  ORIGINAL RENDER FUNCTIONS — unchanged
@@ -1860,30 +1856,60 @@ function doSignOut() {
 }
 updateNavState();
 
-// ─── AFRICAN SPOTLIGHT ───
+// ─── AFRICAN SPOTLIGHT — real uploads only ───
 (async () => {
   const container = document.getElementById('africanBooks');
-  let books2 = AFRICAN_BOOKS;
+  if (!container) return;
+
+  // A book belongs here if its origin is on the African continent
+  // (matches ISO alpha-2 codes and common country names, case-insensitive)
+  const AFRICAN = new Set([
+    'DZ','AO','BJ','BW','BF','BI','CV','CM','CF','TD','KM','CG','CD','CI','DJ','EG','GQ','ER','SZ','ET',
+    'GA','GM','GH','GN','GW','KE','LS','LR','LY','MG','MW','ML','MR','MU','MA','MZ','NA','NE','NG','RW',
+    'ST','SN','SC','SL','SO','ZA','SS','SD','TZ','TG','TN','UG','ZM','ZW','EH',
+    'ALGERIA','ANGOLA','BENIN','BOTSWANA','BURKINA FASO','BURUNDI','CABO VERDE','CAPE VERDE','CAMEROON',
+    'CENTRAL AFRICAN REPUBLIC','CHAD','COMOROS','CONGO','DEMOCRATIC REPUBLIC OF THE CONGO','DR CONGO',
+    "COTE D'IVOIRE",'IVORY COAST','DJIBOUTI','EGYPT','EQUATORIAL GUINEA','ERITREA','ESWATINI','SWAZILAND',
+    'ETHIOPIA','GABON','GAMBIA','GHANA','GUINEA','GUINEA-BISSAU','KENYA','LESOTHO','LIBERIA','LIBYA',
+    'MADAGASCAR','MALAWI','MALI','MAURITANIA','MAURITIUS','MOROCCO','MOZAMBIQUE','NAMIBIA','NIGER','NIGERIA',
+    'RWANDA','SAO TOME AND PRINCIPE','SENEGAL','SEYCHELLES','SIERRA LEONE','SOMALIA','SOUTH AFRICA',
+    'SOUTH SUDAN','SUDAN','TANZANIA','TOGO','TUNISIA','UGANDA','ZAMBIA','ZIMBABWE','WESTERN SAHARA'
+  ]);
+
+  let books2 = [];
   try {
-    const data = await API.get('/api/books?country=NG,TZ,KE,GH,ZA,EG,SN,ET,SD&sort=readers&limit=10');
-    if (data.books && data.books.length >= 3) books2 = data.books;
-  } catch { /* use fallback */ }
+    const data = await API.get('/api/books?sort=readers&limit=100');
+    const all = (data && data.books) ? data.books : [];
+    books2 = all.filter(b => AFRICAN.has(String(b.origin_country || '').toUpperCase().trim()));
+  } catch { books2 = []; }
+
+  // Empty state — no fake books, just an invitation
+  if (!books2.length) {
+    container.innerHTML = `
+      <div class="african-empty">
+        <div class="african-empty-title">This shelf is waiting for its first story.</div>
+        <div class="african-empty-sub">African Voices opens to the world the moment you add a book from the continent.</div>
+        <a class="african-empty-cta" href="upload-book.html">Add a book →</a>
+      </div>`;
+    return;
+  }
+
   container.innerHTML = '';
+  const colors = ['#7B5E3A','#8B4A2A','#3A6A3A','#6A4A8B','#C4803A','#2A4A6A','#8B2A6A','#3A5A7B'];
   books2.forEach((b, i) => {
-    const colors = ['#7B5E3A','#8B4A2A','#3A6A3A','#6A4A8B','#C4803A','#2A4A6A','#8B2A6A','#3A5A7B'];
-    const col = b.color || colors[i % colors.length];
+    const col = colors[i % colors.length];
     const card = document.createElement('div');
     card.className = 'african-card';
-    card.onclick = () => window.location.href = 'book-detail.html?id=' + (b.id||'');
+    card.onclick = () => window.location.href = 'book-detail.html?id=' + (b.id || '');
     card.innerHTML = `
       <div class="african-cover" style="background:${col}22">
         <div class="african-cover-bar" style="background:${col}"></div>
-        <span>${b.emoji || b.cover_emoji || '📖'}</span>
+        <span>${b.cover_emoji || '📖'}</span>
       </div>
       <div class="african-info">
         <div class="african-title">${b.title}</div>
-        <div class="african-author">${b.author}</div>
-        <div class="african-readers">● ${b.readers || (b.reader_count||0).toLocaleString()}</div>
+        <div class="african-author">${b.author || ''}</div>
+        <div class="african-readers">● ${(b.reader_count || 0).toLocaleString()} readers</div>
       </div>`;
     container.appendChild(card);
   });

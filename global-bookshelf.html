@@ -1337,17 +1337,7 @@
   </div>
 </section>
 
-<!-- ─── AFRICAN SPOTLIGHT (ADDED) ─── -->
-<section class="african-section">
-  <div style="max-width:1100px;margin:0 auto 32px;display:flex;align-items:baseline;justify-content:space-between">
-    <div>
-      <div class="section-tag">African Voices</div>
-      <div class="section-title" style="font-size:28px">Literature from the continent <em>the world is rediscovering</em></div>
-    </div>
-    <a href="explore.html?country=african" style="font-size:12px;color:var(--gold);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase">See all →</a>
-  </div>
-  <div class="african-row" id="africanBooks"></div>
-</section>
+<!-- ─── AFRICAN SPOTLIGHT removed ─── -->
 
 <!-- ─── SOUL RECOMMENDATIONS (ADDED — visible only when logged in) ─── -->
 <section class="soul-section" id="soulSection">
@@ -1856,64 +1846,7 @@ function doSignOut() {
 }
 updateNavState();
 
-// ─── AFRICAN SPOTLIGHT — real uploads only ───
-(async () => {
-  const container = document.getElementById('africanBooks');
-  if (!container) return;
-
-  // A book belongs here if its origin is on the African continent
-  // (matches ISO alpha-2 codes and common country names, case-insensitive)
-  const AFRICAN = new Set([
-    'DZ','AO','BJ','BW','BF','BI','CV','CM','CF','TD','KM','CG','CD','CI','DJ','EG','GQ','ER','SZ','ET',
-    'GA','GM','GH','GN','GW','KE','LS','LR','LY','MG','MW','ML','MR','MU','MA','MZ','NA','NE','NG','RW',
-    'ST','SN','SC','SL','SO','ZA','SS','SD','TZ','TG','TN','UG','ZM','ZW','EH',
-    'ALGERIA','ANGOLA','BENIN','BOTSWANA','BURKINA FASO','BURUNDI','CABO VERDE','CAPE VERDE','CAMEROON',
-    'CENTRAL AFRICAN REPUBLIC','CHAD','COMOROS','CONGO','DEMOCRATIC REPUBLIC OF THE CONGO','DR CONGO',
-    "COTE D'IVOIRE",'IVORY COAST','DJIBOUTI','EGYPT','EQUATORIAL GUINEA','ERITREA','ESWATINI','SWAZILAND',
-    'ETHIOPIA','GABON','GAMBIA','GHANA','GUINEA','GUINEA-BISSAU','KENYA','LESOTHO','LIBERIA','LIBYA',
-    'MADAGASCAR','MALAWI','MALI','MAURITANIA','MAURITIUS','MOROCCO','MOZAMBIQUE','NAMIBIA','NIGER','NIGERIA',
-    'RWANDA','SAO TOME AND PRINCIPE','SENEGAL','SEYCHELLES','SIERRA LEONE','SOMALIA','SOUTH AFRICA',
-    'SOUTH SUDAN','SUDAN','TANZANIA','TOGO','TUNISIA','UGANDA','ZAMBIA','ZIMBABWE','WESTERN SAHARA'
-  ]);
-
-  let books2 = [];
-  try {
-    const data = await API.get('/api/books?sort=readers&limit=100');
-    const all = (data && data.books) ? data.books : [];
-    books2 = all.filter(b => AFRICAN.has(String(b.origin_country || '').toUpperCase().trim()));
-  } catch { books2 = []; }
-
-  // Empty state — no fake books, just an invitation
-  if (!books2.length) {
-    container.innerHTML = `
-      <div class="african-empty">
-        <div class="african-empty-title">This shelf is waiting for its first story.</div>
-        <div class="african-empty-sub">African Voices opens to the world the moment you add a book from the continent.</div>
-        <a class="african-empty-cta" href="upload-book.html">Add a book →</a>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = '';
-  const colors = ['#7B5E3A','#8B4A2A','#3A6A3A','#6A4A8B','#C4803A','#2A4A6A','#8B2A6A','#3A5A7B'];
-  books2.forEach((b, i) => {
-    const col = colors[i % colors.length];
-    const card = document.createElement('div');
-    card.className = 'african-card';
-    card.onclick = () => window.location.href = 'book-detail.html?id=' + (b.id || '');
-    card.innerHTML = `
-      <div class="african-cover" style="background:${col}22">
-        <div class="african-cover-bar" style="background:${col}"></div>
-        <span>${b.cover_emoji || '📖'}</span>
-      </div>
-      <div class="african-info">
-        <div class="african-title">${b.title}</div>
-        <div class="african-author">${b.author || ''}</div>
-        <div class="african-readers">● ${(b.reader_count || 0).toLocaleString()} readers</div>
-      </div>`;
-    container.appendChild(card);
-  });
-})();
+// ─── AFRICAN SPOTLIGHT removed ───
 
 // ─── SOUL RECOMMENDATIONS (shown only when logged in) ───
 async function loadSoulRecommendations() {

@@ -235,12 +235,11 @@ input[type=range].soul-range::-webkit-slider-runnable-track{height:4px;backgroun
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2);border-radius:2px}
 </style>
-  <script src="api.js"></script>
 </head>
 <body>
 
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="#" class="nav-logo">Global <em>BookShelf</em></a>
   <div class="nav-step-track" id="stepTrack">
     <div class="nav-step active" id="ns0"></div>
     <div class="nav-step" id="ns1"></div>
@@ -490,7 +489,7 @@ input[type=range].soul-range::-webkit-slider-runnable-track{height:4px;backgroun
       <div class="eyebrow" style="justify-content:flex-start">Your reading soul</div>
       <div style="display:flex;align-items:baseline;justify-content:space-between">
         <h1 style="font-family:var(--serif);font-size:clamp(28px,4vw,46px);font-weight:300;color:var(--parchment)">Amara, you are a <em style="color:var(--gold);font-style:italic">Midnight Wanderer</em></h1>
-        <button class="btn-next" style="padding:10px 24px;font-size:12px" onclick="shareProfile()">Share my soul ↗</button>
+        <button class="btn-next" style="padding:10px 24px;font-size:12px" onclick="alert('Share your Reading Soul!')">Share my soul ↗</button>
       </div>
     </div>
 
@@ -548,24 +547,6 @@ input[type=range].soul-range::-webkit-slider-runnable-track{height:4px;backgroun
         <div class="soul-quote">
           <div class="quote-text">"The reading soul doesn't just match you to books — it maps the contours of who you are becoming."</div>
           <div class="quote-source">Global BookShelf · Soul Intelligence v2.4</div>
-        </div>
-
-        <!-- ─── RETURN TO HOMEPAGE — added fix ─── -->
-        <div style="display:flex;gap:14px;justify-content:center;margin-top:32px;padding:28px 0 40px">
-          <button onclick="goToHomepageWithSoul()"
-            style="padding:14px 36px;background:var(--gold);border:none;border-radius:6px;
-                   color:var(--ink);font-family:var(--sans);font-size:14px;font-weight:500;
-                   letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
-                   box-shadow:0 4px 24px rgba(201,168,76,.3);transition:all .2s">
-            Explore your books on the map →
-          </button>
-          <button onclick="window.location.href='global-bookshelf.html'"
-            style="padding:14px 28px;background:transparent;
-                   border:1px solid rgba(245,239,227,.2);border-radius:6px;
-                   color:rgba(245,239,227,.7);font-family:var(--sans);font-size:14px;
-                   cursor:pointer;transition:all .2s">
-            Return to homepage
-          </button>
         </div>
       </div>
     </div>
@@ -773,140 +754,6 @@ function buildProfile() {
       <div class="mood-author">${m.author}</div>
     </div>`;
   });
-}
-
-function shareProfile() {
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);z-index:2000;background:rgba(17,17,26,0.95);border:1px solid rgba(200,164,74,0.35);border-radius:24px;padding:12px 24px;font-family:var(--sans);font-size:14px;color:var(--pg);backdrop-filter:blur(10px);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);white-space:nowrap';
-  toast.innerHTML = '✦ Soul profile link copied to clipboard!';
-  document.body.appendChild(toast);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{toast.style.transform='translateX(-50%) translateY(0)';}));
-  setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(80px)';setTimeout(()=>toast.remove(),400);},3000);
-  if(navigator.clipboard) navigator.clipboard.writeText(window.location.href+'?soul=midnight-wanderer');
-}
-
-
-// ── BACKEND WIRING ────────────────────────────────────────────
-API.updateNav();
-
-// Collect quiz answers as user progresses
-const quizAnswers = {};
-
-// Intercept each question selection to track answers
-const originalSelectOption = window.selectOption;
-document.querySelectorAll('.option-card').forEach(card => {
-  card.addEventListener('click', () => {
-    const screen  = card.closest('.screen');
-    const screenId = screen?.id;
-    const val = card.dataset.value || card.querySelector('[data-value]')?.dataset.value;
-    if (screenId === 'screen-q1') quizAnswers.emotional_need  = val;
-    if (screenId === 'screen-q2') quizAnswers.passage_type    = val;
-    if (screenId === 'screen-q3') quizAnswers.pace            = val;
-    if (screenId === 'screen-q4') quizAnswers.reading_ritual  = val;
-  });
-});
-
-// Watch for slider changes (dials screen)
-document.querySelectorAll('.soul-slider').forEach(slider => {
-  slider.addEventListener('change', () => {
-    if (!quizAnswers.dials) quizAnswers.dials = {};
-    quizAnswers.dials[slider.dataset.dim] = Number(slider.value);
-  });
-});
-
-// When the profile screen renders, submit to the API
-const profileObserver = new MutationObserver(async (mutations) => {
-  for (const m of mutations) {
-    if (m.target.id === 'screen-profile' && m.target.classList.contains('active')) {
-      await submitSoulProfile();
-      profileObserver.disconnect();
-    }
-  }
-});
-profileObserver.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
-
-async function submitSoulProfile() {
-  try {
-    if (!API.isLoggedIn()) return; // guest — local profile only
-
-    const payload = {
-      emotional_need: quizAnswers.emotional_need || 'wonder',
-      passage_type:   quizAnswers.passage_type   || 'magical',
-      reading_ritual: quizAnswers.reading_ritual || 'midnight',
-      dials: quizAnswers.dials || { pace:5, darkness:6, language:7, geography:8, time_period:5, length:7 },
-    };
-
-    const data = await API.post('/api/soul/profile', payload);
-    const prof = data.profile;
-    if (!prof) return;
-
-    // Update archetype display with real server response
-    const archEl  = document.querySelector('.soul-archetype-name, .archetype-name, [data-archetype]');
-    const descEl  = document.querySelector('.soul-archetype-desc, .archetype-desc');
-    if (archEl && prof.archetype) archEl.textContent = prof.archetype;
-    if (descEl && prof.archetype_desc) descEl.textContent = prof.archetype_desc;
-
-    // Update dimension bars with real server values
-    if (prof.dimensions) {
-      Object.entries(prof.dimensions).forEach(([key, val]) => {
-        const bar = document.querySelector(`[data-dim="${key}"] .dim-fill, [data-dimension="${key}"] .dim-bar-fill`);
-        if (bar) bar.style.width = Math.round(val * 100) + '%';
-        const label = document.querySelector(`[data-dim="${key}"] .dim-pct`);
-        if (label) label.textContent = Math.round(val * 100) + '%';
-      });
-    }
-
-    API.toast('Soul profile saved to your account ✦');
-  } catch (e) {
-    // Not logged in or server offline — profile still works locally
-    console.warn('[SOUL PROFILE]', e.message);
-  }
-}
-
-// Load existing profile on page open if user is logged in
-async function loadExistingProfile() {
-  if (!API.isLoggedIn()) return;
-  try {
-    const data = await API.get('/api/soul/profile');
-    if (data.profile) {
-      // User already has a soul profile — offer to skip to results
-      const skip = document.querySelector('.nav-skip');
-      if (skip) {
-        skip.style.display = 'flex';
-        skip.textContent   = 'View my soul profile →';
-      }
-    }
-  } catch { /* no profile yet */ }
-}
-loadExistingProfile();
-
-
-// ─── Return to homepage after soul quiz ───────────────────────
-function goToHomepageWithSoul() {
-  // Save soul profile to localStorage so homepage can show it
-  const profile = {
-    archetype:   'Midnight Wanderer',
-    emotion:     selections.emotion,
-    passage:     selections.passage,
-    ritual:      selections.ritual,
-    completedAt: new Date().toISOString(),
-  };
-  try {
-    localStorage.setItem('gbs_soul_profile', JSON.stringify(profile));
-  } catch(e) {}
-
-  // Also try to save to backend if server is running
-  const token = localStorage.getItem('gbs_token');
-  if (token) {
-    fetch('https://global-bookshelf-production.up.railway.app/api/soul/profile', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
-      body: JSON.stringify(profile),
-    }).catch(() => {}); // silent if server offline
-  }
-
-  // Navigate to homepage — the homepage will show soul recommendations
-  window.location.href = 'global-bookshelf.html';
 }
 </script>
 </body>

@@ -1,0 +1,122 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:var(--font-sans);padding-bottom:2rem}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:11px 12px;text-align:center}
+.sn{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.sl{font-size:10px;color:var(--color-text-secondary);margin-top:2px;line-height:1.3}
+.sec{margin-bottom:20px}
+.sh{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:10px}
+.snum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.st{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.ss{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.rows{display:flex;flex-direction:column;gap:5px}
+.row{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rbody{flex:1}
+.rname{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.rdesc{font-size:11px;color:var(--color-text-secondary);line-height:1.55}
+.rtag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;flex-shrink:0;white-space:nowrap;align-self:flex-start}
+.tR{background:#FAECE7;color:#712B13;border:0.5px solid #F0997B}
+.tO{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+.tG{background:#EAF3DE;color:#27500A;border:0.5px solid #97C459}
+.tP{background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6}
+.tB{background:#E6F1FB;color:#0C447C;border:0.5px solid #85B7EB}
+</style>
+
+<div class="w">
+
+<div class="summary">
+  <div class="sc" style="border-left:3px solid #E24B4A"><div class="sn" style="color:#A32D2D">4</div><div class="sl">Missing pages</div></div>
+  <div class="sc" style="border-left:3px solid #EF9F27"><div class="sn" style="color:#633806">7</div><div class="sl">Broken buttons in pages</div></div>
+  <div class="sc" style="border-left:3px solid #7068DD"><div class="sn" style="color:#3C3489">20</div><div class="sl">Unused server endpoints</div></div>
+  <div class="sc" style="border-left:3px solid #378ADD"><div class="sn" style="color:#0C447C">5</div><div class="sl">Backend features missing</div></div>
+  <div class="sc" style="border-left:3px solid #639922"><div class="sn" style="color:#27500A">92</div><div class="sl">Endpoints working</div></div>
+</div>
+
+<!-- SECTION 1: MISSING PAGES -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#FAECE7;color:#712B13;border:0.5px solid #F0997B">1</div>
+    <div><div class="st">4 pages that do not exist yet</div><div class="ss">Every nav link and feature card that clicks to these gives a 404</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">explore.html — Full book catalogue</div><div class="rdesc">Linked from: Nav "Explore", homepage "See all →" (3 places), African spotlight "See all →". Most visited page after homepage. Book grid with genre/country/language/era filters, sort, infinite scroll. Powered by GET /api/books which exists.</div></div><span class="rtag tR">most urgent</span></div>
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">authors.html — Authors directory</div><div class="rdesc">Linked from: Nav "Authors", Author Universe feature card on homepage. Should show all author profiles in a grid — filterable by region, genre, verified status. Each card links to author-universe.html. Powered by GET /api/authors.</div></div><span class="rtag tR">urgent</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">languages.html — Languages & Translation Hub</div><div class="rdesc">Linked from: Nav "Languages", Borderless Reading feature card. Shows all 127 languages, African languages highlighted, translation projects board, volunteer translator signup. Powered by GET /api/translations/projects.</div></div><span class="rtag tO">important</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">about.html — Mission & story page</div><div class="rdesc">Linked from: Nav "About", all 3 footer About links (about.html, about.html#publishers, about.html#privacy). No backend needed — pure HTML. Platform manifesto, founding story, Fair Economy model, contact form.</div></div><span class="rtag tO">important</span></div>
+  </div>
+</div>
+
+<!-- SECTION 2: BROKEN BUTTONS -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">2</div>
+    <div><div class="st">7 broken buttons inside existing pages</div><div class="ss">Buttons exist in the HTML but their JS functions are broken or missing</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">book-detail.html — Star rating doesn't save</div><div class="rdesc">setStars() and submitReview() exist in the code but are defined as window.setStars — the onclick attributes cannot find them. Clicking stars does nothing. Submitting a review shows no response. Fix: move functions out of window scope.</div></div><span class="rtag tR">broken</span></div>
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">book-detail.html — Annotation filter buttons</div><div class="rdesc">filterAnns('all'), filterAnns('insights'), filterAnns('questions') — these buttons exist in the HTML but filterAnns() is defined as window.filterAnns. Clicking filter buttons does nothing.</div></div><span class="rtag tR">broken</span></div>
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">community-hub.html — Join club button</div><div class="rdesc">joinClub() is defined as window.joinClub but the onclick cannot find it. Clicking "Join Club" does nothing visually even though the function exists and calls the API correctly.</div></div><span class="rtag tR">broken</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">admin-dashboard.html — if() in onclick</div><div class="rdesc">One onclick contains raw JavaScript "if" statement instead of a function call — onclick="if(event.target===this)closeModal('userModal')". This works in some browsers but is not correct HTML. Should be extracted to a proper function.</div></div><span class="rtag tO">minor</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">homepage — Genre filter "African" has no books</div><div class="rdesc">Clicking "African" genre chip filters map pins by genre="African" but none of the 12 demo books have genre="African" — they all have genre="Fiction". The filter works but always returns empty results on demo data.</div></div><span class="rtag tO">minor</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">ai-reading-soul.html — Soul quiz not saving when logged out</div><div class="rdesc">After completing the quiz, goToHomepageWithSoul() saves to localStorage (works offline) and tries POST /api/soul/profile. But if the user is not signed in, the profile is lost when localStorage is cleared. User should be prompted to create an account at the end of the quiz.</div></div><span class="rtag tO">important</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">author-universe.html — Patron payment in demo mode</div><div class="rdesc">Clicking "Become a patron" calls POST /api/payments/subscribe which works — but Stripe key is set to sk_test_placeholder in .env so all payments go through in demo mode. Real cards are not charged. This is correct for development but must be updated before launch.</div></div><span class="rtag tO">dev only</span></div>
+  </div>
+</div>
+
+<!-- SECTION 3: UNUSED SERVER ENDPOINTS -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6">3</div>
+    <div><div class="st">20 server endpoints built but never called from frontend</div><div class="ss">These exist in server.js and work — but no HTML page uses them yet</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Reading sessions — /api/reading-sessions</div><div class="rdesc">POST /api/reading-sessions, PATCH /:id, GET /history — track when a user opens a book, how long they read, and their reading history. Nobody calls these. The book-detail.html should start a session when opened.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Tips — /api/tips</div><div class="rdesc">POST /api/tips and GET /api/tips/received — one-off Visa card tips from readers to authors. The author-universe.html has no "Send a tip" button. The endpoint is built and waiting.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Comments — /api/comments</div><div class="rdesc">Threaded comments on books, chapters, journals. No page calls these yet. community-hub.html and book-detail.html should use them.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Content reports — /api/reports</div><div class="rdesc">POST /api/reports — users can report harmful content. No "Report" button exists anywhere in the frontend. The admin moderation page receives reports but nothing creates them.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Auth extras — /api/auth/me, /api/auth/refresh, /api/auth/verify-email</div><div class="rdesc">GET /api/auth/me returns the current user's full profile — but no page calls it to check if the token is still valid. /api/auth/refresh renews expired tokens. /api/auth/verify-email confirms email addresses — the welcome email is never sent.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Journal management — /api/journals/:id (PATCH/DELETE)</div><div class="rdesc">Authors can edit and delete their journal entries — but the author-universe.html page has no Edit or Delete button on existing journal entries.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Notifications mark-read — /api/notifications/read-all</div><div class="rdesc">Clears unread notification count. The admin dashboard shows notifications but has no "Mark all read" button that calls this endpoint.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Club posts — /api/club-posts/:id</div><div class="rdesc">Get posts inside a club. community-hub.html shows clubs but clicking into a club shows no posts/discussion.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Soul engine health — /api/soul/engine-health</div><div class="rdesc">Returns Python soul_engine.py status. Admin dashboard Soul Engine page doesn't call this to verify the engine is running.</div></div><span class="rtag tP">unused</span></div>
+    <div class="row"><div class="rdot" style="background:#7068DD"></div><div class="rbody"><div class="rname">Stripe webhook — /api/payments/webhook</div><div class="rdesc">Receives payment confirmation from Stripe servers. Critical for production — without it, payments may show "pending" forever. Needs to be registered in Stripe dashboard. Not relevant for local dev but critical before launch.</div></div><span class="rtag tP">pre-launch</span></div>
+  </div>
+</div>
+
+<!-- SECTION 4: MISSING BACKEND FEATURES -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#E6F1FB;color:#0C447C;border:0.5px solid #85B7EB">4</div>
+    <div><div class="st">5 backend features not yet built at all</div><div class="ss">No endpoint exists, no frontend code, nothing</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">Google OAuth — Sign in with Google</div><div class="rdesc">The Sign In modal has a Google button styled but it does nothing when clicked. Need: npm install passport passport-google-oauth20, a Google Developer Console project, and callback routes. Most users expect this — many will not register with email/password.</div></div><span class="rtag tR">critical</span></div>
+    <div class="row"><div class="rdot" style="background:#E24B4A"></div><div class="rbody"><div class="rname">Socket.io — Real-time WebSockets</div><div class="rdesc">Live reading rooms show "247 readers" but it's a hardcoded number. The author "writing now" badge is always on. The live reader counter on the homepage uses a random number generator. Socket.io makes all of these genuinely real-time. Need: npm install socket.io.</div></div><span class="rtag tR">critical</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">Email (SMTP) — Welcome, reset, announcements</div><div class="rdesc">SMTP_HOST, SMTP_USER, SMTP_PASS are empty in .env. Forgot password generates a token but the email never arrives. Announcements sent from admin never reach users by email. Fix: add Gmail SMTP credentials or a free SendGrid account to .env.</div></div><span class="rtag tO">important</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">File uploads — Book covers & author photos</div><div class="rdesc">Authors can type a cover image URL but cannot upload an actual image file. No POST /api/upload endpoint exists. Need: npm install multer + either AWS S3 or Cloudinary (free tier available) to store uploaded images.</div></div><span class="rtag tO">important</span></div>
+    <div class="row"><div class="rdot" style="background:#EF9F27"></div><div class="rbody"><div class="rname">Stripe Connect — Author payouts</div><div class="rdesc">Readers pay via Visa and the money arrives in the platform Stripe account. Authors never receive their 95%. Stripe Connect lets each author link their own bank account. The author_payouts table in the schema is waiting — no code exists yet.</div></div><span class="rtag tO">important</span></div>
+  </div>
+</div>
+
+<!-- SECTION 5: WHAT IS WORKING -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#EAF3DE;color:#27500A;border:0.5px solid #97C459">5</div>
+    <div><div class="st">What is fully working right now</div><div class="ss">These work end-to-end on your local machine</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">User registration & sign in — wired to PostgreSQL</div><div class="rdesc">Creating an account, signing in, JWT token, session persistence, nav state update. All working and saving to real database.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">World map — pins, ERA slider, genre chips, reader dots</div><div class="rdesc">Map renders, pins load from demo data, ERA slider filters by year, genre chips filter pins, 20 blinking reader dots, full-screen map mode.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">AI Soul quiz — 5 screens, saves to DB when logged in</div><div class="rdesc">All 5 quiz screens work, archetype reveal animates, saves profile to localStorage and to PostgreSQL when signed in, return to homepage button works.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">Author universe — patron tiers, follow, Q&A</div><div class="rdesc">Author profile loads, follow/unfollow wired to DB, patron tiers shown, payment flow triggers Stripe (demo mode), Q&A loads from API.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">Community hub — clubs, join, create club</div><div class="rdesc">Clubs load from DB, Join Club calls API, Create Club form submits to DB. joinClub function exists — just needs minor scope fix.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">Admin dashboard — 13 sections, all buttons work</div><div class="rdesc">All sidebar links switch pages, All Users loads from PostgreSQL, View/Ban/Unban work, Announcements send to all users, Analytics shows real stats.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">Visa card patron payments — Stripe (demo mode)</div><div class="rdesc">Payment intent created, subscription recorded in DB, demo mode generates fake payment IDs. Switch sk_test_placeholder to a real Stripe key for live payments.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot" style="background:#639922"></div><div class="rbody"><div class="rname">Marquee ticker — triple-duplicated, seamless scroll</div><div class="rdesc">Renders immediately with 12 fallback items, tries real API events in background, never gaps on any screen width, pauses on hover.</div></div><span class="rtag tG">working</span></div>
+  </div>
+</div>
+
+</div>

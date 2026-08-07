@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+  body{margin:0;padding:0;font-family:var(--font-sans,sans-serif)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 0}
+  .card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px}
+  .card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 6px}
+  .card-sub{font-size:12px;color:var(--color-text-secondary);margin:0 0 12px;line-height:1.5}
+  .signal-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .dot-green{background:#639922}
+  .dot-amber{background:#BA7517}
+  .dot-red{background:#A32D2D}
+  .dot-blue{background:#185FA5}
+  .label{font-size:12px;color:var(--color-text-secondary)}
+  .bar-wrap{flex:1;background:var(--color-background-primary);border-radius:4px;height:8px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+  .bar{height:100%;border-radius:4px;transition:width 0.6s ease}
+  .bar-green{background:#639922}
+  .bar-amber{background:#BA7517}
+  .bar-purple{background:#534AB7}
+  .bar-blue{background:#185FA5}
+  .slider-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+  .slider-label{font-size:11px;color:var(--color-text-tertiary);min-width:70px}
+  input[type=range]{flex:1;accent-color:#1D9E75}
+  .val{font-size:11px;color:var(--color-text-secondary);min-width:28px;text-align:right}
+  .junction{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;aspect-ratio:1;margin:8px 0}
+  .cell{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-secondary)}
+  .road-h{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary)}
+  .road-v{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary)}
+  .center{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary)}
+  .grass{background:var(--color-background-tertiary)}
+  .sig{width:8px;height:8px;border-radius:50%;display:inline-block;transition:background 0.4s}
+  .wave-row{display:flex;gap:6px;align-items:center;margin:6px 0}
+  .junction-mini{width:18px;height:18px;border-radius:3px;border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .connector{flex:1;height:2px;border-radius:1px;transition:background 0.4s}
+  .stat-row{display:flex;justify-content:space-between;margin:4px 0}
+  .stat-num{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+  .stat-desc{font-size:11px;color:var(--color-text-secondary)}
+  .tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+  .tag-green{background:#EAF3DE;color:#27500A}
+  .tag-amber{background:#FAEEDA;color:#633806}
+  .tag-purple{background:#EEEDFE;color:#3C3489}
+  .full{grid-column:1/-1}
+  .pulse{animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  @media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Interactive diagram showing how AI traffic signal coordination works in Dar es Salaam</h2>
+
+<div class="grid">
+
+  <!-- Card 1: Sensors -->
+  <div class="card">
+    <p class="card-title">What the system sees</p>
+    <p class="card-sub">Cheap sensors at every junction feed live data to the central AI every 2 seconds.</p>
+    <div class="signal-row"><span class="dot dot-green"></span><span class="label">Camera — counts vehicles per lane</span></div>
+    <div class="signal-row"><span class="dot dot-blue"></span><span class="label">Loop detector — measures queue length</span></div>
+    <div class="signal-row"><span class="dot dot-amber"></span><span class="label">Daladala GPS — bus positions live</span></div>
+    <div class="signal-row"><span class="dot dot-red"></span><span class="label">Emergency beacon — ambulance override</span></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--color-text-tertiary)">All data encrypted, no facial recognition — only vehicle counts.</div>
+  </div>
+
+  <!-- Card 2: Green wave simulator -->
+  <div class="card">
+    <p class="card-title">Green wave along a corridor</p>
+    <p class="card-sub">Signals turn green just before a daladala arrives — it never stops.</p>
+    <div id="wave-container"></div>
+    <div class="slider-row">
+      <span class="slider-label">Bus speed</span>
+      <input type="range" id="speed-slider" min="1" max="5" value="3">
+      <span class="val" id="speed-val">3</span>
+    </div>
+  </div>
+
+  <!-- Card 3: Junction live view -->
+  <div class="card">
+    <p class="card-title">Live junction decision</p>
+    <p class="card-sub">AI extends green for the heavier direction. Drag the queue slider to see it respond.</p>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="junction" id="junction" style="width:100px;height:100px">
+        <div class="cell grass"></div>
+        <div class="cell road-v" style="justify-content:center"><span class="sig" id="sig-n"></span></div>
+        <div class="cell grass"></div>
+        <div class="cell road-h" style="justify-content:flex-end;padding-right:2px"><span class="sig" id="sig-w"></span></div>
+        <div class="cell center" style="font-size:9px;color:var(--color-text-tertiary)">AI</div>
+        <div class="cell road-h" style="padding-left:2px"><span class="sig" id="sig-e"></span></div>
+        <div class="cell grass"></div>
+        <div class="cell road-v" style="justify-content:center"><span class="sig" id="sig-s"></span></div>
+        <div class="cell grass"></div>
+      </div>
+      <div style="flex:1">
+        <div class="stat-row"><span class="stat-desc">North–south queue</span><span class="tag" id="ns-tag">—</span></div>
+        <div class="slider-row" style="margin:4px 0 10px">
+          <input type="range" id="ns-slider" min="0" max="40" value="20" style="width:100%">
+        </div>
+        <div class="stat-row"><span class="stat-desc">East–west queue</span><span class="tag" id="ew-tag">—</span></div>
+        <div class="slider-row" style="margin:4px 0">
+          <input type="range" id="ew-slider" min="0" max="40" value="8" style="width:100%">
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--color-text-secondary)" id="decision-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: City-wide stats -->
+  <div class="card">
+    <p class="card-title">City-wide impact</p>
+    <p class="card-sub">Drag the coordination level to see projected outcomes.</p>
+    <div class="slider-row">
+      <span class="slider-label">AI coverage</span>
+      <input type="range" id="ai-slider" min="0" max="100" value="60">
+      <span class="val" id="ai-val">60%</span>
+    </div>
+    <div style="margin-top:10px">
+      <div class="stat-row"><span class="stat-desc">Average commute reduction</span><span class="stat-num" id="commute-stat">—</span></div>
+      <div style="margin:4px 0 10px"><div class="bar-wrap"><div class="bar bar-green" id="commute-bar"></div></div></div>
+      <div class="stat-row"><span class="stat-desc">Idle engine emissions cut</span><span class="stat-num" id="emission-stat">—</span></div>
+      <div style="margin:4px 0 10px"><div class="bar-wrap"><div class="bar bar-purple" id="emission-bar"></div></div></div>
+      <div class="stat-row"><span class="stat-desc">Daladala on-time rate</span><span class="stat-num" id="daladala-stat">—</span></div>
+      <div style="margin:4px 0"><div class="bar-wrap"><div class="bar bar-blue" id="daladala-bar"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Card 5: Full width — how decisions are made -->
+  <div class="card full">
+    <p class="card-title">How the AI decides — every 2 seconds</p>
+    <p class="card-sub">Not a rigid algorithm — a reinforcement learning model trained on DSM traffic patterns, continuously improving.</p>
+    <div style="display:flex;gap:0;align-items:stretch;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px;padding:10px;border-right:0.5px solid var(--color-border-tertiary)">
+        <span class="tag tag-green" style="margin-bottom:6px;display:inline-block">1. Observe</span>
+        <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">All 400+ junctions report queue lengths, speeds, bus positions.</div>
+      </div>
+      <div style="flex:1;min-width:120px;padding:10px;border-right:0.5px solid var(--color-border-tertiary)">
+        <span class="tag tag-amber" style="margin-bottom:6px;display:inline-block">2. Predict</span>
+        <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">Model forecasts queue growth 3 minutes ahead on each road segment.</div>
+      </div>
+      <div style="flex:1;min-width:120px;padding:10px;border-right:0.5px solid var(--color-border-tertiary)">
+        <span class="tag tag-purple" style="margin-bottom:6px;display:inline-block">3. Optimise</span>
+        <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">Calculates green durations to minimise total city-wide waiting time.</div>
+      </div>
+      <div style="flex:1;min-width:120px;padding:10px">
+        <span class="tag tag-green" style="margin-bottom:6px;display:inline-block">4. Override</span>
+        <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">Ambulance or fire beacon → all signals on that corridor clear instantly.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const junctionColors = {
+  green: '#639922',
+  red: '#A32D2D',
+  amber: '#BA7517'
+};
+
+function updateJunction() {
+  const ns = parseInt(document.getElementById('ns-slider').value);
+  const ew = parseInt(document.getElementById('ew-slider').value);
+  const nsTag = document.getElementById('ns-tag');
+  const ewTag = document.getElementById('ew-tag');
+  nsTag.textContent = ns + ' vehicles';
+  ewTag.textContent = ew + ' vehicles';
+
+  let nsGreen = ns >= ew;
+  ['sig-n','sig-s'].forEach(id => {
+    document.getElementById(id).style.background = nsGreen ? junctionColors.green : junctionColors.red;
+  });
+  ['sig-e','sig-w'].forEach(id => {
+    document.getElementById(id).style.background = nsGreen ? junctionColors.red : junctionColors.green;
+  });
+
+  const diff = Math.abs(ns - ew);
+  let msg = '';
+  if (diff < 5) {
+    nsTag.className = 'tag tag-amber';
+    ewTag.className = 'tag tag-amber';
+    msg = 'Queues balanced — equal green time assigned.';
+  } else if (nsGreen) {
+    nsTag.className = 'tag tag-green';
+    ewTag.className = 'tag tag-amber';
+    msg = 'North–south is heavier — AI extends NS green by ' + Math.round(diff * 1.2) + 's.';
+  } else {
+    nsTag.className = 'tag tag-amber';
+    ewTag.className = 'tag tag-green';
+    msg = 'East–west is heavier — AI extends EW green by ' + Math.round(diff * 1.2) + 's.';
+  }
+  document.getElementById('decision-text').textContent = msg;
+}
+
+document.getElementById('ns-slider').oninput = updateJunction;
+document.getElementById('ew-slider').oninput = updateJunction;
+updateJunction();
+
+function updateStats() {
+  const v = parseInt(document.getElementById('ai-slider').value);
+  document.getElementById('ai-val').textContent = v + '%';
+  const commute = Math.round(v * 0.28);
+  const emission = Math.round(v * 0.22);
+  const dal = Math.min(95, 40 + Math.round(v * 0.55));
+  document.getElementById('commute-stat').textContent = commute + '%';
+  document.getElementById('emission-stat').textContent = emission + '%';
+  document.getElementById('daladala-stat').textContent = dal + '%';
+  document.getElementById('commute-bar').style.width = commute + '%';
+  document.getElementById('emission-bar').style.width = emission + '%';
+  document.getElementById('daladala-bar').style.width = (dal - 40) * 1.67 + '%';
+}
+document.getElementById('ai-slider').oninput = updateStats;
+updateStats();
+
+const junctionCount = 5;
+let busPos = 0;
+let waveTimer;
+
+function buildWave() {
+  const c = document.getElementById('wave-container');
+  c.innerHTML = '';
+  for (let i = 0; i < junctionCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'wave-row';
+    const jm = document.createElement('div');
+    jm.className = 'junction-mini';
+    jm.id = 'jm-' + i;
+    const sig = document.createElement('span');
+    sig.className = 'sig';
+    sig.id = 'wsig-' + i;
+    jm.appendChild(sig);
+    row.appendChild(jm);
+    if (i < junctionCount - 1) {
+      const conn = document.createElement('div');
+      conn.className = 'connector';
+      conn.id = 'conn-' + i;
+      row.appendChild(conn);
+    }
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:11px;color:var(--color-text-tertiary)';
+    lbl.textContent = ['Ubungo', 'Mwenge', 'Mlimani', 'Morocco', 'CBD'][i];
+    row.appendChild(lbl);
+    c.appendChild(row);
+  }
+}
+
+function animateWave() {
+  const speed = parseInt(document.getElementById('speed-slider').value);
+  for (let i = 0; i < junctionCount; i++) {
+    const ahead = (i === busPos || i === busPos + 1);
+    const current = i === busPos;
+    const sig = document.getElementById('wsig-' + i);
+    const jm = document.getElementById('jm-' + i);
+    sig.style.background = ahead ? junctionColors.green : (i < busPos ? '#888780' : junctionColors.red);
+    jm.style.borderColor = current ? '#1D9E75' : 'var(--color-border-secondary)';
+    if (i < junctionCount - 1) {
+      const conn = document.getElementById('conn-' + i);
+      conn.style.background = i < busPos ? '#639922' : 'var(--color-border-tertiary)';
+    }
+  }
+  busPos = (busPos + 1) % junctionCount;
+  clearTimeout(waveTimer);
+  waveTimer = setTimeout(animateWave, 1200 / speed);
+}
+
+document.getElementById('speed-slider').oninput = function() {
+  document.getElementById('speed-val').textContent = this.value;
+  clearTimeout(waveTimer);
+  animateWave();
+};
+
+buildWave();
+animateWave();
+</script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  body{margin:0;padding:0}
+  .section{margin-bottom:2rem}
+  .sec-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:10px}
+  .card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 6px;display:flex;align-items:center;gap:8px}
+  .card-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0}
+  .badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+  .badge-purple{background:#EEEDFE;color:#3C3489}
+  .badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+  .badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+  .badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+  .badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+  .step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+  .step-num{width:26px;height:26px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step-content{flex:1}
+  .step-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 3px}
+  .step-desc{font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.5}
+  code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-tertiary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+  .prompt-box{background:var(--color-background-tertiary);border-left:3px solid var(--color-border-info);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:10px 14px;font-size:12px;color:var(--color-text-primary);line-height:1.8;margin:8px 0;font-family:var(--font-mono);white-space:pre-wrap}
+  .divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:20px 0}
+  .alert-green{background:var(--color-background-success);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-success);margin-bottom:14px;display:flex;gap:8px}
+  .alert-amber{background:var(--color-background-warning);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-warning);margin-bottom:14px;display:flex;gap:8px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+  .op-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;border:0.5px solid var(--color-border-tertiary)}
+  .op-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 4px}
+  .op-role{font-size:11px;color:var(--color-text-secondary);margin:0 0 6px}
+  .op-params{font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary);line-height:1.6}
+  .tab-bar{display:flex;gap:4px;margin-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+  .tab{font-size:12px;padding:6px 14px;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none}
+  .tab.active{color:var(--color-text-info);border-bottom-color:var(--color-border-info);font-weight:500}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  .pipeline-row{display:flex;align-items:stretch;gap:0;margin:12px 0;overflow-x:auto}
+  .pipe-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 10px;text-align:center;min-width:90px;flex:1}
+  .pipe-box.highlight{background:var(--color-background-info);border-color:var(--color-border-info)}
+  .pipe-label{font-size:11px;font-weight:500;color:var(--color-text-primary);margin:0 0 2px}
+  .pipe-sub{font-size:10px;color:var(--color-text-secondary)}
+  .pipe-arrow{display:flex;align-items:center;padding:0 4px;color:var(--color-text-tertiary);font-size:14px;flex-shrink:0}
+  .link-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:4px 10px;margin-top:8px;cursor:pointer;background:none}
+  .copy-btn{font-size:11px;padding:3px 8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;color:var(--color-text-secondary);float:right;margin-top:-2px}
+  .copy-btn:hover{background:var(--color-background-tertiary)}
+</style>
+
+<h2 class="sr-only">Deep guide: how to build motion detection for exam hall monitoring using FlagOS and KernelGen — including operator definitions, exact prompts, and the full pipeline.</h2>
+
+<!-- ===== SECTION 1: THE CONNECTION ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-link" aria-hidden="true"></i> How motion detection connects to KernelGen</div>
+  <div class="card">
+    <p class="card-body">Motion detection for exam monitoring is built from several mathematical operations on video frames. Every one of those operations is a <strong style="color:var(--color-text-primary)">Triton kernel</strong> — the exact thing KernelGen generates and optimizes. You are not using KernelGen to "train a model" — you are using it to build the <strong style="color:var(--color-text-primary)">fast, chip-agnostic operators</strong> that power the motion detection pipeline. This is the correct, advanced use of the FlagOS ecosystem.</p>
+  </div>
+
+  <!-- Pipeline visualization -->
+  <div class="pipeline-row">
+    <div class="pipe-box"><div class="pipe-label">Camera</div><div class="pipe-sub">video frames</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-box highlight"><div class="pipe-label" style="color:var(--color-text-info)">Frame diff</div><div class="pipe-sub" style="color:var(--color-text-info)">Kernel 1</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-box highlight"><div class="pipe-label" style="color:var(--color-text-info)">Gaussian blur</div><div class="pipe-sub" style="color:var(--color-text-info)">Kernel 2</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-box highlight"><div class="pipe-label" style="color:var(--color-text-info)">Threshold</div><div class="pipe-sub" style="color:var(--color-text-info)">Kernel 3</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-box highlight"><div class="pipe-label" style="color:var(--color-text-info)">Softmax score</div><div class="pipe-sub" style="color:var(--color-text-info)">Kernel 4</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-box"><div class="pipe-label">Alert</div><div class="pipe-sub">suspicious / normal</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-tertiary);margin:4px 0 0">The highlighted blue boxes are KernelGen-generated Triton kernels — each one faster and chip-portable than standard PyTorch implementations.</p>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SECTION 2: THE 4 OPERATORS ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-cpu" aria-hidden="true"></i> The 4 operators you will generate in KernelGen</div>
+  <div class="alert-amber">
+    <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i>
+    <span>According to the docs, each operator definition must include: operator name, function description, input parameters + data type, and output parameters + data type. Here are all four ready for you.</span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab(0)">Kernel 1 — Frame Diff</button>
+    <button class="tab" onclick="switchTab(1)">Kernel 2 — Blur</button>
+    <button class="tab" onclick="switchTab(2)">Kernel 3 — Threshold</button>
+    <button class="tab" onclick="switchTab(3)">Kernel 4 — Softmax</button>
+  </div>
+
+  <div id="tab0" class="tab-content active">
+    <div class="op-card">
+      <div class="op-title">frame_difference_operator <span class="badge badge-blue" style="margin-left:6px">start here</span></div>
+      <div class="op-role">Detects motion by computing pixel-level difference between two consecutive frames</div>
+      <div class="op-params">Input:  frame_t (Tensor[H,W,3], float32) — current frame
+        frame_t1 (Tensor[H,W,3], float32) — previous frame
+Output: diff_map (Tensor[H,W], float32) — motion intensity per pixel</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--color-text-secondary)">Exact prompt to paste into KernelGen web platform: <button class="copy-btn" onclick="copyPrompt(0)"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button></div>
+    <div class="prompt-box" id="prompt0">Operator Name: frame_difference_operator
+
+Function Description: Compute the absolute pixel-wise difference between two consecutive grayscale video frames to detect motion. For each pixel position (i,j), compute the mean absolute difference across the 3 color channels, then return a 2D motion intensity map. This operator is used in real-time student exam monitoring to identify movement between frames.
+
+Input Parameters:
+- frame_t: 2D tensor of shape (H, W, 3), dtype float32 — current video frame, pixel values normalized 0.0 to 1.0
+- frame_t1: 2D tensor of shape (H, W, 3), dtype float32 — previous video frame, same shape and dtype
+
+Output Parameters:
+- diff_map: 2D tensor of shape (H, W), dtype float32 — per-pixel motion intensity score, range 0.0 to 1.0</div>
+  </div>
+
+  <div id="tab1" class="tab-content">
+    <div class="op-card">
+      <div class="op-title">gaussian_blur_2d_operator</div>
+      <div class="op-role">Smooths the motion map to remove camera noise before thresholding</div>
+      <div class="op-params">Input:  input_map (Tensor[H,W], float32), kernel_size (int), sigma (float32)
+Output: blurred_map (Tensor[H,W], float32)</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--color-text-secondary)">Exact prompt to paste into KernelGen: <button class="copy-btn" onclick="copyPrompt(1)"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button></div>
+    <div class="prompt-box" id="prompt1">Operator Name: gaussian_blur_2d_operator
+
+Function Description: Apply a 2D Gaussian blur filter to a single-channel float32 image tensor. The Gaussian kernel is computed from the given sigma value and kernel size. This smooths noise from the motion difference map in an exam hall video monitoring system, reducing false positives from camera sensor noise.
+
+Input Parameters:
+- input_map: 2D tensor of shape (H, W), dtype float32 — single-channel motion intensity map
+- kernel_size: integer scalar — size of the Gaussian kernel (e.g. 5 for a 5x5 kernel)
+- sigma: float32 scalar — standard deviation of the Gaussian distribution
+
+Output Parameters:
+- blurred_map: 2D tensor of shape (H, W), dtype float32 — Gaussian-smoothed motion map, same spatial size as input</div>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <div class="op-card">
+      <div class="op-title">motion_threshold_operator</div>
+      <div class="op-role">Classifies each pixel as motion or no-motion using an adaptive threshold</div>
+      <div class="op-params">Input:  blurred_map (Tensor[H,W], float32), threshold (float32)
+Output: binary_mask (Tensor[H,W], int32) — 1=motion, 0=still</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--color-text-secondary)">Exact prompt to paste into KernelGen: <button class="copy-btn" onclick="copyPrompt(2)"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button></div>
+    <div class="prompt-box" id="prompt2">Operator Name: motion_threshold_operator
+
+Function Description: Apply an element-wise threshold to a 2D motion intensity map to produce a binary motion mask. Each pixel value above the threshold is set to 1 (motion detected), values at or below are set to 0 (no motion). Used in exam hall student monitoring to isolate regions of suspicious movement from background stillness.
+
+Input Parameters:
+- blurred_map: 2D tensor of shape (H, W), dtype float32 — smoothed motion intensity map
+- threshold: float32 scalar — intensity threshold value (e.g. 0.1)
+
+Output Parameters:
+- binary_mask: 2D tensor of shape (H, W), dtype int32 — binary motion mask; 1 where motion is detected, 0 elsewhere</div>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <div class="op-card">
+      <div class="op-title">motion_score_softmax_operator</div>
+      <div class="op-role">Converts raw region scores to suspicious/normal probabilities for the alert system</div>
+      <div class="op-params">Input:  region_scores (Tensor[N], float32) — N detected motion regions
+Output: probabilities (Tensor[N], float32) — normalized suspicion probability per region</div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--color-text-secondary)">Exact prompt to paste into KernelGen: <button class="copy-btn" onclick="copyPrompt(3)"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button></div>
+    <div class="prompt-box" id="prompt3">Operator Name: motion_score_softmax_operator
+
+Function Description: Apply the softmax function to a 1D tensor of motion region scores to convert raw activity scores into normalized probability values between 0 and 1. Each output value represents the relative suspicion probability for a detected motion region in an exam hall. Higher values indicate more suspicious behavior relative to other detected regions.
+
+Input Parameters:
+- region_scores: 1D tensor of shape (N,), dtype float32 — raw motion intensity scores for N detected motion regions
+
+Output Parameters:
+- probabilities: 1D tensor of shape (N,), dtype float32 — softmax-normalized suspicion probabilities; values sum to 1.0</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SECTION 3: STEP BY STEP IN KERNELGEN ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-list-check" aria-hidden="true"></i> Step-by-step: generating each kernel in KernelGen web platform</div>
+
+  <div class="step-row"><div class="step-num">1</div><div class="step-content">
+    <div class="step-title">Sign in and open the welcome page</div>
+    <div class="step-desc">Go to <code>kernelgen.flagos.io</code> → sign in. You land on the welcome page with a large text input box.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">2</div><div class="step-content">
+    <div class="step-title">Paste your operator prompt (start with Kernel 1)</div>
+    <div class="step-desc">Copy the <code>frame_difference_operator</code> prompt from the tab above. Paste it into the text box and click the arrow button. KernelGen will search GitHub repos for similar operator code as reference.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">3</div><div class="step-content">
+    <div class="step-title">Review code snippet references</div>
+    <div class="step-desc">KernelGen shows you a list of URLs to similar code it found. Click each to view the code snippet in the right panel. Select the ones most relevant to frame differencing or image processing, then click <strong style="color:var(--color-text-primary)">Next</strong>.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">4</div><div class="step-content">
+    <div class="step-title">Confirm operator definition and configuration</div>
+    <div class="step-desc">KernelGen extracts the operator name, type, input/output parameters automatically from your prompt. Verify they are correct. Set <strong style="color:var(--color-text-primary)">Auto Optimization Max Iteration Rounds</strong> to 3 for tonight (faster). Click <strong style="color:var(--color-text-primary)">Confirm</strong>.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">5</div><div class="step-content">
+    <div class="step-title">Watch KernelGen generate the kernel automatically</div>
+    <div class="step-desc">The right panel shows 4 status indicators running in sequence: <code>Kernel</code> → <code>CUDA Implementation</code> → <code>Correctness Test</code> → <code>Speedup Ratio Test</code>. All statuses turn to <strong style="color:var(--color-text-primary)">Generating</strong> then <strong style="color:var(--color-text-primary)">Completed</strong>. This is what you demo live — it's impressive to watch.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">6</div><div class="step-content">
+    <div class="step-title">Read the results — this is your evidence for the leader</div>
+    <div class="step-desc">When Correctness Test turns <span style="color:var(--color-text-success);font-weight:500">green</span> — your kernel is mathematically correct. Check the Speedup Ratio table — it shows how much faster your kernel is than plain PyTorch. Click <strong style="color:var(--color-text-primary)">View Details</strong> to see per-scenario speedups. Screenshot this page.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">7</div><div class="step-content">
+    <div class="step-title">Download the kernel code</div>
+    <div class="step-desc">Click <strong style="color:var(--color-text-primary)">Download Kernel</strong> at the top. You now have a <code>.py</code> file containing the optimized Triton kernel for your motion detection operator. Repeat for all 4 operators.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">8</div><div class="step-content">
+    <div class="step-title">Integrate into your Python pipeline</div>
+    <div class="step-desc">Import the downloaded kernel files into a main Python script that reads from your webcam, runs frames through all 4 kernels in sequence, and displays an alert when the motion score exceeds your threshold.</div>
+  </div></div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SECTION 4: RESULTS INTERPRETATION ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> How to read KernelGen results for your demo</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-check" style="color:var(--color-text-success);font-size:15px" aria-hidden="true"></i> Correctness Test = green <span class="badge badge-green">show this</span></div>
+      <p class="card-body">Means your kernel produces exactly the same numerical output as the PyTorch reference. According to the docs, <em>only correctness-passed kernels can be used</em>. A green tick here is your proof of quality.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-rocket" style="font-size:15px" aria-hidden="true"></i> Speedup Ratio <span class="badge badge-blue">explain this</span></div>
+      <p class="card-body">A speedup of 1.5× means your kernel runs 50% faster than standard PyTorch. For real-time exam monitoring at 30fps across a large venue with multiple cameras, this speedup is what makes the system practical.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-versions" style="font-size:15px" aria-hidden="true"></i> Scenario table <span class="badge badge-purple">deep detail</span></div>
+      <p class="card-body">Each row in View Details is a different combination of input shapes and dtypes. For exam monitoring this means different frame resolutions — 720p, 1080p, 4K. KernelGen tests all and picks the best kernel for each.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-history" style="font-size:15px" aria-hidden="true"></i> History panel <span class="badge badge-gray">if red</span></div>
+      <p class="card-body">If Correctness Test turns red, modify the kernel code manually and re-run. Use the History panel on the left to revert to earlier versions. The docs confirm you can iterate until correctness passes.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SECTION 5: INTEGRATION CODE ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-code" aria-hidden="true"></i> Python integration — how your downloaded kernels connect to the webcam</div>
+  <div class="alert-green">
+    <i class="ti ti-check" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i>
+    <span>After downloading all 4 kernels from KernelGen, this is the structure of your main application. The kernels drop straight in as Python functions.</span>
+  </div>
+  <div class="prompt-box">import cv2, torch
+from frame_difference_operator import frame_difference_operator
+from gaussian_blur_2d_operator  import gaussian_blur_2d_operator
+from motion_threshold_operator  import motion_threshold_operator
+from motion_score_softmax_operator import motion_score_softmax_operator
+
+cap = cv2.VideoCapture(0)      # 0 = laptop webcam
+prev_frame = None
+THRESHOLD = 0.15               # tune this for exam hall sensitivity
+
+while True:
+    ret, frame = cap.read()
+    frame_t = torch.tensor(frame / 255.0, dtype=torch.float32)
+
+    if prev_frame is not None:
+        # Pipeline — all 4 KernelGen operators in sequence
+        diff   = frame_difference_operator(frame_t, prev_frame)
+        smooth = gaussian_blur_2d_operator(diff, kernel_size=5, sigma=1.0)
+        mask   = motion_threshold_operator(smooth, threshold=THRESHOLD)
+
+        motion_pixels = mask.sum().item()
+        scores = torch.tensor([motion_pixels], dtype=torch.float32)
+        probs  = motion_score_softmax_operator(scores)
+
+        # Display alert
+        label = "SUSPICIOUS" if probs[0] > 0.5 else "Normal"
+        color = (0, 0, 255) if label == "SUSPICIOUS" else (0, 255, 0)
+        cv2.putText(frame, label, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 2)
+
+    cv2.imshow("Exam Hall Monitor - FlagOS KernelGen", frame)
+    prev_frame = frame_t
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break</div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SECTION 6: DEMO NARRATIVE ===== -->
+<div class="section">
+  <div class="sec-title"><i class="ti ti-presentation" aria-hidden="true"></i> What to say at each stage of your demo</div>
+  <div class="step-row"><div class="step-num" style="background:#EEEDFE;color:#3C3489">A</div><div class="step-content">
+    <div class="step-title">Opening — explain the problem</div>
+    <div class="step-desc">"Student exam monitoring requires real-time analysis of video across multiple cameras in a large venue. The core challenge is making the motion detection fast enough for multiple camera feeds and portable enough to run on different GPU hardware — that is exactly what FlagOS and KernelGen solve."</div>
+  </div></div>
+  <div class="step-row"><div class="step-num" style="background:#EEEDFE;color:#3C3489">B</div><div class="step-content">
+    <div class="step-title">Show KernelGen generating Kernel 1 live</div>
+    <div class="step-desc">"I defined the frame difference operator — the core of motion detection — and KernelGen automatically wrote the optimized Triton kernel for it. Watch the correctness test turn green and the speedup ratio appear. This is running faster than standard PyTorch by [X]×."</div>
+  </div></div>
+  <div class="step-row"><div class="step-num" style="background:#EEEDFE;color:#3C3489">C</div><div class="step-content">
+    <div class="step-title">Show the full 4-kernel pipeline diagram</div>
+    <div class="step-desc">"The full system uses 4 KernelGen-generated operators in a pipeline: frame differencing → noise smoothing → motion thresholding → suspicion scoring. Each kernel was auto-generated, auto-tested, and benchmarked by KernelGen within the FlagOS ecosystem."</div>
+  </div></div>
+  <div class="step-row"><div class="step-num" style="background:#EEEDFE;color:#3C3489">D</div><div class="step-content">
+    <div class="step-title">Run the live webcam demo</div>
+    <div class="step-desc">Run your Python script. Sit still — it shows "Normal". Move your hand or turn your head — it shows "SUSPICIOUS" in red. "This is real-time motion classification powered by the KernelGen-generated kernels running on FlagOS."</div>
+  </div></div>
+</div>
+
+<script>
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('active',i===j));
+}
+function copyPrompt(i){
+  const el=document.getElementById('prompt'+i);
+  navigator.clipboard.writeText(el.textContent.trim()).then(()=>{
+    const btns=document.querySelectorAll('.copy-btn');
+    btns[i].textContent='Copied!';
+    setTimeout(()=>btns[i].innerHTML='<i class="ti ti-copy"></i> Copy',1500);
+  });
+}
+</script>

@@ -1,0 +1,146 @@
+
+<h2 class="sr-only">What the ERA slider on the Global BookShelf homepage does — a visual explainer showing how dragging it backward in time filters the world map</h2>
+
+<style>
+.w{font-family:var(--font-sans);padding-bottom:1rem}
+.label{font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500}
+.map-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);height:180px;position:relative;overflow:hidden;margin-bottom:20px}
+.continent{position:absolute;border-radius:3px;background:var(--color-border-secondary);transition:background .4s}
+.pin{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);transition:opacity .4s,transform .4s;cursor:default}
+.pin-label{position:absolute;font-size:9px;color:var(--color-text-secondary);white-space:nowrap;transform:translate(-50%,6px);transition:opacity .4s}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary);transition:all .3s}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.result-box{background:var(--color-background-secondary);border-left:3px solid;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:12px 16px;margin-bottom:12px;transition:all .4s}
+.result-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.result-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.year-display{font-size:42px;font-weight:500;color:var(--color-text-primary);text-align:center;transition:all .3s;margin:8px 0 4px}
+.era-name{font-size:13px;color:var(--color-text-secondary);text-align:center;margin-bottom:16px;min-height:20px;transition:all .3s}
+</style>
+
+<div class="w">
+
+<div class="label">Drag the slider to see how the Era slider works on the world map</div>
+
+<div class="year-display" id="yearNum">2024</div>
+<div class="era-name" id="eraName">All of modern literature is visible</div>
+
+<input type="range" min="1800" max="2024" value="2024" id="eraSlider" style="width:100%;margin-bottom:20px">
+
+<div class="map-box" id="mapBox">
+  <div class="continent" style="width:14%;height:30%;left:10%;top:18%"></div>
+  <div class="continent" style="width:10%;height:22%;left:13%;top:52%"></div>
+  <div class="continent" style="width:12%;height:28%;left:42%;top:22%"></div>
+  <div class="continent" style="width:12%;height:32%;left:42%;top:38%"></div>
+  <div class="continent" style="width:14%;height:22%;left:55%;top:16%"></div>
+  <div class="continent" style="width:16%;height:28%;left:62%;top:20%"></div>
+  <div class="continent" style="width:10%;height:18%;left:72%;top:52%"></div>
+
+  <div class="pin" id="p1" style="left:52%;top:58%;background:#c9a84c" title="Things Fall Apart 1958"></div>
+  <div class="pin-label" id="pl1" style="left:52%;top:58%">Things Fall Apart</div>
+
+  <div class="pin" id="p2" style="left:15%;top:32%;background:#3ab8b0" title="Beloved 1987"></div>
+  <div class="pin-label" id="pl2" style="left:15%;top:32%">Beloved</div>
+
+  <div class="pin" id="p3" style="left:67%;top:30%;background:#e05c4a" title="Norwegian Wood 1987"></div>
+  <div class="pin-label" id="pl3" style="left:67%;top:30%">Norwegian Wood</div>
+
+  <div class="pin" id="p4" style="left:48%;top:26%;background:#7c6fd4" title="Don Quixote 1605"></div>
+  <div class="pin-label" id="pl4" style="left:48%;top:26%">Don Quixote</div>
+
+  <div class="pin" id="p5" style="left:57%;top:44%;background:#52a876" title="Season of Migration 1966"></div>
+  <div class="pin-label" id="pl5" style="left:57%;top:44%">Season of Migration</div>
+
+  <div class="pin" id="p6" style="left:36%;top:60%;background:#d4873a" title="One Hundred Years 1967"></div>
+  <div class="pin-label" id="pl6" style="left:36%;top:60%">One Hundred Years</div>
+
+  <div class="pin" id="p7" style="left:65%;top:42%;background:#c9a84c" title="God of Small Things 1997"></div>
+  <div class="pin-label" id="pl7" style="left:65%;top:42%">God of Small Things</div>
+
+  <div class="pin" id="p8" style="left:43%;top:28%;background:#3ab8b0" title="Crime & Punishment 1866"></div>
+  <div class="pin-label" id="pl8" style="left:43%;top:28%">Crime & Punishment</div>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n" id="sBooks">8</div><div class="stat-l">Books visible</div></div>
+  <div class="stat"><div class="stat-n" id="sCountries">7</div><div class="stat-l">Countries</div></div>
+  <div class="stat"><div class="stat-n" id="sOldest">1605</div><div class="stat-l">Oldest book</div></div>
+  <div class="stat"><div class="stat-n" id="sOpacity">100%</div><div class="stat-l">Map brightness</div></div>
+</div>
+
+<div class="result-box" id="resultBox" style="border-color:#639922">
+  <div class="result-title" id="resultTitle">All literature visible</div>
+  <div class="result-desc" id="resultDesc">Every book in the database is pinned on the map. Drag the slider left to travel back in time and see which books existed at that moment in history.</div>
+</div>
+
+</div>
+
+<script>
+const slider = document.getElementById('eraSlider');
+const books = [
+  {id:'p1',year:1958,label:'pl1',country:'Nigeria'},
+  {id:'p2',year:1987,label:'pl2',country:'USA'},
+  {id:'p3',year:1987,label:'pl3',country:'Japan'},
+  {id:'p4',year:1605,label:'pl4',country:'Spain'},
+  {id:'p5',year:1966,label:'pl5',country:'Sudan'},
+  {id:'p6',year:1967,label:'pl6',country:'Colombia'},
+  {id:'p7',year:1997,label:'pl7',country:'India'},
+  {id:'p8',year:1866,label:'pl8',country:'Russia'},
+];
+
+const ERAS = [
+  {max:1850, name:'Colonial era — very few books on the map', color:'#E24B4A', title:'Only the oldest books survive',
+   desc:'Before 1850 almost all literature was in European languages. The map is nearly empty for most of Africa, Asia and the Americas. Oral tradition dominated — written literature barely existed.'},
+  {max:1900, name:'Turn of the century — European literature dominates', color:'#EF9F27', title:'1850 – 1900: European dominance',
+   desc:'European novels (Tolstoy, Dostoevsky, Flaubert, Hardy) fill the map. Africa and the Caribbean have almost no pins — colonised people were denied publishing. Only 2–3 books visible from outside Europe.'},
+  {max:1950, name:'Early 20th century — world literature begins emerging', color:'#BA7517', title:'1900 – 1950: first global voices',
+   desc:'Latin American and Asian literature begins to appear. Naguib Mahfouz publishes in Egypt. Rabindranath Tagore wins the Nobel. Africa is still largely absent. Don Quixote pin glows old and bright.'},
+  {max:1970, name:'Post-independence era — African literature explodes', color:'#639922', title:'1950 – 1970: African voices arrive',
+   desc:'Chinua Achebe publishes Things Fall Apart in 1958. Tayeb Salih writes Season of Migration in 1966. Ngũgĩ wa Thiong\'o in Kenya. This is when the map truly becomes global — the African pins light up.'},
+  {max:1990, name:'1970 – 1990: magical realism and diaspora writing', color:'#1D9E75', title:'1970 – 1990: diaspora and magic',
+   desc:'García Márquez, Rushdie, Morrison, Murakami. Literature crosses cultures. Diaspora writers publish in their adopted countries. The map becomes dense and diverse for the first time.'},
+  {max:2010, name:'1990 – 2010: global publishing, internet discovery', color:'#378ADD', title:'1990 – 2010: globalisation of books',
+   desc:'Chimamanda Ngozi Adichie, Khaled Hosseini, Arundhati Roy. Publishers go global. The internet means a novel from Lagos reaches Tokyo. The map is now genuinely worldwide.'},
+  {max:2024, name:'All of modern literature is visible', color:'#639922', title:'All literature visible',
+   desc:'Every book in the database is pinned on the map. Drag the slider left to travel back in time and see which books existed at that moment in history.'},
+];
+
+function update() {
+  const year = parseInt(slider.value);
+  document.getElementById('yearNum').textContent = year;
+
+  const era = ERAS.find(e => year <= e.max) || ERAS[ERAS.length-1];
+  document.getElementById('eraName').textContent = era.name;
+  document.getElementById('resultTitle').textContent = era.title;
+  document.getElementById('resultDesc').textContent = era.desc;
+  document.getElementById('resultBox').style.borderColor = era.color;
+
+  const age = (2024 - year) / 224;
+  const opacity = Math.round((0.4 + (1-age)*0.6)*100);
+  document.getElementById('mapBox').style.opacity = 0.4 + (1-age)*0.6;
+  document.getElementById('sOpacity').textContent = opacity + '%';
+
+  let visible = 0;
+  const countries = new Set();
+  let oldest = 9999;
+  books.forEach(b => {
+    const show = b.year <= year;
+    const pin = document.getElementById(b.id);
+    const lbl = document.getElementById(b.label);
+    if (pin) {
+      pin.style.opacity = show ? '1' : '0';
+      pin.style.transform = show ? 'translate(-50%,-50%) scale(1)' : 'translate(-50%,-50%) scale(0)';
+    }
+    if (lbl) lbl.style.opacity = show ? '0.8' : '0';
+    if (show) { visible++; countries.add(b.country); if (b.year < oldest) oldest = b.year; }
+  });
+
+  document.getElementById('sBooks').textContent = visible;
+  document.getElementById('sCountries').textContent = countries.size;
+  document.getElementById('sOldest').textContent = oldest === 9999 ? '—' : oldest;
+}
+
+slider.addEventListener('input', update);
+update();
+</script>

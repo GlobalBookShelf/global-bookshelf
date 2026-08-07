@@ -1,0 +1,88 @@
+
+<style>
+.w{font-family:var(--font-sans);padding-bottom:1rem}
+.done-box{background:var(--color-background-secondary);border-left:3px solid #639922;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding:14px 18px;margin-bottom:20px}
+.done-title{font-size:13px;font-weight:500;color:#27500A;margin-bottom:10px}
+.done-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.done-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--color-text-secondary)}
+.done-dot{width:7px;height:7px;border-radius:50%;background:#639922;flex-shrink:0}
+.phase{margin-bottom:20px}
+.phase-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.phase-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+.phase-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.phase-sub{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px 16px;display:flex;align-items:flex-start;gap:12px}
+.step-left{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.tag{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;flex-shrink:0;white-space:nowrap;align-self:flex-start;margin-top:1px}
+.tR{background:#FAECE7;color:#712B13;border:0.5px solid #F0997B}
+.tO{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+.tP{background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6}
+</style>
+
+<div class="w">
+
+<div class="done-box">
+  <div class="done-title">✓ What is already built and working</div>
+  <div class="done-grid">
+    <div class="done-item"><div class="done-dot"></div>Homepage — world map, pins, search, ERA slider</div>
+    <div class="done-item"><div class="done-dot"></div>AI Soul quiz — 5 screens, archetype reveal</div>
+    <div class="done-item"><div class="done-dot"></div>Book detail page — excerpt, annotations, debate</div>
+    <div class="done-item"><div class="done-dot"></div>Author universe — writing in public, earnings</div>
+    <div class="done-item"><div class="done-dot"></div>Community hub — clubs, live rooms, chains</div>
+    <div class="done-item"><div class="done-dot"></div>Admin dashboard — 13 sections, all buttons work</div>
+    <div class="done-item"><div class="done-dot"></div>Sign In / Register modal — 195 countries</div>
+    <div class="done-item"><div class="done-dot"></div>server.js — 81 API endpoints</div>
+    <div class="done-item"><div class="done-dot"></div>db.js — PostgreSQL layer, 42 tables</div>
+    <div class="done-item"><div class="done-dot"></div>api.js — frontend client, all pages wired</div>
+    <div class="done-item"><div class="done-dot"></div>PostgreSQL running locally on your Windows PC</div>
+    <div class="done-item"><div class="done-dot"></div>Visa card payments — Stripe integrated</div>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase">
+  <div class="phase-head">
+    <div class="phase-num" style="background:#FAECE7;color:#712B13;border:0.5px solid #F0997B">1</div>
+    <div><div class="phase-title">Missing pages — build these next</div><div class="phase-sub">4 pages linked from nav but not yet built</div></div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-left" style="background:#E24B4A"></div><div class="step-body"><div class="step-title">explore.html — Full book catalogue</div><div class="step-desc">Browse all books with filters: genre, country, language, era, soul match. Infinite scroll. Linked from nav "Explore", "See all →" on homepage shelf, African spotlight "See all →".</div></div><span class="tag tR">most urgent</span></div>
+    <div class="step"><div class="step-left" style="background:#E24B4A"></div><div class="step-body"><div class="step-title">authors.html — Authors directory</div><div class="step-desc">Grid of all author profiles — filter by region, genre, verified. Linked from nav "Authors" and Author Universe feature card.</div></div><span class="tag tR">urgent</span></div>
+    <div class="step"><div class="step-left" style="background:#EF9F27"></div><div class="step-body"><div class="step-title">languages.html — Languages & Translation Hub</div><div class="step-desc">All 127 languages, African languages highlighted, translation projects board. Linked from nav "Languages" and Borderless Reading feature card.</div></div><span class="tag tO">important</span></div>
+    <div class="step"><div class="step-left" style="background:#EF9F27"></div><div class="step-body"><div class="step-title">about.html — Mission & story</div><div class="step-desc">Platform manifesto, founding story, Fair Economy model (95% to authors). No backend needed — pure HTML. Linked from nav "About" and footer.</div></div><span class="tag tO">important</span></div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase">
+  <div class="phase-head">
+    <div class="phase-num" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">2</div>
+    <div><div class="phase-title">Backend features — make everything real</div><div class="phase-sub">Things that work visually but need backend wiring</div></div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-left" style="background:#E24B4A"></div><div class="step-body"><div class="step-title">Google OAuth — Sign in with Google</div><div class="step-desc">Most users expect this. The Sign In modal has a Google button that does nothing. Need: npm install passport passport-google-oauth20 and a Google Developer Console app.</div></div><span class="tag tR">critical</span></div>
+    <div class="step"><div class="step-left" style="background:#E24B4A"></div><div class="step-body"><div class="step-title">Socket.io — Real-time live features</div><div class="step-desc">Live reading rooms, live reader counter, "writing now" badge on author page — all currently simulated. Socket.io makes them genuinely real-time.</div></div><span class="tag tR">critical</span></div>
+    <div class="step"><div class="step-left" style="background:#EF9F27"></div><div class="step-body"><div class="step-title">File uploads — Book covers & author photos</div><div class="step-desc">Authors can enter a cover URL but cannot upload an image file. Need: multer + AWS S3 or Cloudinary.</div></div><span class="tag tO">important</span></div>
+    <div class="step"><div class="step-left" style="background:#EF9F27"></div><div class="step-body"><div class="step-title">Author payouts — Stripe Connect</div><div class="step-desc">Readers pay but authors never receive money. Stripe Connect wires the 95% directly to author bank accounts.</div></div><span class="tag tO">important</span></div>
+    <div class="step"><div class="step-left" style="background:#EF9F27"></div><div class="step-body"><div class="step-title">Email — SMTP configuration</div><div class="step-desc">Forgot password, welcome email, announcement emails — all fail silently because SMTP is not configured. Need Gmail SMTP or SendGrid in .env.</div></div><span class="tag tO">important</span></div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase">
+  <div class="phase-head">
+    <div class="phase-num" style="background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6">3</div>
+    <div><div class="phase-title">Deployment — put it on the real internet</div><div class="phase-sub">Right now only works on your PC</div></div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-left" style="background:#7068DD"></div><div class="step-body"><div class="step-title">Docker — package everything together</div><div class="step-desc">A single docker-compose.yml that starts server.js, PostgreSQL, and soul_engine.py with one command. Makes deployment possible.</div></div><span class="tag tP">later</span></div>
+    <div class="step"><div class="step-left" style="background:#7068DD"></div><div class="step-body"><div class="step-title">Deploy to a cloud server</div><div class="step-desc">Options: Railway (easiest, free tier), Render, or AWS. Your platform goes live on a real URL — globalbookshelf.com — that anyone in the world can open.</div></div><span class="tag tP">later</span></div>
+    <div class="step"><div class="step-left" style="background:#7068DD"></div><div class="step-body"><div class="step-title">Domain name — globalbookshelf.com</div><div class="step-desc">Register the domain on Namecheap or GoDaddy (~$12/year) and point it to your deployed server.</div></div><span class="tag tP">later</span></div>
+  </div>
+</div>
+
+</div>

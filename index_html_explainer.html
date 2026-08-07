@@ -1,0 +1,100 @@
+
+<h2 class="sr-only">What index.html does in the Global BookShelf project — it is the project launchpad that links all pages together</h2>
+<style>
+.w{font-family:var(--font-sans);padding-bottom:1rem}
+.hero-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px 24px;margin-bottom:20px;display:flex;align-items:flex-start;gap:16px}
+.hero-icon{font-size:36px;flex-shrink:0}
+.hero-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.hero-desc{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.analogy{background:var(--color-background-secondary);border-left:3px solid #EF9F27;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.analogy strong{color:var(--color-text-primary);font-weight:500}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.card-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:6px}
+.card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+.flow{display:flex;align-items:stretch;gap:0;margin-bottom:20px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.flow-step{flex:1;padding:14px 12px;text-align:center;font-size:12px;color:var(--color-text-secondary);border-right:0.5px solid var(--color-border-tertiary)}
+.flow-step:last-child{border-right:none}
+.flow-step-num{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.flow-step-label{font-size:11px;color:var(--color-text-secondary)}
+.not-for{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:20px}
+.not-for-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.not-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+</style>
+
+<div class="w">
+
+<div class="hero-box">
+  <div class="hero-icon">🗂️</div>
+  <div>
+    <div class="hero-title">index.html — the project launchpad / table of contents</div>
+    <div class="hero-desc">This page is not part of the website that users see. It is a private developer page — a visual map of everything you have built, so you can click into any page quickly during development. Think of it as the cover page of your entire project.</div>
+  </div>
+</div>
+
+<div class="analogy">
+  <strong>Simple analogy:</strong> Imagine you are writing a textbook. The <strong>index.html</strong> is the table of contents at the front — it lists every chapter and lets you jump to any page. The chapters themselves (global-bookshelf.html, ai-reading-soul.html, etc.) are the actual content. The table of contents is not a chapter — it just helps you navigate.
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-label">What it contains</div>
+    <div class="card-title">5 page cards</div>
+    <div class="card-desc">Each card shows the page name, icon, description, feature list, and a clickable "Open page →" button that goes directly to that page.</div>
+  </div>
+  <div class="card">
+    <div class="card-label">What it does not contain</div>
+    <div class="card-title">No real features</div>
+    <div class="card-desc">No API calls, no user data, no database queries. It is a static HTML page that only has links and descriptions of what you built.</div>
+  </div>
+  <div class="card">
+    <div class="card-label">The status bar at the top</div>
+    <div class="card-title">Build progress tracker</div>
+    <div class="card-desc">Shows 5 pages built, 29 DB tables, 62 indexes, 4 AI features — a quick dashboard of how far the project has come. For your reference only.</div>
+  </div>
+  <div class="card">
+    <div class="card-label">The "What we build next" section</div>
+    <div class="card-title">Roadmap cards</div>
+    <div class="card-desc">6 cards listing what still needs to be built — backend API, mobile app, payments, AI engine etc. A reminder of what comes after.</div>
+  </div>
+</div>
+
+<div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">Where does it fit in your website?</div>
+<div class="flow">
+  <div class="flow-step">
+    <div class="flow-step-num" style="font-size:13px;color:#639922">index.html</div>
+    <div class="flow-step-label">Your private<br>launchpad<br>(not user-facing)</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-step-num">🌍</div>
+    <div class="flow-step-label">global-bookshelf<br>.html<br>Homepage</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-step-num">✦</div>
+    <div class="flow-step-label">ai-reading-soul<br>.html<br>Soul quiz</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-step-num">✍️</div>
+    <div class="flow-step-label">author-universe<br>.html<br>Author page</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-step-num">📖</div>
+    <div class="flow-step-label">book-detail<br>.html<br>Book page</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-step-num">👥</div>
+    <div class="flow-step-label">community-hub<br>.html<br>Clubs</div>
+  </div>
+</div>
+
+<div class="not-for">
+  <div class="not-for-title">Who sees this page</div>
+  <div class="not-row"><div class="dot" style="background:#639922;margin-top:4px"></div><span><strong style="color:var(--color-text-primary)">You (the developer)</strong> — open it whenever you want to quickly navigate between pages while building.</span></div>
+  <div class="not-row"><div class="dot" style="background:#639922;margin-top:4px"></div><span><strong style="color:var(--color-text-primary)">Your professor or lecturer</strong> — if you submit this as a university project, they can open index.html and immediately see all your work.</span></div>
+  <div class="not-row"><div class="dot" style="background:#639922;margin-top:4px"></div><span><strong style="color:var(--color-text-primary)">Investors or partners</strong> — the "Wonder of the World" header and the build progress bar make it look impressive as a presentation starting point.</span></div>
+  <div class="not-row"><div class="dot" style="background:#E24B4A;margin-top:4px"></div><span><strong style="color:var(--color-text-primary)">Real users of Global BookShelf</strong> — they never see this page. They land on global-bookshelf.html (the homepage with the world map).</span></div>
+</div>
+
+</div>

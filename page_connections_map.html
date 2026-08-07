@@ -1,0 +1,146 @@
+
+<h2 class="sr-only">How the Global BookShelf homepage connects to ai-reading-soul.html, author-universe.html, and book-detail.html — showing they are separate pages that link back and forth, not content inside the homepage</h2>
+<style>
+.w{font-family:var(--font-sans);padding-bottom:1rem}
+.answer-box{background:var(--color-background-secondary);border-left:3px solid #639922;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0;padding:14px 18px;margin-bottom:20px;font-size:14px;color:var(--color-text-primary);line-height:1.6}
+.answer-box strong{font-weight:500}
+.map{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;margin-bottom:20px}
+.map-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:16px}
+.hub{background:var(--color-background-primary);border:2px solid #BA7517;border-radius:var(--border-radius-lg);padding:14px 18px;text-align:center;margin-bottom:20px}
+.hub-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#BA7517;margin-bottom:4px}
+.hub-title{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.hub-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.arrows-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.arrow-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+.arrow-down{font-size:20px;color:var(--color-text-tertiary);line-height:1}
+.arrow-up{font-size:20px;color:var(--color-text-tertiary);line-height:1}
+.arrow-label{font-size:10px;color:var(--color-text-tertiary);text-align:center;line-height:1.4}
+.pages-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.page-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.page-box-top{padding:14px 14px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.page-icon{font-size:22px;margin-bottom:6px}
+.page-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.page-file{font-size:10px;color:var(--color-text-tertiary);font-family:var(--font-mono)}
+.page-box-links{padding:10px 14px;display:flex;flex-direction:column;gap:5px}
+.link-row{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.link-arrow{color:var(--color-text-tertiary);flex-shrink:0;font-size:12px}
+.link-dest{color:var(--color-text-primary);font-weight:500}
+.connections{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.conn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 16px;display:flex;align-items:flex-start;gap:12px}
+.conn-from{font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;flex-shrink:0;white-space:nowrap;margin-top:1px}
+.conn-body{flex:1}
+.conn-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.conn-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.missing-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:20px}
+.missing-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+.missing-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.mdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+</style>
+
+<div class="w">
+
+<div class="answer-box">
+  <strong>Short answer: No — they do not need to be inside the homepage.</strong> They are separate pages, and that is the correct design. The homepage is already connected to all 3 of them. The user clicks something on the homepage and the browser opens the new page — exactly like clicking a link on any website.
+</div>
+
+<div class="map">
+  <div class="map-title">How the pages connect right now</div>
+
+  <div class="hub">
+    <div class="hub-label">Central hub — the homepage</div>
+    <div class="hub-title">global-bookshelf.html</div>
+    <div class="hub-sub">World map · search · book shelf · features · African spotlight</div>
+  </div>
+
+  <div class="arrows-row">
+    <div class="arrow-col">
+      <div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;line-height:1.4">→ "Join Free" button<br>→ AI Reading Soul card<br>→ Soul recommendations link</div>
+      <div class="arrow-down">↓</div>
+      <div class="arrow-up">↑ logo goes back home</div>
+    </div>
+    <div class="arrow-col">
+      <div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;line-height:1.4">→ "Author Universe" card<br>→ Author name on book cards<br>→ Author in book detail</div>
+      <div class="arrow-down">↓</div>
+      <div class="arrow-up">↑ logo + Explore link goes home</div>
+    </div>
+    <div class="arrow-col">
+      <div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;line-height:1.4">→ Map pin click<br>→ Book card click<br>→ Marquee book title click<br>→ Search result click</div>
+      <div class="arrow-down">↓</div>
+      <div class="arrow-up">↑ breadcrumb goes back home</div>
+    </div>
+  </div>
+
+  <div class="pages-row">
+    <div class="page-box">
+      <div class="page-box-top">
+        <div class="page-icon">✦</div>
+        <div class="page-name">AI Reading Soul</div>
+        <div class="page-file">ai-reading-soul.html</div>
+      </div>
+      <div class="page-box-links">
+        <div class="link-row"><span class="link-arrow">←</span><span>Logo → <span class="link-dest">homepage</span></span></div>
+        <div class="link-row"><span class="link-arrow">←</span><span>After quiz → <span class="link-dest">back to homepage</span> with soul saved</span></div>
+        <div class="link-row" style="color:#EF9F27"><span class="link-arrow">⚠</span><span>After quiz the button doesn't redirect yet</span></div>
+      </div>
+    </div>
+    <div class="page-box">
+      <div class="page-box-top">
+        <div class="page-icon">✍️</div>
+        <div class="page-name">Author Universe</div>
+        <div class="page-file">author-universe.html</div>
+      </div>
+      <div class="page-box-links">
+        <div class="link-row"><span class="link-arrow">←</span><span>Logo → <span class="link-dest">homepage</span></span></div>
+        <div class="link-row"><span class="link-arrow">←</span><span>Explore link → <span class="link-dest">homepage</span></span></div>
+        <div class="link-row"><span class="link-arrow">→</span><span>Communities link → <span class="link-dest">community-hub</span></span></div>
+        <div class="link-row"><span class="link-arrow">→</span><span>Join Free → <span class="link-dest">soul quiz</span></span></div>
+      </div>
+    </div>
+    <div class="page-box">
+      <div class="page-box-top">
+        <div class="page-icon">📖</div>
+        <div class="page-name">Book Detail</div>
+        <div class="page-file">book-detail.html</div>
+      </div>
+      <div class="page-box-links">
+        <div class="link-row"><span class="link-arrow">←</span><span>Logo → <span class="link-dest">homepage</span></span></div>
+        <div class="link-row"><span class="link-arrow">←</span><span>Breadcrumb Fiction / India → <span class="link-dest">homepage</span></span></div>
+        <div class="link-row"><span class="link-arrow">→</span><span>Author name → <span class="link-dest">author-universe</span></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">Why separate pages is the RIGHT design</div>
+<div class="connections">
+  <div class="conn">
+    <span class="conn-from" style="background:#EAF3DE;color:#27500A;border:0.5px solid #97C459">Soul quiz</span>
+    <div class="conn-body">
+      <div class="conn-title">Takes 5 screens to complete — it cannot fit inside the homepage</div>
+      <div class="conn-desc">The quiz has 5 full-screen steps: emotional needs → passage resonance → 6 reading dials → reading ritual → soul reveal with animated archetype, 14 dimension bars, and 6 book matches. This is its own experience. If it was inside the homepage the user would have to scroll past the world map to do the quiz — terrible experience.</div>
+    </div>
+  </div>
+  <div class="conn">
+    <span class="conn-from" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">Author page</span>
+    <div class="conn-body">
+      <div class="conn-title">Each author has their own page — like a profile page on Twitter</div>
+      <div class="conn-desc">Robert Greene has a page. Adaeze Okonkwo has a page. You cannot put all author profiles inside the homepage — there are thousands of them. The homepage just links to whichever author the user clicks on. Exactly like how Instagram works — the feed links to profiles, the profiles are separate pages.</div>
+    </div>
+  </div>
+  <div class="conn">
+    <span class="conn-from" style="background:#E6F1FB;color:#0C447C;border:0.5px solid #85B7EB">Book detail</span>
+    <div class="conn-body">
+      <div class="conn-title">Each book has its own page — like a product page on Amazon</div>
+      <div class="conn-desc">The book detail page has a 3D cover, excerpt, character map, annotations, debate room, and ambient reading mode. There are 4.2 million books — each one needs its own URL. The homepage shows a grid of books, and clicking one opens that book's page. Exactly like Amazon shows product cards on the homepage, and clicking one opens the product page.</div>
+    </div>
+  </div>
+</div>
+
+<div class="missing-box">
+  <div class="missing-title">3 small connection fixes still needed</div>
+  <div class="missing-item"><div class="mdot" style="background:#E24B4A"></div><span><strong style="color:var(--color-text-primary)">Soul quiz ending</strong> — after completing the quiz and seeing the soul profile, there is no "Go back to homepage" button. The user is stuck on the soul page. Need to add: a button that saves the soul profile and returns to global-bookshelf.html</span></div>
+  <div class="missing-item"><div class="mdot" style="background:#E24B4A"></div><span><strong style="color:var(--color-text-primary)">Book detail → back to map</strong> — the breadcrumb says "Fiction / India" which links to the homepage, but it should link to the map with that genre/country already filtered. Need: <code>href="global-bookshelf.html?genre=Fiction&country=IN"</code></span></div>
+  <div class="missing-item"><div class="mdot" style="background:#EF9F27"></div><span><strong style="color:var(--color-text-primary)">Author universe nav</strong> — the nav says "Explore" but links to global-bookshelf.html instead of explore.html. Minor — already functional, just wrong destination.</span></div>
+</div>
+
+</div>

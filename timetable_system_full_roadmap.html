@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimized Teaching Timetable System — Full Development Roadmap</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f0efe9;color:#1e1e1c;line-height:1.6;padding:2rem 1rem}
+.page{max-width:900px;margin:auto}
+
+/* Header */
+.header{margin-bottom:2rem}
+.header h1{font-size:24px;font-weight:700;margin-bottom:4px;color:#1e1e1c}
+.header p{font-size:13px;color:#6b6a65}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.meta-pill{font-size:12px;background:#fff;border:0.5px solid #d0cfc5;border-radius:20px;padding:3px 10px;color:#5a5955}
+
+/* Tech recommendation box */
+.tech-box{background:#fff;border:0.5px solid #d0cfc5;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.tech-box h2{font-size:15px;font-weight:600;margin-bottom:1rem;color:#1e1e1c;display:flex;align-items:center;gap:8px}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.tech-card{background:#f7f6f0;border:0.5px solid #d0cfc5;border-radius:8px;padding:10px 12px}
+.tech-card .tc-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888780;margin-bottom:4px}
+.tech-card .tc-name{font-size:14px;font-weight:600;color:#1e1e1c;margin-bottom:2px}
+.tech-card .tc-why{font-size:12px;color:#6b6a65;line-height:1.5}
+.winner-badge{display:inline-block;font-size:10px;background:#eaf3de;color:#3b6d11;border:0.5px solid #c0dd97;border-radius:20px;padding:1px 7px;margin-left:6px;font-weight:500;vertical-align:middle}
+
+/* Summary stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:1.5rem}
+.stat{background:#fff;border:0.5px solid #d0cfc5;border-radius:8px;padding:10px 12px;text-align:center}
+.stat-val{font-size:22px;font-weight:700;color:#1e1e1c}
+.stat-lbl{font-size:11px;color:#888780;margin-top:2px}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;align-items:center}
+.legend-lbl{font-size:12px;color:#888780;margin-right:4px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px}
+.t-setup{background:#f0efe9;color:#5a5955;border:0.5px solid #c8c7bd}
+.t-db{background:#e6f1fb;color:#185fa5}
+.t-algo{background:#eeedfe;color:#534ab7}
+.t-api{background:#faeeda;color:#854f0b}
+.t-ui{background:#eaf3de;color:#3b6d11}
+.t-test{background:#fcebeb;color:#a32d2d}
+.t-deploy{background:#e1f5ee;color:#0f6e56}
+
+/* Phase container */
+.phase-block{border-left:2px solid #d0cfc5;padding-left:1.25rem;margin-bottom:2.5rem;position:relative}
+.phase-block::before{content:'';position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:#f0efe9;border:2.5px solid #d0cfc5}
+.phase-header{margin-bottom:.75rem}
+.phase-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#b4b2a9;margin-bottom:3px}
+.phase-title{font-size:18px;font-weight:700;color:#1e1e1c}
+.phase-period{font-size:12px;color:#888780;margin-top:2px}
+.phase-desc{font-size:13px;color:#5a5955;margin-bottom:1rem;max-width:640px;line-height:1.6}
+
+/* Task cards */
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task-card{background:#fff;border:0.5px solid #d0cfc5;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
+.task-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.task-summary{padding:12px 14px}
+.task-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.task-title{font-size:13px;font-weight:600;color:#1e1e1c}
+.task-desc{font-size:13px;color:#5a5955;line-height:1.55}
+.task-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.pill{font-size:11px;background:#f0efe9;color:#5a5955;border:0.5px solid #d0cfc5;border-radius:20px;padding:1px 8px}
+.expand-hint{font-size:11px;color:#b4b2a9;margin-top:6px}
+
+/* Expandable detail */
+.task-detail{display:none;border-top:0.5px solid #e8e7e0;background:#faf9f5;padding:14px 16px}
+.task-detail.open{display:block}
+.task-detail h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888780;margin-bottom:8px}
+.task-detail ul{padding-left:1.2rem;margin-bottom:12px}
+.task-detail ul li{font-size:13px;color:#3d3d3a;line-height:1.85;margin-bottom:2px}
+.task-detail ul li code{background:#ebe9e2;padding:0 5px;border-radius:4px;font-size:11.5px;font-family:'Courier New',monospace;color:#2c2c2a}
+.task-detail .code-block{background:#1e1e1c;color:#d4d0c8;border-radius:8px;padding:14px;font-family:'Courier New',monospace;font-size:12px;line-height:1.7;margin:8px 0;overflow-x:auto;white-space:pre}
+.task-detail .code-block .kw{color:#c586c0}
+.task-detail .code-block .fn{color:#dcdcaa}
+.task-detail .code-block .str{color:#ce9178}
+.task-detail .code-block .cm{color:#6a9955}
+.task-detail .warn{background:#faeeda;border:0.5px solid #f0c98a;border-radius:6px;padding:8px 12px;font-size:12px;color:#854f0b;margin-top:8px}
+
+/* Algorithm visual */
+.algo-visual{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin:10px 0}
+.algo-step{background:#eeedfe;border:0.5px solid #afa9ec;border-radius:8px;padding:8px 10px;text-align:center}
+.algo-step .as-num{font-size:20px;font-weight:700;color:#534ab7;margin-bottom:2px}
+.algo-step .as-name{font-size:12px;font-weight:600;color:#3c3489}
+.algo-step .as-desc{font-size:11px;color:#534ab7;margin-top:2px}
+
+/* Footer */
+footer{text-align:center;font-size:11px;color:#b4b2a9;margin-top:3rem;padding-top:1.5rem;border-top:0.5px solid #d0cfc5}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Optimized Teaching Timetable System</h1>
+  <p>Full development roadmap — from zero to a working, deployed system</p>
+  <div class="meta-row">
+    <span class="meta-pill">Sokoine University of Agriculture</span>
+    <span class="meta-pill">INF 318 · Research Methods</span>
+    <span class="meta-pill">Salma Mohamed Azizi · BIT/D/2023/0011</span>
+    <span class="meta-pill">Supervisor: Dr. E. Kitindi</span>
+    <span class="meta-pill">Target: January – July 2026</span>
+  </div>
+</div>
+
+<!-- TECH RECOMMENDATIONS -->
+<div class="tech-box">
+  <h2>🛠 Best language & technology stack — with reasons</h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tc-label">Backend language</div>
+      <div class="tc-name">JavaScript (Node.js) <span class="winner-badge">Recommended</span></div>
+      <div class="tc-why">You already know JS from your BIT coursework. The GA algorithm, REST API, and database queries all run in the same language — no context switching. Python is also valid (Flask/Django), but Node.js gives you one language across the whole stack.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-label">Web framework</div>
+      <div class="tc-name">Express.js <span class="winner-badge">Recommended</span></div>
+      <div class="tc-why">Minimal, unopinionated, and the most-documented Node.js framework. Perfect for REST APIs. Alternative: Fastify (faster but less beginner resources).</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-label">Database</div>
+      <div class="tc-name">PostgreSQL <span class="winner-badge">Recommended</span></div>
+      <div class="tc-why">Relational constraints (lecturer ↔ course ↔ room ↔ timeslot) are a natural fit for SQL. PostgreSQL handles complex joins and constraint checking better than MySQL. Use Railway's free Postgres for hosting.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-label">Frontend</div>
+      <div class="tc-name">HTML + Vanilla JS</div>
+      <div class="tc-why">No build tools, no framework overhead. You can open the file in any browser during development. Use CSS Grid for the weekly timetable layout. React is unnecessary complexity for this project scope.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-label">Optimization algorithm</div>
+      <div class="tc-name">Genetic Algorithm (GA)</div>
+      <div class="tc-why">Directly supported by your proposal (Bensky & Saunders, 2025). Easier to implement and understand than Simulated Annealing. GA is the industry standard for university timetabling problems.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-label">Hosting</div>
+      <div class="tc-name">Railway + Netlify</div>
+      <div class="tc-why">Railway hosts the Node.js backend + PostgreSQL database for free. Netlify hosts the HTML frontend for free. Both have simple GitHub integration. Zero server administration needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-val">6</div><div class="stat-lbl">Phases</div></div>
+  <div class="stat"><div class="stat-val">7mo</div><div class="stat-lbl">Timeline</div></div>
+  <div class="stat"><div class="stat-val">JS</div><div class="stat-lbl">Language</div></div>
+  <div class="stat"><div class="stat-val">GA</div><div class="stat-lbl">Algorithm</div></div>
+  <div class="stat"><div class="stat-val">9</div><div class="stat-lbl">DB Tables</div></div>
+  <div class="stat"><div class="stat-val">Free</div><div class="stat-lbl">Hosting cost</div></div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-lbl">Task types:</span>
+  <span class="tag t-setup">Setup</span>
+  <span class="tag t-db">Database</span>
+  <span class="tag t-algo">Algorithm</span>
+  <span class="tag t-api">API</span>
+  <span class="tag t-ui">UI</span>
+  <span class="tag t-test">Testing</span>
+  <span class="tag t-deploy">Deploy</span>
+  <span class="legend-lbl" style="margin-left:8px">— click any card to see step-by-step details</span>
+</div>
+
+
+<!-- ======================== PHASE 1 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 1</div>
+    <div class="phase-title">Project setup & requirements gathering</div>
+    <div class="phase-period">January – February 2026</div>
+  </div>
+  <div class="phase-desc">Before writing any code, you need a clean project structure, a properly designed database schema, and real data from SUA to work with. Skipping this step means rebuilding everything later.</div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-setup">Setup</span><span class="task-title">Initialize your Node.js + Express project</span></div>
+        <div class="task-desc">Create the entire project skeleton — folder structure, dependencies, environment config, and a working health-check server — before writing any feature code.</div>
+        <div class="task-pills"><span class="pill">Node.js v20+</span><span class="pill">Express 4</span><span class="pill">dotenv</span><span class="pill">nodemon</span><span class="pill">pg</span><span class="pill">bcryptjs</span><span class="pill">jsonwebtoken</span></div>
+        <div class="expand-hint">▾ Click to see exact commands and folder structure</div>
+      </div>
+      <div class="task-detail">
+        <h4>Step-by-step commands (run in PowerShell)</h4>
+        <ul>
+          <li>Create the project folder: <code>mkdir TimetableSystem && cd TimetableSystem</code></li>
+          <li>Initialize npm: <code>npm init -y</code></li>
+          <li>Install all dependencies at once: <code>npm install express pg dotenv bcryptjs jsonwebtoken cors</code></li>
+          <li>Install dev tools: <code>npm install --save-dev nodemon</code></li>
+          <li>In <code>package.json</code>, add to scripts: <code>"dev": "nodemon server.js"</code></li>
+        </ul>
+        <h4>Folder structure to create</h4>
+        <div class="code-block">TimetableSystem/
+├── server.js           <span class="cm">← entry point</span>
+├── .env                <span class="cm">← secret keys (never commit this)</span>
+├── .gitignore          <span class="cm">← add node_modules and .env</span>
+├── config/
+│   └── db.js           <span class="cm">← PostgreSQL connection pool</span>
+├── routes/
+│   ├── auth.js
+│   ├── lecturers.js
+│   ├── courses.js
+│   ├── rooms.js
+│   ├── timeslots.js
+│   ├── constraints.js
+│   └── timetable.js
+├── controllers/        <span class="cm">← business logic functions</span>
+├── middleware/
+│   └── authMiddleware.js
+├── utils/
+│   ├── validator.js    <span class="cm">← constraint checker</span>
+│   └── ga.js           <span class="cm">← genetic algorithm engine</span>
+└── seeds/              <span class="cm">← scripts to populate the DB</span></div>
+        <h4>Your .env file</h4>
+        <div class="code-block">PORT=3000
+DATABASE_URL=postgresql://user:password@host/dbname
+JWT_SECRET=your_very_long_random_secret_string</div>
+        <h4>Basic server.js to confirm it works</h4>
+        <div class="code-block"><span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> cors = <span class="fn">require</span>(<span class="str">'cors'</span>);
+<span class="fn">require</span>(<span class="str">'dotenv'</span>).<span class="fn">config</span>();
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+app.<span class="fn">use</span>(cors());
+app.<span class="fn">use</span>(express.<span class="fn">json</span>());
+
+app.<span class="fn">get</span>(<span class="str">'/health'</span>, (req, res) => {
+  res.<span class="fn">json</span>({ status: <span class="str">'OK'</span>, message: <span class="str">'Timetable API is running'</span> });
+});
+
+app.<span class="fn">listen</span>(process.env.PORT, () => {
+  console.<span class="fn">log</span>(<span class="str">`Server running on port ${process.env.PORT}`</span>);
+});</div>
+        <ul><li>Run it: <code>npm run dev</code> — visit <code>http://localhost:3000/health</code> in your browser. You should see JSON. If you do, setup is complete.</li></ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-db">Database</span><span class="task-title">Design and create the full PostgreSQL schema (9 tables)</span></div>
+        <div class="task-desc">This is the most important design decision in the entire project. Every feature depends on this schema being correct from the start. Model all entities: departments, lecturers, courses, rooms, time slots, constraints, and timetable output.</div>
+        <div class="task-pills"><span class="pill">PostgreSQL</span><span class="pill">Railway Console</span><span class="pill">Foreign keys</span><span class="pill">Constraints</span></div>
+        <div class="expand-hint">▾ Click to see the full SQL schema you can run directly</div>
+      </div>
+      <div class="task-detail">
+        <h4>Full schema — run this in Railway's Postgres Console</h4>
+        <div class="code-block"><span class="cm">-- 1. Departments</span>
+<span class="kw">CREATE TABLE</span> departments (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  college VARCHAR(100)
+);
+
+<span class="cm">-- 2. Rooms</span>
+<span class="kw">CREATE TABLE</span> rooms (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  capacity INTEGER NOT NULL,
+  type VARCHAR(20) CHECK (type IN (<span class="str">'lecture'</span>, <span class="str">'lab'</span>, <span class="str">'seminar'</span>)) NOT NULL
+);
+
+<span class="cm">-- 3. Time slots (e.g. Monday 08:00-10:00)</span>
+<span class="kw">CREATE TABLE</span> time_slots (
+  id SERIAL PRIMARY KEY,
+  day VARCHAR(10) CHECK (day IN (<span class="str">'Monday'</span>,<span class="str">'Tuesday'</span>,<span class="str">'Wednesday'</span>,<span class="str">'Thursday'</span>,<span class="str">'Friday'</span>,<span class="str">'Saturday'</span>)),
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL
+);
+
+<span class="cm">-- 4. Lecturers</span>
+<span class="kw">CREATE TABLE</span> lecturers (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  max_hours_per_day INTEGER DEFAULT 6
+);
+
+<span class="cm">-- 5. Courses</span>
+<span class="kw">CREATE TABLE</span> courses (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(20) NOT NULL UNIQUE,
+  name VARCHAR(150) NOT NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  credit_hours INTEGER NOT NULL,
+  student_count INTEGER NOT NULL,
+  requires_lab BOOLEAN DEFAULT false,
+  year_group INTEGER CHECK (year_group BETWEEN 1 AND 4)
+);
+
+<span class="cm">-- 6. Who teaches what (many-to-many)</span>
+<span class="kw">CREATE TABLE</span> course_lecturers (
+  id SERIAL PRIMARY KEY,
+  course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+  lecturer_id INTEGER REFERENCES lecturers(id) ON DELETE CASCADE,
+  UNIQUE(course_id, lecturer_id)
+);
+
+<span class="cm">-- 7. Lecturer time preferences (soft constraints)</span>
+<span class="kw">CREATE TABLE</span> lecturer_preferences (
+  id SERIAL PRIMARY KEY,
+  lecturer_id INTEGER REFERENCES lecturers(id) ON DELETE CASCADE,
+  time_slot_id INTEGER REFERENCES time_slots(id) ON DELETE CASCADE,
+  preference_level INTEGER CHECK (preference_level BETWEEN 1 AND 5) DEFAULT 3
+);
+
+<span class="cm">-- 8. Generated timetable entries (the algorithm output)</span>
+<span class="kw">CREATE TABLE</span> timetable_entries (
+  id SERIAL PRIMARY KEY,
+  semester VARCHAR(20) NOT NULL,
+  course_id INTEGER REFERENCES courses(id),
+  lecturer_id INTEGER REFERENCES lecturers(id),
+  room_id INTEGER REFERENCES rooms(id),
+  time_slot_id INTEGER REFERENCES time_slots(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+<span class="cm">-- 9. Users (admin authentication)</span>
+<span class="kw">CREATE TABLE</span> users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(10) CHECK (role IN (<span class="str">'admin'</span>, <span class="str">'viewer'</span>)) DEFAULT <span class="str">'viewer'</span>
+);</div>
+        <div class="warn">⚠ Run these tables in order — later tables reference earlier ones via foreign keys. If you get an error about a table not existing, you've run them out of order.</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-setup">Setup</span><span class="task-title">Set up the database connection pool</span></div>
+        <div class="task-desc">Every API route needs to talk to PostgreSQL. Create a shared connection pool in config/db.js that all routes import — never create a new connection per request.</div>
+        <div class="task-pills"><span class="pill">pg Pool</span><span class="pill">config/db.js</span></div>
+        <div class="expand-hint">▾ Click to see the db.js code</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// config/db.js</span>
+<span class="kw">const</span> { Pool } = <span class="fn">require</span>(<span class="str">'pg'</span>);
+
+<span class="kw">const</span> pool = <span class="kw">new</span> <span class="fn">Pool</span>({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === <span class="str">'production'</span>
+    ? { rejectUnauthorized: false }
+    : false
+});
+
+module.exports = pool;</div>
+        <ul>
+          <li>Import this in every route file: <code>const pool = require('../config/db');</code></li>
+          <li>Then query: <code>const result = await pool.query('SELECT * FROM lecturers');</code></li>
+          <li>Test the connection by adding a DB query to your <code>/health</code> route</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-setup">Setup</span><span class="task-title">Collect real SUA scheduling data</span></div>
+        <div class="task-desc">Get actual course lists, room details, and lecturer names from the DIIT department. You need this before writing seed scripts. Without real data, you cannot properly test the algorithm.</div>
+        <div class="expand-hint">▾ Click to see what exactly to collect and how</div>
+      </div>
+      <div class="task-detail">
+        <h4>What to collect (make an Excel spreadsheet)</h4>
+        <ul>
+          <li><strong>Rooms:</strong> Name (e.g. "LH1"), capacity (e.g. 120), type (lecture/lab/seminar) — visit the building and count</li>
+          <li><strong>Courses:</strong> Course code, full name, credit hours, year group (1–4), estimated student count, does it need a lab? Get from the official SUA course list for your department</li>
+          <li><strong>Lecturers:</strong> Full name, email, which courses they teach, preferred hours if known</li>
+          <li><strong>Time slots:</strong> SUA standard slots are typically 08:00–10:00, 10:00–12:00, 14:00–16:00, 16:00–18:00, Monday to Saturday — confirm with the department</li>
+          <li><strong>Existing timetable:</strong> Get last semester's PDF from the department admin — this is your baseline for comparison in the final report</li>
+        </ul>
+        <div class="warn">⚠ This is the only step that requires going to campus. Everything else can be done from your computer. Do this before February ends.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================== PHASE 2 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 2</div>
+    <div class="phase-title">Data entry API + authentication</div>
+    <div class="phase-period">February – March 2026</div>
+  </div>
+  <div class="phase-desc">Build all the REST API routes that let admins create, read, update, and delete the scheduling data. Also secure the system with JWT-based login so only authorized admins can modify data.</div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-api">API</span><span class="task-title">Build JWT authentication (register + login)</span></div>
+        <div class="task-desc">Secure your admin write operations. Create a register and login endpoint that returns a signed JWT token. All data-modification routes will require this token.</div>
+        <div class="task-pills"><span class="pill">bcryptjs</span><span class="pill">jsonwebtoken</span><span class="pill">middleware</span></div>
+        <div class="expand-hint">▾ Click to see the auth routes and middleware code</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// routes/auth.js</span>
+<span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> bcrypt = <span class="fn">require</span>(<span class="str">'bcryptjs'</span>);
+<span class="kw">const</span> jwt = <span class="fn">require</span>(<span class="str">'jsonwebtoken'</span>);
+<span class="kw">const</span> pool = <span class="fn">require</span>(<span class="str">'../config/db'</span>);
+<span class="kw">const</span> router = express.<span class="fn">Router</span>();
+
+<span class="cm">// POST /api/auth/register</span>
+router.<span class="fn">post</span>(<span class="str">'/register'</span>, async (req, res) => {
+  <span class="kw">const</span> { name, email, password } = req.body;
+  <span class="kw">const</span> hash = await bcrypt.<span class="fn">hash</span>(password, 10);
+  <span class="kw">const</span> result = await pool.<span class="fn">query</span>(
+    <span class="str">'INSERT INTO users(name,email,password_hash,role) VALUES($1,$2,$3,$4) RETURNING id'</span>,
+    [name, email, hash, <span class="str">'admin'</span>]
+  );
+  res.<span class="fn">json</span>({ id: result.rows[0].id });
+});
+
+<span class="cm">// POST /api/auth/login</span>
+router.<span class="fn">post</span>(<span class="str">'/login'</span>, async (req, res) => {
+  <span class="kw">const</span> { email, password } = req.body;
+  <span class="kw">const</span> result = await pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM users WHERE email=$1'</span>, [email]);
+  <span class="kw">const</span> user = result.rows[0];
+  <span class="kw">if</span> (!user || !(await bcrypt.<span class="fn">compare</span>(password, user.password_hash)))
+    <span class="kw">return</span> res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'Invalid credentials'</span> });
+  <span class="kw">const</span> token = jwt.<span class="fn">sign</span>({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: <span class="str">'24h'</span> });
+  res.<span class="fn">json</span>({ token, role: user.role });
+});</div>
+        <div class="code-block"><span class="cm">// middleware/authMiddleware.js</span>
+<span class="kw">const</span> jwt = <span class="fn">require</span>(<span class="str">'jsonwebtoken'</span>);
+
+module.exports = (req, res, next) => {
+  <span class="kw">const</span> token = req.headers.authorization?.split(<span class="str">' '</span>)[1];
+  <span class="kw">if</span> (!token) <span class="kw">return</span> res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'No token'</span> });
+  <span class="kw">try</span> {
+    req.user = jwt.<span class="fn">verify</span>(token, process.env.JWT_SECRET);
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> { res.<span class="fn">status</span>(401).<span class="fn">json</span>({ error: <span class="str">'Invalid token'</span> }); }
+};</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-api">API</span><span class="task-title">Build CRUD routes for all 5 entities</span></div>
+        <div class="task-desc">Full Create, Read, Update, Delete endpoints for lecturers, courses, rooms, time slots, and departments. Every route follows the same pattern — learn it once, repeat it five times.</div>
+        <div class="task-pills"><span class="pill">GET /api/lecturers</span><span class="pill">POST</span><span class="pill">PUT /:id</span><span class="pill">DELETE /:id</span></div>
+        <div class="expand-hint">▾ Click to see the pattern with a full lecturers route example</div>
+      </div>
+      <div class="task-detail">
+        <h4>Complete lecturers route (repeat this pattern for courses, rooms, timeslots, departments)</h4>
+        <div class="code-block"><span class="cm">// routes/lecturers.js</span>
+<span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> pool = <span class="fn">require</span>(<span class="str">'../config/db'</span>);
+<span class="kw">const</span> auth = <span class="fn">require</span>(<span class="str">'../middleware/authMiddleware'</span>);
+<span class="kw">const</span> router = express.<span class="fn">Router</span>();
+
+<span class="cm">// GET all lecturers (public — anyone can view)</span>
+router.<span class="fn">get</span>(<span class="str">'/'</span>, async (req, res) => {
+  <span class="kw">const</span> r = await pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM lecturers ORDER BY name'</span>);
+  res.<span class="fn">json</span>(r.rows);
+});
+
+<span class="cm">// POST create lecturer (admin only)</span>
+router.<span class="fn">post</span>(<span class="str">'/'</span>, auth, async (req, res) => {
+  <span class="kw">const</span> { name, email, department_id, max_hours_per_day } = req.body;
+  <span class="kw">const</span> r = await pool.<span class="fn">query</span>(
+    <span class="str">'INSERT INTO lecturers(name,email,department_id,max_hours_per_day) VALUES($1,$2,$3,$4) RETURNING *'</span>,
+    [name, email, department_id, max_hours_per_day || 6]
+  );
+  res.<span class="fn">status</span>(201).<span class="fn">json</span>(r.rows[0]);
+});
+
+<span class="cm">// PUT update lecturer (admin only)</span>
+router.<span class="fn">put</span>(<span class="str">'/:id'</span>, auth, async (req, res) => {
+  <span class="kw">const</span> { name, email, department_id } = req.body;
+  <span class="kw">const</span> r = await pool.<span class="fn">query</span>(
+    <span class="str">'UPDATE lecturers SET name=$1,email=$2,department_id=$3 WHERE id=$4 RETURNING *'</span>,
+    [name, email, department_id, req.params.id]
+  );
+  res.<span class="fn">json</span>(r.rows[0]);
+});
+
+<span class="cm">// DELETE (admin only)</span>
+router.<span class="fn">delete</span>(<span class="str">'/:id'</span>, auth, async (req, res) => {
+  await pool.<span class="fn">query</span>(<span class="str">'DELETE FROM lecturers WHERE id=$1'</span>, [req.params.id]);
+  res.<span class="fn">json</span>({ deleted: true });
+});
+
+module.exports = router;</div>
+        <ul>
+          <li>Mount in server.js: <code>app.use('/api/lecturers', require('./routes/lecturers'));</code></li>
+          <li>Repeat the same pattern for <code>/api/courses</code>, <code>/api/rooms</code>, <code>/api/timeslots</code>, <code>/api/departments</code></li>
+          <li>Test every route in Postman before writing the next one. Do not skip this.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-db">Database</span><span class="task-title">Write seed scripts to load real SUA data</span></div>
+        <div class="task-desc">Manually inserting data through Postman for 20+ courses and 10+ lecturers is painful. Write seed scripts that you can run once to populate the entire database from your collected data.</div>
+        <div class="task-pills"><span class="pill">seeds/run.js</span><span class="pill">node seeds/run.js</span></div>
+        <div class="expand-hint">▾ Click to see seed script structure</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// seeds/seed_timeslots.js — run this first</span>
+<span class="kw">const</span> pool = <span class="fn">require</span>(<span class="str">'../config/db'</span>);
+
+<span class="kw">const</span> slots = [
+  { day: <span class="str">'Monday'</span>, start_time: <span class="str">'08:00'</span>, end_time: <span class="str">'10:00'</span> },
+  { day: <span class="str">'Monday'</span>, start_time: <span class="str">'10:00'</span>, end_time: <span class="str">'12:00'</span> },
+  { day: <span class="str">'Monday'</span>, start_time: <span class="str">'14:00'</span>, end_time: <span class="str">'16:00'</span> },
+  <span class="cm">// ... repeat for Tuesday through Saturday</span>
+];
+
+<span class="kw">async function</span> <span class="fn">seed</span>() {
+  <span class="kw">for</span> (<span class="kw">const</span> s of slots) {
+    await pool.<span class="fn">query</span>(
+      <span class="str">'INSERT INTO time_slots(day,start_time,end_time) VALUES($1,$2,$3) ON CONFLICT DO NOTHING'</span>,
+      [s.day, s.start_time, s.end_time]
+    );
+  }
+  console.<span class="fn">log</span>(<span class="str">'Time slots seeded'</span>);
+  pool.<span class="fn">end</span>();
+}
+<span class="fn">seed</span>();</div>
+        <ul>
+          <li>Run: <code>node seeds/seed_timeslots.js</code> then <code>node seeds/seed_rooms.js</code> etc.</li>
+          <li>Use <code>ON CONFLICT DO NOTHING</code> so you can re-run seeds safely without duplicates</li>
+          <li>Verify in Railway Console: <code>SELECT COUNT(*) FROM lecturers;</code> should return your expected count</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================== PHASE 3 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 3 — Core of the project</div>
+    <div class="phase-title">The Genetic Algorithm optimization engine</div>
+    <div class="phase-period">March – April 2026</div>
+  </div>
+  <div class="phase-desc">This is the technical heart of the entire project and what makes it a research contribution. The GA automatically generates conflict-free timetables by evolving candidate schedules over hundreds of generations. Build the constraint validator first — you cannot build the GA without it.</div>
+
+  <div style="margin-bottom:1rem">
+    <div class="algo-visual">
+      <div class="algo-step"><div class="as-num">1</div><div class="as-name">Initialize</div><div class="as-desc">Create 50 random timetables</div></div>
+      <div class="algo-step"><div class="as-num">2</div><div class="as-name">Evaluate</div><div class="as-desc">Score each by constraint violations</div></div>
+      <div class="algo-step"><div class="as-num">3</div><div class="as-name">Select</div><div class="as-desc">Pick the best-scoring ones</div></div>
+      <div class="algo-step"><div class="as-num">4</div><div class="as-name">Crossover</div><div class="as-desc">Combine two parents into children</div></div>
+      <div class="algo-step"><div class="as-num">5</div><div class="as-name">Mutate</div><div class="as-desc">Randomly tweak 5% of assignments</div></div>
+      <div class="algo-step"><div class="as-num">→</div><div class="as-name">Repeat</div><div class="as-desc">500 generations or score = 0</div></div>
+    </div>
+  </div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-algo">Algorithm</span><span class="task-title">Build the constraint validator — utils/validator.js</span></div>
+        <div class="task-desc">This function takes a complete proposed timetable and checks every hard and soft constraint. It returns a score — lower score means fewer violations. The GA uses this to decide which timetables are better. Build and test this in complete isolation before touching the GA.</div>
+        <div class="task-pills"><span class="pill">5 hard constraint checks</span><span class="pill">3 soft constraint checks</span><span class="pill">Returns numeric score</span></div>
+        <div class="expand-hint">▾ Click to see the full validator code</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// utils/validator.js</span>
+<span class="cm">// Input: assignments = [{course_id, lecturer_id, room_id, timeslot_id}]</span>
+<span class="cm">// Input: data = {courses, rooms, timeslots} (loaded from DB)</span>
+<span class="cm">// Output: {score, hardViolations, softViolations}</span>
+
+<span class="kw">function</span> <span class="fn">validate</span>(assignments, data) {
+  <span class="kw">const</span> hardViolations = [];
+  <span class="kw">const</span> softViolations = [];
+
+  <span class="cm">// --- HARD CONSTRAINT 1: No lecturer double-booked ---</span>
+  <span class="kw">const</span> lecturerSlots = {};
+  <span class="kw">for</span> (<span class="kw">const</span> a of assignments) {
+    <span class="kw">const</span> key = `${a.lecturer_id}-${a.timeslot_id}`;
+    <span class="kw">if</span> (lecturerSlots[key]) {
+      hardViolations.<span class="fn">push</span>(`Lecturer ${a.lecturer_id} is double-booked at slot ${a.timeslot_id}`);
+    }
+    lecturerSlots[key] = true;
+  }
+
+  <span class="cm">// --- HARD CONSTRAINT 2: No room double-booked ---</span>
+  <span class="kw">const</span> roomSlots = {};
+  <span class="kw">for</span> (<span class="kw">const</span> a of assignments) {
+    <span class="kw">const</span> key = `${a.room_id}-${a.timeslot_id}`;
+    <span class="kw">if</span> (roomSlots[key]) {
+      hardViolations.<span class="fn">push</span>(`Room ${a.room_id} is double-booked at slot ${a.timeslot_id}`);
+    }
+    roomSlots[key] = true;
+  }
+
+  <span class="cm">// --- HARD CONSTRAINT 3: Room capacity ---</span>
+  <span class="kw">for</span> (<span class="kw">const</span> a of assignments) {
+    <span class="kw">const</span> course = data.courses.<span class="fn">find</span>(c => c.id === a.course_id);
+    <span class="kw">const</span> room = data.rooms.<span class="fn">find</span>(r => r.id === a.room_id);
+    <span class="kw">if</span> (room && course && room.capacity < course.student_count) {
+      hardViolations.<span class="fn">push</span>(`Room ${room.name} too small for ${course.code} (${course.student_count} students)`);
+    }
+  }
+
+  <span class="cm">// --- HARD CONSTRAINT 4: Lab courses need lab rooms ---</span>
+  <span class="kw">for</span> (<span class="kw">const</span> a of assignments) {
+    <span class="kw">const</span> course = data.courses.<span class="fn">find</span>(c => c.id === a.course_id);
+    <span class="kw">const</span> room = data.rooms.<span class="fn">find</span>(r => r.id === a.room_id);
+    <span class="kw">if</span> (course?.requires_lab && room?.type !== <span class="str">'lab'</span>) {
+      hardViolations.<span class="fn">push</span>(`${course.code} requires a lab but is assigned to ${room?.type} room`);
+    }
+  }
+
+  <span class="cm">// --- HARD CONSTRAINT 5: Same year-group cannot clash ---</span>
+  <span class="kw">const</span> yearSlots = {};
+  <span class="kw">for</span> (<span class="kw">const</span> a of assignments) {
+    <span class="kw">const</span> course = data.courses.<span class="fn">find</span>(c => c.id === a.course_id);
+    <span class="kw">if</span> (!course) continue;
+    <span class="kw">const</span> key = `${course.year_group}-${a.timeslot_id}`;
+    <span class="kw">if</span> (yearSlots[key]) {
+      hardViolations.<span class="fn">push</span>(`Year ${course.year_group} has two classes at slot ${a.timeslot_id}`);
+    }
+    yearSlots[key] = true;
+  }
+
+  <span class="cm">// Score: hard violations are heavily penalized</span>
+  <span class="kw">const</span> score = hardViolations.length * 1000 + softViolations.length * 10;
+  <span class="kw">return</span> { score, hardViolations, softViolations };
+}
+
+module.exports = { validate };</div>
+        <ul>
+          <li>Test it by hand: create a fake assignments array with a deliberate double-booking and check the output</li>
+          <li>The fitness score must decrease as the GA runs — if it doesn't, check this function first</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-algo">Algorithm</span><span class="task-title">Implement the Genetic Algorithm — utils/ga.js</span></div>
+        <div class="task-desc">The full GA engine: population initialization, fitness evaluation, tournament selection, single-point crossover, and mutation. This is the part that makes your system intelligent. Each "chromosome" is a complete timetable. The GA evolves 50 of them simultaneously over 500 generations.</div>
+        <div class="task-pills"><span class="pill">Population: 50</span><span class="pill">Generations: 500</span><span class="pill">Mutation: 5%</span><span class="pill">Tournament selection</span></div>
+        <div class="expand-hint">▾ Click to see the full GA implementation</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// utils/ga.js</span>
+<span class="kw">const</span> { validate } = <span class="fn">require</span>(<span class="str">'./validator'</span>);
+
+<span class="kw">const</span> POP_SIZE = 50;
+<span class="kw">const</span> GENERATIONS = 500;
+<span class="kw">const</span> MUTATION_RATE = 0.05;
+
+<span class="cm">// Create one random timetable (chromosome)</span>
+<span class="cm">// One gene per course: {course_id, lecturer_id, room_id, timeslot_id}</span>
+<span class="kw">function</span> <span class="fn">randomChromosome</span>(data) {
+  <span class="kw">return</span> data.courses.<span class="fn">map</span>(course => {
+    <span class="kw">const</span> lecturer = <span class="fn">randomFrom</span>(data.courseLecturers[course.id] || data.lecturers);
+    <span class="kw">const</span> room = <span class="fn">randomFrom</span>(data.rooms);
+    <span class="kw">const</span> slot = <span class="fn">randomFrom</span>(data.timeslots);
+    <span class="kw">return</span> { course_id: course.id, lecturer_id: lecturer.id, room_id: room.id, timeslot_id: slot.id };
+  });
+}
+
+<span class="kw">function</span> <span class="fn">randomFrom</span>(arr) { <span class="kw">return</span> arr[Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * arr.length)]; }
+
+<span class="cm">// Tournament selection: pick the best of 3 random candidates</span>
+<span class="kw">function</span> <span class="fn">select</span>(population, data) {
+  <span class="kw">let</span> best = null;
+  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i < 3; i++) {
+    <span class="kw">const</span> candidate = <span class="fn">randomFrom</span>(population);
+    <span class="kw">const</span> { score } = <span class="fn">validate</span>(candidate, data);
+    <span class="kw">if</span> (!best || score < best.score) best = { chromosome: candidate, score };
+  }
+  <span class="kw">return</span> best.chromosome;
+}
+
+<span class="cm">// Single-point crossover: swap halves of two parents</span>
+<span class="kw">function</span> <span class="fn">crossover</span>(parentA, parentB) {
+  <span class="kw">const</span> point = Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * parentA.length);
+  <span class="kw">return</span> [...parentA.<span class="fn">slice</span>(0, point), ...parentB.<span class="fn">slice</span>(point)];
+}
+
+<span class="cm">// Mutation: randomly reassign a gene with MUTATION_RATE probability</span>
+<span class="kw">function</span> <span class="fn">mutate</span>(chromosome, data) {
+  <span class="kw">return</span> chromosome.<span class="fn">map</span>(gene => {
+    <span class="kw">if</span> (Math.<span class="fn">random</span>() < MUTATION_RATE) {
+      <span class="kw">return</span> { ...gene, room_id: <span class="fn">randomFrom</span>(data.rooms).id, timeslot_id: <span class="fn">randomFrom</span>(data.timeslots).id };
+    }
+    <span class="kw">return</span> gene;
+  });
+}
+
+<span class="cm">// Main GA function — call with all data loaded from DB</span>
+<span class="kw">function</span> <span class="fn">generate</span>(data) {
+  <span class="kw">let</span> population = <span class="fn">Array</span>.<span class="fn">from</span>({ length: POP_SIZE }, () => <span class="fn">randomChromosome</span>(data));
+
+  <span class="kw">let</span> bestEver = null;
+  <span class="kw">let</span> bestScore = Infinity;
+
+  <span class="kw">for</span> (<span class="kw">let</span> gen = 0; gen < GENERATIONS; gen++) {
+    <span class="cm">// Evaluate all</span>
+    <span class="kw">const</span> scored = population.<span class="fn">map</span>(c => ({ chromosome: c, score: <span class="fn">validate</span>(c, data).score }));
+    scored.<span class="fn">sort</span>((a, b) => a.score - b.score);
+
+    <span class="kw">if</span> (scored[0].score < bestScore) {
+      bestScore = scored[0].score;
+      bestEver = scored[0].chromosome;
+      console.<span class="fn">log</span>(`Gen ${gen}: best score = ${bestScore}`);
+    }
+
+    <span class="kw">if</span> (bestScore === 0) { console.<span class="fn">log</span>(<span class="str">'Perfect timetable found!'</span>); <span class="kw">break</span>; }
+
+    <span class="cm">// Create new generation: keep top 10 (elitism), fill rest with children</span>
+    <span class="kw">const</span> newPop = scored.<span class="fn">slice</span>(0, 10).<span class="fn">map</span>(s => s.chromosome);
+    <span class="kw">while</span> (newPop.length < POP_SIZE) {
+      <span class="kw">const</span> child = <span class="fn">mutate</span>(<span class="fn">crossover</span>(<span class="fn">select</span>(population, data), <span class="fn">select</span>(population, data)), data);
+      newPop.<span class="fn">push</span>(child);
+    }
+    population = newPop;
+  }
+
+  <span class="kw">return</span> { bestChromosome: bestEver, bestScore };
+}
+
+module.exports = { generate };</div>
+        <div class="warn">⚠ Test locally first: <code>node utils/ga.js</code> with mock data before connecting to the DB. Watch the score drop in the console log — it should decrease over generations. If the score stays the same, your mutation rate or selection is broken.</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-api">API</span><span class="task-title">Expose the GA as an API endpoint</span></div>
+        <div class="task-desc">Connect the algorithm to the database and the web. POST /api/timetable/generate loads all data, runs the GA, saves the result, and returns it. Add supporting GET routes for the viewer and conflict inspector.</div>
+        <div class="task-pills"><span class="pill">POST /generate</span><span class="pill">GET /latest</span><span class="pill">GET /conflicts</span><span class="pill">GET /lecturer/:id</span></div>
+        <div class="expand-hint">▾ Click to see the timetable routes</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">// routes/timetable.js (key routes)</span>
+<span class="kw">const</span> { generate } = <span class="fn">require</span>(<span class="str">'../utils/ga'</span>);
+<span class="kw">const</span> { validate } = <span class="fn">require</span>(<span class="str">'../utils/validator'</span>);
+
+<span class="cm">// POST /api/timetable/generate (admin only)</span>
+router.<span class="fn">post</span>(<span class="str">'/generate'</span>, auth, async (req, res) => {
+  <span class="kw">const</span> { semester } = req.body;
+
+  <span class="cm">// Load all scheduling data from DB</span>
+  <span class="kw">const</span> [courses, lecturers, rooms, timeslots, clPairs] = await Promise.<span class="fn">all</span>([
+    pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM courses'</span>),
+    pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM lecturers'</span>),
+    pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM rooms'</span>),
+    pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM time_slots'</span>),
+    pool.<span class="fn">query</span>(<span class="str">'SELECT * FROM course_lecturers'</span>)
+  ]);
+
+  <span class="cm">// Build courseLecturers lookup: { course_id: [lecturer, ...] }</span>
+  <span class="kw">const</span> courseLecturers = {};
+  <span class="kw">for</span> (<span class="kw">const</span> cl of clPairs.rows) {
+    <span class="kw">if</span> (!courseLecturers[cl.course_id]) courseLecturers[cl.course_id] = [];
+    <span class="kw">const</span> lec = lecturers.rows.<span class="fn">find</span>(l => l.id === cl.lecturer_id);
+    <span class="kw">if</span> (lec) courseLecturers[cl.course_id].<span class="fn">push</span>(lec);
+  }
+
+  <span class="kw">const</span> data = {
+    courses: courses.rows, lecturers: lecturers.rows,
+    rooms: rooms.rows, timeslots: timeslots.rows, courseLecturers
+  };
+
+  <span class="cm">// Run the GA (this takes a few seconds)</span>
+  <span class="kw">const</span> { bestChromosome, bestScore } = <span class="fn">generate</span>(data);
+
+  <span class="cm">// Delete old entries for this semester and save new ones</span>
+  await pool.<span class="fn">query</span>(<span class="str">'DELETE FROM timetable_entries WHERE semester=$1'</span>, [semester]);
+  <span class="kw">for</span> (<span class="kw">const</span> gene of bestChromosome) {
+    await pool.<span class="fn">query</span>(
+      <span class="str">'INSERT INTO timetable_entries(semester,course_id,lecturer_id,room_id,time_slot_id) VALUES($1,$2,$3,$4,$5)'</span>,
+      [semester, gene.course_id, gene.lecturer_id, gene.room_id, gene.timeslot_id]
+    );
+  }
+
+  res.<span class="fn">json</span>({ success: true, violations: bestScore, count: bestChromosome.length });
+});</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================== PHASE 4 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 4</div>
+    <div class="phase-title">Frontend UI — admin dashboard + timetable viewer</div>
+    <div class="phase-period">April – May 2026</div>
+  </div>
+  <div class="phase-desc">Build the visual interface that administrators and students will actually use. This includes the data entry forms for admins, the visual weekly timetable grid (the core user-facing feature), and PDF/Excel export. Use plain HTML and Vanilla JavaScript — no framework required.</div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-ui">UI</span><span class="task-title">Admin login page + data entry forms</span></div>
+        <div class="task-desc">A login form that stores the JWT, then separate pages for managing lecturers, rooms, courses, and constraints. Each page has a form to add/edit + a table showing existing records with Edit and Delete buttons.</div>
+        <div class="task-pills"><span class="pill">admin-login.html</span><span class="pill">admin-lecturers.html</span><span class="pill">admin-courses.html</span><span class="pill">admin-rooms.html</span></div>
+        <div class="expand-hint">▾ Click to see the pattern for one admin page</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">&lt;!-- admin-lecturers.html — core JS pattern --&gt;</span>
+<span class="cm">&lt;script&gt;</span>
+<span class="kw">const</span> API = <span class="str">'https://your-railway-url.up.railway.app'</span>;
+<span class="kw">const</span> token = localStorage.<span class="fn">getItem</span>(<span class="str">'token'</span>);
+<span class="kw">if</span> (!token) location.href = <span class="str">'admin-login.html'</span>;
+
+<span class="cm">// Load all lecturers and render table</span>
+async <span class="kw">function</span> <span class="fn">loadLecturers</span>() {
+  <span class="kw">const</span> data = await <span class="fn">fetch</span>(`${API}/api/lecturers`).then(r => r.<span class="fn">json</span>());
+  <span class="kw">const</span> tbody = document.<span class="fn">getElementById</span>(<span class="str">'tbody'</span>);
+  tbody.innerHTML = data.<span class="fn">map</span>(l => `
+    &lt;tr&gt;
+      &lt;td&gt;${l.name}&lt;/td&gt;
+      &lt;td&gt;${l.email}&lt;/td&gt;
+      &lt;td&gt;
+        &lt;button onclick="deleteLecturer(${l.id})"&gt;Delete&lt;/button&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;`
+  ).<span class="fn">join</span>(<span class="str">''</span>);
+}
+
+<span class="cm">// Add new lecturer</span>
+document.<span class="fn">getElementById</span>(<span class="str">'form'</span>).<span class="fn">addEventListener</span>(<span class="str">'submit'</span>, async (e) => {
+  e.<span class="fn">preventDefault</span>();
+  await <span class="fn">fetch</span>(`${API}/api/lecturers`, {
+    method: <span class="str">'POST'</span>,
+    headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>, <span class="str">'Authorization'</span>: `Bearer ${token}` },
+    body: JSON.<span class="fn">stringify</span>({ name: document.<span class="fn">getElementById</span>(<span class="str">'name'</span>).value, ... })
+  });
+  <span class="fn">loadLecturers</span>();
+});
+
+<span class="fn">loadLecturers</span>();
+<span class="cm">&lt;/script&gt;</span></div>
+        <ul><li>Same pattern for every admin page — just change the entity name and API endpoint</li></ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-ui">UI</span><span class="task-title">Visual weekly timetable grid — the main student view</span></div>
+        <div class="task-desc">A filterable grid showing the full week. Rows = time slots (08:00–10:00, 10:00–12:00, etc.), columns = Mon–Sat. Each cell shows the course, room, and lecturer in a color-coded card. Filterable by department, year group, and lecturer name.</div>
+        <div class="task-pills"><span class="pill">timetable.html</span><span class="pill">CSS Grid</span><span class="pill">Filter dropdowns</span><span class="pill">Click-to-detail popup</span></div>
+        <div class="expand-hint">▾ Click to see the grid CSS and render logic</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">/* CSS for the timetable grid */</span>
+.grid {
+  display: grid;
+  grid-template-columns: 80px repeat(6, 1fr); <span class="cm">/* time label + 6 days */</span>
+  gap: 2px;
+}
+.cell {
+  min-height: 80px;
+  border: 0.5px solid #e0dfd8;
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+  font-size: 12px;
+}
+.cell.has-class {
+  background: #e6f1fb;  <span class="cm">/* change per department */</span>
+  cursor: pointer;
+}
+.cell .course-code { font-weight: 700; font-size: 13px; }
+.cell .room { color: #555; margin-top: 2px; }
+.cell .lecturer { color: #777; font-size: 11px; }</div>
+        <div class="code-block"><span class="cm">// Render the grid from timetable JSON</span>
+<span class="kw">function</span> <span class="fn">renderGrid</span>(entries, filters) {
+  <span class="kw">const</span> days = [<span class="str">'Monday'</span>,<span class="str">'Tuesday'</span>,<span class="str">'Wednesday'</span>,<span class="str">'Thursday'</span>,<span class="str">'Friday'</span>,<span class="str">'Saturday'</span>];
+  <span class="kw">const</span> slots = [<span class="str">'08:00'</span>,<span class="str">'10:00'</span>,<span class="str">'14:00'</span>,<span class="str">'16:00'</span>];
+
+  <span class="kw">let</span> filtered = entries;
+  <span class="kw">if</span> (filters.department) filtered = filtered.<span class="fn">filter</span>(e => e.department_id == filters.department);
+  <span class="kw">if</span> (filters.year) filtered = filtered.<span class="fn">filter</span>(e => e.year_group == filters.year);
+  <span class="kw">if</span> (filters.lecturer) filtered = filtered.<span class="fn">filter</span>(e => e.lecturer_id == filters.lecturer);
+
+  <span class="cm">// Build lookup: {day-starttime: entry}</span>
+  <span class="kw">const</span> lookup = {};
+  filtered.<span class="fn">forEach</span>(e => { lookup[`${e.day}-${e.start_time}`] = e; });
+
+  <span class="cm">// Render each row</span>
+  slots.<span class="fn">forEach</span>(slotTime => {
+    days.<span class="fn">forEach</span>(day => {
+      <span class="kw">const</span> entry = lookup[`${day}-${slotTime}`];
+      <span class="cm">// If entry exists: render colored card. Else: render empty gray cell.</span>
+    });
+  });
+}</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-ui">UI</span><span class="task-title">Generate button + export to PDF and Excel</span></div>
+        <div class="task-desc">The "Generate Timetable" button calls the GA API and reloads the grid. Export to PDF captures the grid visually. Export to Excel creates a downloadable spreadsheet. Both can be done with free CDN libraries — no paid tools needed.</div>
+        <div class="task-pills"><span class="pill">html2pdf.js (CDN)</span><span class="pill">SheetJS (CDN)</span><span class="pill">Loading spinner</span></div>
+        <div class="expand-hint">▾ Click to see the export code</div>
+      </div>
+      <div class="task-detail">
+        <div class="code-block"><span class="cm">&lt;!-- Load in your HTML head --&gt;</span>
+&lt;script src=<span class="str">"https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="str">"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"</span>&gt;&lt;/script&gt;</div>
+        <div class="code-block"><span class="cm">// Export to PDF — captures the grid element as an image</span>
+<span class="kw">function</span> <span class="fn">exportPDF</span>() {
+  <span class="fn">html2pdf</span>()
+    .<span class="fn">set</span>({ filename: <span class="str">'SUA_Timetable.pdf'</span>, html2canvas: { scale: 2 }, jsPDF: { orientation: <span class="str">'landscape'</span> } })
+    .<span class="fn">from</span>(document.<span class="fn">getElementById</span>(<span class="str">'timetable-grid'</span>))
+    .<span class="fn">save</span>();
+}
+
+<span class="cm">// Export to Excel — creates a structured spreadsheet</span>
+<span class="kw">function</span> <span class="fn">exportExcel</span>(entries) {
+  <span class="kw">const</span> rows = entries.<span class="fn">map</span>(e => ({
+    Day: e.day, Time: `${e.start_time}–${e.end_time}`,
+    Course: e.course_name, Code: e.course_code,
+    Room: e.room_name, Lecturer: e.lecturer_name, Department: e.department_name
+  }));
+  <span class="kw">const</span> ws = XLSX.utils.<span class="fn">json_to_sheet</span>(rows);
+  <span class="kw">const</span> wb = XLSX.utils.<span class="fn">book_new</span>();
+  XLSX.utils.<span class="fn">book_append_sheet</span>(wb, ws, <span class="str">'Timetable'</span>);
+  XLSX.<span class="fn">writeFile</span>(wb, <span class="str">'SUA_Timetable.xlsx'</span>);
+}</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-ui">UI</span><span class="task-title">Conflict inspector panel</span></div>
+        <div class="task-desc">A dedicated admin page that lists all remaining scheduling conflicts after the GA runs. Each conflict shows exactly what clashed and lets the admin manually reassign that course to a different room or time slot.</div>
+        <div class="task-pills"><span class="pill">conflicts.html</span><span class="pill">GET /api/timetable/conflicts</span><span class="pill">PATCH /api/timetable/entry/:id</span></div>
+        <div class="expand-hint">▾ Click to see how the conflict panel works</div>
+      </div>
+      <div class="task-detail">
+        <ul>
+          <li>Load conflicts from <code>GET /api/timetable/conflicts</code> — returns array of violation descriptions</li>
+          <li>Each conflict renders as a card: <em>"CS101 and CS202 are both in Room LH1 on Monday at 08:00"</em></li>
+          <li>"Fix manually" button on each card → opens inline dropdowns: choose a different room, or a different time slot</li>
+          <li>On save → <code>PATCH /api/timetable/entry/:id</code> with new room_id or time_slot_id → re-validates → updates conflict count badge</li>
+          <li>Green banner appears when zero conflicts remain: <em>"Timetable is conflict-free ✓"</em></li>
+          <li>Add a conflict count badge to the main nav: <em>"⚠ 3 conflicts"</em> → clicking takes you to this page</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================== PHASE 5 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 5</div>
+    <div class="phase-title">Testing with real data + user acceptance testing</div>
+    <div class="phase-period">May – June 2026</div>
+  </div>
+  <div class="phase-desc">This is what makes your project academically valuable — you're comparing an automated system against SUA's current manual process using real data. Run systematic tests, record results, and get feedback from actual SUA staff.</div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-test">Testing</span><span class="task-title">Performance testing — run GA 5 times, record results</span></div>
+        <div class="task-desc">Run the algorithm 5 times with the full SUA semester dataset and record key metrics each time. This data becomes Table 5.1 in your final report and proves the system works.</div>
+        <div class="expand-hint">▾ Click to see exactly what to measure and record</div>
+      </div>
+      <div class="task-detail">
+        <h4>Create this results table for your report</h4>
+        <ul>
+          <li>Run with the full DIIT BIT semester dataset (all courses + all lecturers + all rooms)</li>
+          <li>For each of 5 runs, record: (1) Final fitness score, (2) Number of hard constraint violations remaining, (3) Number of generations until best score, (4) Runtime in seconds</li>
+          <li>Also record: how many courses the GA successfully placed vs the total</li>
+          <li>Compare the best generated timetable vs the manual timetable — count how many conflicts existed in the manual one</li>
+          <li>Try increasing POP_SIZE from 50 to 100 — does it improve results? Document this comparison</li>
+          <li>If any courses are consistently unplaceable, those are "infeasible constraint" cases — document them as a finding, not a bug</li>
+        </ul>
+        <div class="warn">⚠ This comparison between manual vs automated is the core academic contribution of the project. Dr. Kitindi will ask about this. Have the numbers ready.</div>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-test">Testing</span><span class="task-title">User acceptance testing (UAT) with SUA staff</span></div>
+        <div class="task-desc">Get 2–3 SUA timetable coordinators or lecturers to test the system while you observe. You're not helping them — you're watching where they get stuck. Their feedback shapes your final system improvements.</div>
+        <div class="expand-hint">▾ Click to see the UAT script and feedback form</div>
+      </div>
+      <div class="task-detail">
+        <h4>5-task UAT script (give this to each user)</h4>
+        <ul>
+          <li>Task 1: "Add a new course called 'Database Systems' with 45 students, year 2, not a lab course"</li>
+          <li>Task 2: "Generate a timetable for Semester 1 2026" (click the Generate button and wait)</li>
+          <li>Task 3: "Export the timetable as a PDF file"</li>
+          <li>Task 4: "Find and fix any remaining conflicts using the conflict panel"</li>
+          <li>Task 5: "Find the weekly timetable for [a specific lecturer name]"</li>
+        </ul>
+        <h4>What to measure</h4>
+        <ul>
+          <li>Time taken to complete each task (stopwatch)</li>
+          <li>Number of errors or wrong clicks per task</li>
+          <li>Whether they completed the task without your help (yes/no)</li>
+        </ul>
+        <h4>Post-test questions to ask</h4>
+        <ul>
+          <li>"What was the most confusing part?"</li>
+          <li>"Is there anything you expected to be there that wasn't?"</li>
+          <li>"Would you use this instead of the current manual process? Why or why not?"</li>
+          <li>Rating 1–5: ease of use, visual clarity, overall satisfaction</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======================== PHASE 6 ======================== -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 6</div>
+    <div class="phase-title">Deployment + final report</div>
+    <div class="phase-period">July 2026</div>
+  </div>
+  <div class="phase-desc">Deploy to free cloud hosting using the same workflow already proven with other projects. Then write the final report documenting everything: architecture, algorithm, test results, and conclusions.</div>
+
+  <div class="tasks">
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-deploy">Deploy</span><span class="task-title">Deploy backend to Railway + frontend to Netlify</span></div>
+        <div class="task-desc">Railway hosts the Node.js API and PostgreSQL database for free. Netlify hosts the HTML frontend. Both are free, both have GitHub integration, and the deployment process is already familiar.</div>
+        <div class="task-pills"><span class="pill">Railway</span><span class="pill">Netlify</span><span class="pill">GitHub</span><span class="pill">Free tier</span></div>
+        <div class="expand-hint">▾ Click to see the deployment checklist</div>
+      </div>
+      <div class="task-detail">
+        <h4>Railway backend deployment checklist</h4>
+        <ul>
+          <li>Push project to GitHub (make sure .env is in .gitignore — never commit secrets)</li>
+          <li>Create new Railway service → connect your GitHub repo</li>
+          <li>Add environment variables in Railway web UI: <code>DATABASE_URL</code>, <code>JWT_SECRET</code>, <code>PORT=3000</code>, <code>NODE_ENV=production</code></li>
+          <li>Add a PostgreSQL database from Railway's "Add Plugin" — it auto-sets DATABASE_URL</li>
+          <li>Run schema SQL in Railway Postgres Console</li>
+          <li>Run seed scripts pointing to the production DATABASE_URL</li>
+          <li>Test the live API: <code>https://your-app.up.railway.app/health</code></li>
+        </ul>
+        <h4>Netlify frontend deployment checklist</h4>
+        <ul>
+          <li>Update the <code>API</code> constant in all HTML files from <code>localhost:3000</code> to your Railway URL</li>
+          <li>Put all HTML/CSS/JS files in a <code>/public</code> folder</li>
+          <li>Drag and drop the folder into Netlify, OR connect your GitHub repo</li>
+          <li>Test every page on the live URL — especially the generate button and export functions</li>
+          <li>Share the Netlify URL with your supervisor for demo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card" onclick="toggle(this)">
+      <div class="task-summary">
+        <div class="task-top"><span class="tag t-test">Testing</span><span class="task-title">Write the 6-chapter final report</span></div>
+        <div class="task-desc">The report documents everything you built. Use the proposal as your base for Chapters 1–3, then write Chapters 4–6 from your actual implementation and test results.</div>
+        <div class="expand-hint">▾ Click to see the exact chapter outline</div>
+      </div>
+      <div class="task-detail">
+        <h4>Chapter structure</h4>
+        <ul>
+          <li><strong>Chapter 1 — Introduction:</strong> Updated from proposal. Add a paragraph about the live deployment URL and what the system actually achieved.</li>
+          <li><strong>Chapter 2 — Literature review:</strong> Same as proposal, updated with any new sources. Add a comparison table: your system vs existing timetabling software.</li>
+          <li><strong>Chapter 3 — System analysis and design:</strong> Final ERD diagram, 3-tier architecture diagram, GA pseudocode, constraint model. Include your Use Case diagram.</li>
+          <li><strong>Chapter 4 — Implementation:</strong> Screenshots of every page (login, admin forms, timetable grid, conflict panel, exports). Key code snippets: validator.js, the GA crossover function. API endpoint table listing all routes.</li>
+          <li><strong>Chapter 5 — Testing and results:</strong> GA performance table (5 runs × 4 metrics). Fitness score graph (generations vs score — take a screenshot from the console log). UAT results table. Comparison: manual SUA timetable conflict count vs your system's output conflict count.</li>
+          <li><strong>Chapter 6 — Conclusion and recommendations:</strong> Objectives achieved (link back to specific objectives from Section 1.3). Limitations: what your system cannot handle yet. Future work: mobile app, multi-department support, real-time updates when a lecturer cancels.</li>
+          <li><strong>Appendix:</strong> Full database schema SQL, full seed data, GitHub repo URL, live deployment URL, all screenshots not included in the main text.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Development roadmap for: Azizi, Salma Mohamed · BIT/D/2023/0011 · Sokoine University of Agriculture · INF 318<br>
+  Click any task card to expand step-by-step instructions · Language: JavaScript (Node.js + Express + PostgreSQL + Vanilla JS frontend)
+</footer>
+
+</div>
+<script>
+function toggle(card) {
+  const detail = card.querySelector('.task-detail');
+  if (detail) detail.classList.toggle('open');
+}
+</script>
+</body>
+</html>

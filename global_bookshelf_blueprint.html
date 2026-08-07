@@ -1,0 +1,238 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .hero { padding: 2rem 0 1.5rem; text-align: center; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 2rem; }
+  .hero h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+  .hero p { font-size: 14px; color: var(--color-text-secondary); }
+  .phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .phase-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  .phase-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .phase-sub { font-size: 12px; color: var(--color-text-secondary); }
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 2rem; }
+  .pillar { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; transition: border-color 0.2s; }
+  .pillar:hover { border-color: var(--color-border-primary); }
+  .pillar.active { border: 1.5px solid var(--color-border-info); }
+  .pillar-icon { font-size: 20px; margin-bottom: 8px; }
+  .pillar-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .pillar-tag { font-size: 11px; color: var(--color-text-secondary); }
+  .detail-panel { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.25rem 1.5rem; margin-bottom: 2rem; min-height: 160px; }
+  .detail-panel h3 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .detail-panel ul { list-style: none; padding: 0; }
+  .detail-panel li { font-size: 13px; color: var(--color-text-secondary); padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: flex-start; gap: 8px; }
+  .detail-panel li:last-child { border-bottom: none; }
+  .detail-panel li::before { content: "→"; color: var(--color-text-info); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+  .phases { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 2rem; }
+  .phase-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: var(--border-radius-md); margin-bottom: 10px; }
+  .tag-blue { background: var(--color-background-info); color: var(--color-text-info); }
+  .tag-green { background: var(--color-background-success); color: var(--color-text-success); }
+  .tag-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .phase-feat { font-size: 12px; color: var(--color-text-secondary); padding: 3px 0; }
+  .phase-feat i { font-size: 13px; vertical-align: -2px; margin-right: 4px; }
+  .wow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 2rem; }
+  .wow-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .wow-label { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .wow-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cta-btn { flex: 1; min-width: 140px; padding: 10px 16px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-primary); font-size: 13px; cursor: pointer; text-align: center; transition: background 0.15s; }
+  .cta-btn:hover { background: var(--color-background-secondary); }
+  .section-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+</style>
+
+<div class="hero">
+  <h1>Global BookShelf — Master Blueprint</h1>
+  <p>7 pillars that make it the Wonder of the World. Click any pillar to explore.</p>
+</div>
+
+<div class="section-label">The 7 Pillars of Wonder</div>
+<div class="pillars" id="pillars-grid">
+  <div class="pillar active" onclick="selectPillar(0)">
+    <div class="pillar-icon"><i class="ti ti-world" aria-hidden="true"></i></div>
+    <div class="pillar-name">Living World Map</div>
+    <div class="pillar-tag">Never done before</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(1)">
+    <div class="pillar-icon"><i class="ti ti-brain" aria-hidden="true"></i></div>
+    <div class="pillar-name">AI Reading Soul</div>
+    <div class="pillar-tag">Deep personalization</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(2)">
+    <div class="pillar-icon"><i class="ti ti-language" aria-hidden="true"></i></div>
+    <div class="pillar-name">Borderless Reading</div>
+    <div class="pillar-tag">Every language, live</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(3)">
+    <div class="pillar-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+    <div class="pillar-name">Living Communities</div>
+    <div class="pillar-tag">Not just social</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(4)">
+    <div class="pillar-icon"><i class="ti ti-notebook" aria-hidden="true"></i></div>
+    <div class="pillar-name">Author Universe</div>
+    <div class="pillar-tag">Writer-first platform</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(5)">
+    <div class="pillar-icon"><i class="ti ti-coin" aria-hidden="true"></i></div>
+    <div class="pillar-name">Fair Economy</div>
+    <div class="pillar-tag">Readers fund authors</div>
+  </div>
+  <div class="pillar" onclick="selectPillar(6)">
+    <div class="pillar-icon"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i></div>
+    <div class="pillar-name">Book as Experience</div>
+    <div class="pillar-tag">Immersive reading</div>
+  </div>
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <h3 id="detail-title">🌍 The Living World Map</h3>
+  <ul id="detail-list"></ul>
+</div>
+
+<div class="section-label">Build Phases</div>
+<div class="phases">
+  <div class="phase-card">
+    <div class="tag tag-blue">Phase 1 — Months 1–6</div>
+    <div class="phase-header"><div class="phase-num" style="background:var(--color-background-info);color:var(--color-text-info);">1</div><div><div class="phase-title">The Foundation</div></div></div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> World map with book pins</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Basic AI recommendations</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Multi-language UI</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Author profiles</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Community shelves</div>
+  </div>
+  <div class="phase-card">
+    <div class="tag tag-green">Phase 2 — Months 7–18</div>
+    <div class="phase-header"><div class="phase-num" style="background:var(--color-background-success);color:var(--color-text-success);">2</div><div><div class="phase-title">The Wonder</div></div></div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Live translation engine</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Reading Soul AI</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Author earnings system</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Immersive book mode</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Cross-border reading clubs</div>
+  </div>
+  <div class="phase-card">
+    <div class="tag tag-amber">Phase 3 — Months 19–36</div>
+    <div class="phase-header"><div class="phase-num" style="background:var(--color-background-warning);color:var(--color-text-warning);">3</div><div><div class="phase-title">The Empire</div></div></div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Physical book exchange network</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Publisher partnerships</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> School &amp; library integrations</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> Global book festivals (virtual)</div>
+    <div class="phase-feat"><i class="ti ti-check" aria-hidden="true"></i> AR reading experiences</div>
+  </div>
+</div>
+
+<div class="section-label">What Makes It Unlike Anything Else</div>
+<div class="wow-grid">
+  <div class="wow-card">
+    <div class="wow-label"><i class="ti ti-x" aria-hidden="true" style="color:var(--color-text-danger);margin-right:4px"></i>What Goodreads does</div>
+    <div class="wow-desc">Static lists, ratings, basic recommendations, no real community depth, English-first, no author economy.</div>
+  </div>
+  <div class="wow-card">
+    <div class="wow-label"><i class="ti ti-star" aria-hidden="true" style="color:var(--color-text-warning);margin-right:4px"></i>What YOU will do</div>
+    <div class="wow-desc">Living world, AI that knows your soul, every language, authors as stars, books as living experiences.</div>
+  </div>
+  <div class="wow-card">
+    <div class="wow-label"><i class="ti ti-x" aria-hidden="true" style="color:var(--color-text-danger);margin-right:4px"></i>What Amazon does</div>
+    <div class="wow-desc">Sells books, algorithmic push, no culture, no community, extracts value from authors.</div>
+  </div>
+  <div class="wow-card">
+    <div class="wow-label"><i class="ti ti-star" aria-hidden="true" style="color:var(--color-text-warning);margin-right:4px"></i>Your difference</div>
+    <div class="wow-desc">A cultural institution. Books connect people across borders, languages, time. Authors thrive, readers discover.</div>
+  </div>
+</div>
+
+<div class="section-label">Start Building Now</div>
+<div class="cta-row">
+  <button class="cta-btn" onclick="sendPrompt('Build the Global BookShelf homepage design — the world map with book pins')">Build the Homepage ↗</button>
+  <button class="cta-btn" onclick="sendPrompt('Design the AI Reading Soul feature — how it learns what books match a person deeply')">Design the AI Soul ↗</button>
+  <button class="cta-btn" onclick="sendPrompt('Design the Author Universe — profiles, earnings, reader connection')">Build Author Universe ↗</button>
+  <button class="cta-btn" onclick="sendPrompt('Design the database schema for Global BookShelf')">Plan the Database ↗</button>
+</div>
+
+<script>
+const pillars = [
+  {
+    title: "🌍 The Living World Map",
+    items: [
+      "An interactive 3D globe where every book ever written is pinned to the country/city it was born in",
+      "Real-time pulses showing what books people worldwide are reading RIGHT NOW",
+      "Time-travel slider — see what the world was reading in 1900, 1950, 2000",
+      "Heatmaps of literary movements — Renaissance Italy, Harlem, Magical Realism in Latin America",
+      "Click any pin to enter that book's world — no other site has done this at global scale"
+    ]
+  },
+  {
+    title: "🧠 The AI Reading Soul",
+    items: [
+      "Not just 'you liked X so read Y' — the AI learns your emotional state, life stage, and curiosity patterns",
+      "Mood-based reading: 'I need to feel brave today' → curated list from across history and cultures",
+      "Reading journey mapping — shows you how your taste has evolved over years",
+      "Connects you to readers on the other side of the world who share your exact literary DNA",
+      "Predicts your 'next life-changing book' with explanation of WHY it will move you"
+    ]
+  },
+  {
+    title: "🌐 Borderless Reading",
+    items: [
+      "Any book, any language — AI translation with cultural context preserved (not just words, but meaning)",
+      "Side-by-side original + translation for language learners",
+      "Community-corrected translations — readers improve AI translations together",
+      "100+ languages from day one — making African, Asian, South American literature truly accessible",
+      "Dialect and regional variant support — no literary culture left behind"
+    ]
+  },
+  {
+    title: "👥 Living Communities",
+    items: [
+      "Not forums — living book clubs that meet in virtual spaces designed around each book's world",
+      "Cross-continent reading clubs matched by language, taste, and time zone",
+      "Generational reading chains — read the same book your grandparent read, discuss across time",
+      "City-based literary walks — GPS-guided tours of places that inspired famous novels",
+      "Book inheritance — pass your annotated copy of a book to another reader worldwide"
+    ]
+  },
+  {
+    title: "✍️ Author Universe",
+    items: [
+      "Authors are stars, not just names on covers — rich profiles, writing process journals, reader Q&A",
+      "Direct author-to-reader connection — no gatekeepers, no publisher middlemen for communication",
+      "Writing-in-public mode — readers watch authors draft chapters live and give feedback",
+      "Author origin stories — where they grew up, what shaped them, mapped on the world globe",
+      "Legacy archives — preserve and celebrate authors who have passed, keep their worlds alive"
+    ]
+  },
+  {
+    title: "💰 Fair Economy",
+    items: [
+      "Readers can directly tip/subscribe to authors they love — micro-patronage system",
+      "Transparent royalty tracking — authors see exactly who read their book and where",
+      "Community fundraising to translate underfunded books into more languages",
+      "BookShelf coins — earn by reviewing, translating, hosting book clubs, spend on books",
+      "No predatory algorithms pushing paid placement — discovery is earned, not bought"
+    ]
+  },
+  {
+    title: "🎮 Book as Experience",
+    items: [
+      "Immersive reading mode — ambient soundscapes, visuals, and music matched to the book's world",
+      "Collaborative annotation — read with friends, see their highlights and reactions in real-time",
+      "Book timelines — visualize a novel's events on a historical or fictional timeline",
+      "Character relationship maps that update as you read — no spoilers",
+      "Endings debate rooms — spoiler-safe spaces to argue about how a book should have ended"
+    ]
+  }
+];
+
+let active = 0;
+
+function selectPillar(i) {
+  active = i;
+  document.querySelectorAll('.pillar').forEach((p, idx) => {
+    p.classList.toggle('active', idx === i);
+  });
+  const d = pillars[i];
+  document.getElementById('detail-title').textContent = d.title;
+  document.getElementById('detail-list').innerHTML = d.items.map(item => `<li>${item}</li>`).join('');
+}
+
+selectPillar(0);
+</script>

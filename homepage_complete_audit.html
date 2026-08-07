@@ -1,0 +1,132 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:var(--font-sans);padding-bottom:2rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;padding:11px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary)}
+.ld{width:9px;height:9px;border-radius:50%}
+.sec{margin-bottom:20px}
+.sh{display:flex;align-items:center;gap:10px;padding-bottom:9px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:11px}
+.sn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.st{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.ss{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+.rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rG{background:#639922}.rO{background:#EF9F27}.rR{background:#E24B4A}
+.rbody{flex:1;min-width:0}
+.rname{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.rdesc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.rtag{font-size:11px;padding:2px 8px;border-radius:8px;font-weight:500;flex-shrink:0;white-space:nowrap;align-self:flex-start}
+.tG{background:#EAF3DE;color:#27500A;border:0.5px solid #97C459}
+.tO{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+.tR{background:#FAECE7;color:#712B13;border:0.5px solid #F0997B}
+.tP{background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6}
+.fix{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-sm);padding:5px 9px;margin-top:5px;line-height:1.55;display:block}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:20px}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:11px 13px}
+.snum{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.slbl{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+</style>
+
+<div class="w">
+
+<div class="sum">
+  <div class="sc" style="border-left:3px solid #639922"><div class="snum">9</div><div class="slbl">Elements working correctly</div></div>
+  <div class="sc" style="border-left:3px solid #EF9F27"><div class="snum">8</div><div class="slbl">Partially done / broken links</div></div>
+  <div class="sc" style="border-left:3px solid #E24B4A"><div class="snum">6</div><div class="slbl">Completely missing sections</div></div>
+  <div class="sc" style="border-left:3px solid #7068DD"><div class="snum">4</div><div class="slbl">Hardcoded numbers (should be live)</div></div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="ld" style="background:#639922"></div>Working correctly</div>
+  <div class="leg"><div class="ld" style="background:#EF9F27"></div>Partially done / broken link</div>
+  <div class="leg"><div class="ld" style="background:#E24B4A"></div>Completely missing</div>
+</div>
+
+<!-- SECTION 1: STATS BAR -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">1</div>
+    <div><div class="st">Stats bar — 5 numbers shown on the map</div><div class="ss">Only 1 of 5 is live from the database — the rest are hardcoded</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot rG"></div><div class="rbody"><div class="rname">● 2,847 Reading right now</div><div class="rdesc">This number is live — it polls GET /api/live/readers every 5 seconds and updates automatically. When a real user opens a book, the count goes up.</div></div><span class="rtag tG">live from API</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">4.2M Books catalogued</div><div class="rdesc">Hardcoded as "4.2M". Should come from GET /api/admin/stats → total_books. When real books are added to the database, this number would never update.</div><span class="fix">Fix: fetch /api/admin/stats on load, replace 4.2M with real count</span></div><span class="rtag tO">hardcoded</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">189 Countries represented</div><div class="rdesc">Hardcoded as "189". Should be a COUNT of distinct origin_country values in the books table. Currently never changes even if 0 books are in the database.</div><span class="fix">Fix: SELECT COUNT(DISTINCT origin_country) FROM books — add to /api/admin/stats</span></div><span class="rtag tO">hardcoded</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">127 Languages</div><div class="rdesc">Hardcoded as "127". Should come from COUNT of distinct original_language values plus community translation languages in the translations table.</div><span class="fix">Fix: SELECT COUNT(DISTINCT language_code) FROM book_translations — add to /api/admin/stats</span></div><span class="rtag tO">hardcoded</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">38,200 Active book clubs</div><div class="rdesc">Hardcoded as "38,200". Should come from GET /api/admin/stats → total_clubs. Currently shows 38,200 even when the database has 0 clubs.</div><span class="fix">Fix: fetch /api/admin/stats on load, replace 38,200 with real count</span></div><span class="rtag tO">hardcoded</span></div>
+  </div>
+</div>
+
+<!-- SECTION 2: GENRE FILTER CHIPS -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#FAECE7;color:#712B13;border:0.5px solid #F0997B">2</div>
+    <div><div class="st">Genre filter chips — on the map</div><div class="ss">The chips exist visually but clicking them does nothing to the map</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">All · Fiction · Poetry · Philosophy · History · Science</div><div class="rdesc">These 6 chips are visible on the map. The CSS for active state exists (.filter-chip.active). But clicking them does not filter the book pins on the map — no JavaScript event listener is connected to them. A user clicks "Poetry" expecting to see only poetry books on the map, but nothing happens.</div><span class="fix">Fix needed: add click listener → filter the map pins by genre → reload pins with GET /api/books/map/pins?genre=Poetry. Also needs more African literature genre chips: African Fiction · Post-Colonial · Oral Tradition · Swahili Literature</span></div><span class="rtag tR">broken — no JS connected</span></div>
+  </div>
+</div>
+
+<!-- SECTION 3: ACTIVITY TICKER -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">3</div>
+    <div><div class="st">Activity ticker (marquee) — scrolling strip</div><div class="ss">Works visually but all 10 items are hardcoded — never real activity</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">🇿🇦 Cape Town just started reading Things Fall Apart …</div><div class="rdesc">The scrolling activity strip is animated and looks great. But all 10 lines are hardcoded in the JavaScript — "🇯🇵 Tokyo just finished Norwegian Wood", "🇧🇷 São Paulo pinned The Alchemist" etc. These are fake. Real activity should come from the events table in the database — actual readers doing actual things right now.</div><span class="fix">Fix: GET /api/events/recent → replace the hardcoded marqueeItems array with real recent events from the database. The events table already records book_shelved, review_created, book_pinned etc.</span></div><span class="rtag tO">hardcoded fake data</span></div>
+  </div>
+</div>
+
+<!-- SECTION 4: BOOK SHELF -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#EAF3DE;color:#27500A;border:0.5px solid #97C459">4</div>
+    <div><div class="st">Book shelf — "What the world is reading right now"</div><div class="ss">Mostly works — one broken link</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot rG"></div><div class="rbody"><div class="rname">Book cards — load from real API</div><div class="rdesc">The book cards load from GET /api/books/trending/week — real data from the database. Each card shows cover, title, author, reader count. Clicking opens book-detail.html?id=:id correctly.</div></div><span class="rtag tG">working</span></div>
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">"See all →" link</div><div class="rdesc">Clicking "See all →" goes to book-detail.html — one specific book's page. It should go to a full book catalogue (explore.html) where the user can browse all books. This is a wrong destination.</div><span class="fix">Fix: change href="book-detail.html" to href="explore.html" (once explore.html is built)</span></div><span class="rtag tR">wrong destination</span></div>
+  </div>
+</div>
+
+<!-- SECTION 5: MISSING SECTIONS -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#FAECE7;color:#712B13;border:0.5px solid #F0997B">5</div>
+    <div><div class="st">6 sections completely missing from the homepage</div><div class="ss">These should exist on the homepage but are not there at all</div></div>
+  </div>
+  <div class="rows">
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">African Literature Spotlight section</div><div class="rdesc">Global BookShelf's core mission is to surface African literature. But the homepage has no section that explicitly highlights African books, African authors, or African languages. A new reader from Dar es Salaam opens the homepage and sees mostly Western books (García Márquez, Dostoevsky, Coelho). There should be a prominent section — "African Voices" — showing Achebe, Adichie, Ngugi wa Thiong'o, Ama Ata Aidoo, Tayeb Salih, Mariama Bâ.</div><span class="fix">Need to add: "African Voices" section with a horizontal scroll of African books — powered by GET /api/books?country=NG,TZ,KE,GH,ZA,EG,SN,ET&sort=readers</span></div><span class="rtag tR">completely missing</span></div>
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">Personalised "For You" section (when logged in)</div><div class="rdesc">When a user is logged in and has a soul profile, the homepage should show a personalised section — "Chosen for your soul" — with their 6 AI-matched book recommendations. Right now every user sees the same homepage regardless of whether they are logged in or what their soul profile says. The data exists: GET /api/soul/recommendations.</div><span class="fix">Need to add: after loadBookShelf(), check API.isLoggedIn() → if true, fetch /api/soul/recommendations → show "Chosen for your soul, [name]" section above the trending shelf</span></div><span class="rtag tR">completely missing</span></div>
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">Search results dropdown</div><div class="rdesc">The search bar on the map exists and calls GET /api/search. But when the user types, nothing appears below the search bar — no dropdown, no results list. The API returns results but there is no UI to display them. The user types "Achebe" and sees nothing happen.</div><span class="fix">Need to add: a results dropdown below the search input — showing books (emoji + title + author) and authors (name + country) — each item clickable, navigating to the right page</span></div><span class="rtag tR">completely missing</span></div>
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">Social proof / Reader testimonials section</div><div class="rdesc">No section shows real reader quotes, reviews, or experiences. Every serious platform has social proof — "Here is what real readers say." Without it, a new visitor has no reason to trust the platform. Even 3 short reader quotes would significantly increase sign-ups.</div><span class="fix">Need to add: 3 reader quote cards — real reviews from the reviews table (GET /api/books/:id/reviews) — shown between the features section and the book shelf</span></div><span class="rtag tR">completely missing</span></div>
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">Mobile app download section</div><div class="rdesc">The project has a React Native mobile app (App.js) but the homepage has no section promoting it. A visitor on a phone has no way to know the app exists. There should be an "Available on iOS and Android" section with App Store and Play Store links (or "Coming soon" badges during development).</div><span class="fix">Need to add: app download section near the footer — phone mockup showing the app, App Store badge, Google Play badge, or "Join the waitlist" if not yet published</span></div><span class="rtag tR">completely missing</span></div>
+
+    <div class="row"><div class="rdot rR"></div><div class="rbody"><div class="rname">Newsletter / "Get notified" signup</div><div class="rdesc">There is no way for an interested visitor to leave their email without creating a full account. Many people want to follow the platform's launch without committing to registration. A simple "Get notified when we launch in your city" email capture would build a launch audience. No backend endpoint exists for this either.</div><span class="fix">Need to add: a simple email input + submit button near the footer — POST to a new /api/notify endpoint that saves the email — or connect to Mailchimp/SendGrid</span></div><span class="rtag tR">completely missing</span></div>
+
+  </div>
+</div>
+
+<!-- SECTION 6: SMALL FIXES -->
+<div class="sec">
+  <div class="sh">
+    <div class="sn" style="background:#F1EFE8;color:#444441;border:0.5px solid #D3D1C7">6</div>
+    <div><div class="st">Small fixes needed</div><div class="ss">Things that exist but have minor problems</div></div>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">User name in nav not showing after login</div><div class="rdesc">API.updateNav() is called but it looks for elements with id="navUserMenu" and id="navUserName" — these elements do not exist in the homepage HTML. So after login, the user never sees their name in the nav bar.</div><span class="fix">Fix: add a navUserMenu div and navUserName span to the nav HTML, or update API.updateNav() to match the existing nav structure</span></div><span class="rtag tO">broken</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">loadBookShelf() looks for id="bookShelfRow" — does not exist</div><div class="rdesc">The backend wiring code tries to inject real books into document.getElementById('bookShelfRow') — but the HTML has id="recent-books", not "bookShelfRow". So the real books from the API never appear — the shelf stays empty.</div><span class="fix">Fix: change document.getElementById('bookShelfRow') to document.getElementById('recent-books') in the loadBookShelf() function</span></div><span class="rtag tR">broken ID mismatch</span></div>
+    <div class="row"><div class="rdot rO"></div><div class="rbody"><div class="rname">Map pins only show 15 country coordinates</div><div class="rdesc">The countryCoords object in loadMapPins() only covers 15 countries (IN, NG, SD, CO, US, KR, JP, GB, BR, TZ, EG, GH, KE, ET, SN). Books from any other country fall back to a rough calculation and appear in the wrong location on the map.</div><span class="fix">Fix: expand countryCoords to cover all 195 countries, or use the lat/lng values already stored in the book_pins table in the database</span></div><span class="rtag tO">incomplete</span></div>
+  </div>
+</div>
+
+</div>

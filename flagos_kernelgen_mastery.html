@@ -1,0 +1,181 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .section{margin-bottom:2rem}
+  .sec-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin:0 0 12px}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:10px}
+  .card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 6px;display:flex;align-items:center;gap:8px}
+  .card-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:0}
+  .badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+  .badge-purple{background:#EEEDFE;color:#3C3489}
+  .badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+  .badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+  .badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+  .badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+  .step-num{width:24px;height:24px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step-content{flex:1}
+  .step-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 2px}
+  .step-desc{font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.5}
+  code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-tertiary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+  .cmd{background:var(--color-background-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);line-height:1.8;margin:8px 0;white-space:pre-wrap}
+  .divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:20px 0}
+  .alert{background:var(--color-background-warning);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-warning);margin-bottom:16px;display:flex;gap:8px;align-items:flex-start}
+  .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .link-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-info);text-decoration:none;border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:4px 10px;margin-top:8px}
+</style>
+
+<h2 class="sr-only">Complete mastery guide for FlagOS and KernelGen — what they are, their ecosystem, and how to use KernelGen tonight for a demo.</h2>
+
+<div class="section">
+  <div class="alert">
+    <i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+    <span>This guide is built directly from the official FlagOS and KernelGen documentation so everything here is accurate for your demo tomorrow.</span>
+  </div>
+
+  <div class="sec-title">What is FlagOS?</div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-layers-intersect" style="font-size:16px" aria-hidden="true"></i> FlagOS — the full ecosystem</div>
+    <p class="card-body">FlagOS is a unified, open-source AI system software stack built for <strong style="color:var(--color-text-primary)">multi-chip AI hardware</strong>. It was jointly started by over 10 organizations including chip companies, AI research labs (BAAI), and system manufacturers. Its goal: let developers write AI software once and run it across many different GPU/NPU chips without rewriting code for each one.</p>
+    <div class="tag-row">
+      <span class="badge badge-blue">Open source</span>
+      <span class="badge badge-purple">Multi-chip AI</span>
+      <span class="badge badge-green">Apache 2.0 license</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-package" style="font-size:15px" aria-hidden="true"></i> FlagGems <span class="badge badge-gray">core library</span></div>
+      <p class="card-body">High-performance operator library written in Triton. Over 100 operators, supports 7 hardware backends. This is the library KernelGen contributes generated kernels into.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-binary-tree" style="font-size:15px" aria-hidden="true"></i> FlagTree <span class="badge badge-gray">compiler</span></div>
+      <p class="card-body">Unified compiler for multiple AI chips. Fork of triton-lang/triton with multi-backend support.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-server" style="font-size:15px" aria-hidden="true"></i> FlagScale <span class="badge badge-gray">large models</span></div>
+      <p class="card-body">End-to-end framework supporting the full lifecycle of large AI models — training, deployment, optimization.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-cpu" style="font-size:15px" aria-hidden="true"></i> KernelGen <span class="badge badge-purple">our focus tonight</span></div>
+      <p class="card-body">AI-powered automatic Triton kernel generation, optimization, and testing tool. The key tool for the competition.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="sec-title">What is KernelGen — clearly explained</div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-wand" style="font-size:16px" aria-hidden="true"></i> What it actually does</div>
+    <p class="card-body">KernelGen lets you describe a math operation (called an <strong style="color:var(--color-text-primary)">operator</strong>) in plain language or as a definition, then it automatically writes, tests, and optimizes the low-level GPU code (a <strong style="color:var(--color-text-primary)">Triton kernel</strong>) for that operator — across many chip types. Think of it like: "you tell it what computation you need, it writes the fastest possible code for it on any chip."</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-route" style="font-size:16px" aria-hidden="true"></i> KernelGen workflow (generate → optimize → test → deploy)</div>
+    <p class="card-body" style="margin-bottom:10px">The full pipeline KernelGen automates:</p>
+    <div class="step-row"><div class="step-num">1</div><div class="step-content"><div class="step-title">Define the operator</div><div class="step-desc">Describe what math operation you need — in natural language or as a formal definition on the web platform</div></div></div>
+    <div class="step-row"><div class="step-num">2</div><div class="step-content"><div class="step-title">Generate kernel</div><div class="step-desc">KernelGen's AI writes Triton kernel code automatically — multiple candidate versions</div></div></div>
+    <div class="step-row"><div class="step-num">3</div><div class="step-content"><div class="step-title">Autotune & optimize</div><div class="step-desc">Runs performance tests, finds fastest configuration for your hardware target</div></div></div>
+    <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-title">Verify correctness</div><div class="step-desc">Automated correctness tests — 100% pass rate required before contribution</div></div></div>
+    <div class="step-row"><div class="step-num">5</div><div class="step-content"><div class="step-title">Deploy / contribute</div><div class="step-desc">Contribute the kernel to FlagGems, or use it directly in your own project via MCP or Skills</div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-devices" style="font-size:16px" aria-hidden="true"></i> Three ways to use KernelGen</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:4px">
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px"><i class="ti ti-world" style="font-size:14px;margin-right:4px" aria-hidden="true"></i>Web platform</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Browser UI at kernelgen.flagos.io — easiest for demo, no install needed</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px"><i class="ti ti-plug" style="font-size:14px;margin-right:4px" aria-hidden="true"></i>MCP toolkit</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Connect to VSCode, Claude Code, or Cursor via MCP server — for developers</div>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px"><i class="ti ti-tools" style="font-size:14px;margin-right:4px" aria-hidden="true"></i>Skills</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Agent skills compatible with Claude Code, Cursor, Codex — agentic automation</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="sec-title">Tonight's demo plan using KernelGen web platform</div>
+  <div class="alert" style="background:var(--color-background-success)">
+    <i class="ti ti-check" style="font-size:16px;flex-shrink:0;color:var(--color-text-success)" aria-hidden="true"></i>
+    <span style="color:var(--color-text-success)">The web platform requires NO installation. Open a browser, sign up, and start generating kernels immediately. This is your fastest path to a demo tonight.</span>
+  </div>
+
+  <div class="step-row"><div class="step-num">1</div><div class="step-content">
+    <div class="step-title">Go to the platform and sign up</div>
+    <div class="step-desc">Open your browser and go to <code>kernelgen.flagos.io</code> — create an account (it's free). Check the browser requirements page first to confirm your browser is supported.</div>
+    <a class="link-btn" href="https://kernelgen.flagos.io">kernelgen.flagos.io <i class="ti ti-external-link" style="font-size:12px" aria-hidden="true"></i></a>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">2</div><div class="step-content">
+    <div class="step-title">Understand what to generate for your demo</div>
+    <div class="step-desc">For an exam monitoring demo, you want to generate an operator that does a core computer vision computation — for example a <strong style="color:var(--color-text-primary)">convolution kernel</strong> (used in image processing and motion detection) or a <strong style="color:var(--color-text-primary)">softmax operator</strong> (used in classification). These are real operations inside any CV model.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">3</div><div class="step-content">
+    <div class="step-title">Use a predefined use case first</div>
+    <div class="step-desc">The platform has prebuilt use cases for beginners. On your first login, click "Generate Kernels through predefined use cases" — this shows KernelGen working end-to-end without you needing to define the operator yourself. Perfect for a demo.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">4</div><div class="step-content">
+    <div class="step-title">Then try your own operator definition</div>
+    <div class="step-desc">In the web UI, describe your operator using natural language. For example: <em>"A 2D convolution operator for processing grayscale video frames to detect motion between frames"</em>. KernelGen will generate the Triton kernel code automatically.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">5</div><div class="step-content">
+    <div class="step-title">View results and select optimal kernel</div>
+    <div class="step-desc">KernelGen generates multiple kernel candidates. The platform shows you correctness test results and speedup ratios. Select the best one and show this screen to your leader — it proves the tool is working and generating optimized code.</div>
+  </div></div>
+
+  <div class="step-row"><div class="step-num">6</div><div class="step-content">
+    <div class="step-title">Optional: connect MCP to VSCode for advanced demo</div>
+    <div class="step-desc">If you have VSCode installed, you can connect KernelGen's MCP server to it. Get your token from the web platform, then configure VSCode to use the MCP toolkit. This lets you call KernelGen from inside your code editor — very impressive to show.</div>
+    <div class="cmd">1. Get token: kernelgen.flagos.io → account → API token
+2. In VSCode: install MCP extension
+3. Add KernelGen MCP server config with your token
+4. Use natural language in VSCode to generate kernels</div>
+  </div></div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="sec-title">What to say to your leader — demo script</div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-presentation" style="font-size:16px" aria-hidden="true"></i> Your presentation narrative</div>
+    <p class="card-body">"I have been working with the <strong style="color:var(--color-text-primary)">FlagOS ecosystem</strong> — a unified open-source AI system software stack that supports multiple chip architectures. Within it, I used <strong style="color:var(--color-text-primary)">KernelGen</strong> to automatically generate and optimize Triton kernels for computer vision operations needed in exam hall monitoring. KernelGen takes my operator definition and produces optimized GPU code — automatically tested for correctness and benchmarked for performance. This is the foundation for building a fast, multi-chip deployable motion detection system for national examination venues."</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-check" style="font-size:15px" aria-hidden="true"></i> What you CAN show <span class="badge badge-green">demo ready</span></div>
+      <p class="card-body">Live kernel generation on the web platform, correctness test results, speedup ratios, the FlagOS ecosystem diagram, KernelGen's full workflow, MCP connection in VSCode</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-arrow-right" style="font-size:15px" aria-hidden="true"></i> Next steps to promise <span class="badge badge-amber">roadmap</span></div>
+      <p class="card-body">Integrate the generated kernel into a full detection pipeline, connect with FlagGems operator library, test across multiple chip backends, deploy to exam venue hardware</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="sec-title">Key official links to bookmark tonight</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    <a class="link-btn" href="https://kernelgen.flagos.io">KernelGen web platform <i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i></a>
+    <a class="link-btn" href="https://docs.flagos.io/projects/kernelgen/en/latest/">KernelGen docs <i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i></a>
+    <a class="link-btn" href="https://docs.flagos.io/en/latest/">FlagOS docs <i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i></a>
+    <a class="link-btn" href="https://github.com/flagos-ai/KernelGen">GitHub repo <i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i></a>
+    <a class="link-btn" href="https://docs.flagos.io/projects/kernelgen/en/latest/getting_started/generate-triton-kernels-through-default-use-cases.html">Predefined use cases <i class="ti ti-external-link" style="font-size:11px" aria-hidden="true"></i></a>
+  </div>
+</div>

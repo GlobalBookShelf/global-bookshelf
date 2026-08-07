@@ -1,0 +1,469 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:var(--font-sans);padding-bottom:2rem}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.sn{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.sl{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.sec{margin-bottom:22px}
+.sh{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:12px}
+.snum{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.st{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.ss{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.items{display:flex;flex-direction:column;gap:6px}
+.item{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;display:flex;align-items:stretch}
+.item-left{width:4px;flex-shrink:0}
+.item-body{flex:1;padding:11px 14px;display:flex;align-items:flex-start;gap:12px}
+.iico{width:32px;height:32px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.icontent{flex:1;min-width:0}
+.iname{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.idesc{font-size:12px;color:var(--color-text-secondary);line-height:1.55}
+.ibadge{flex-shrink:0;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500;white-space:nowrap;align-self:flex-start;margin-top:1px}
+.bR{background:#FAECE7;color:#712B13;border:0.5px solid #F0997B}
+.bO{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+.bG{background:#EAF3DE;color:#27500A;border:0.5px solid #97C459}
+.bP{background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6}
+.lR{background:#E24B4A} .lO{background:#EF9F27} .lG{background:#639922} .lP{background:#7068DD}
+.priority-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:12px 16px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);margin-bottom:22px}
+.ps{font-size:11px;padding:4px 12px;border-radius:10px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);white-space:nowrap}
+.pa{color:var(--color-text-tertiary);font-size:13px}
+</style>
+
+<div class="w">
+
+<div class="summary">
+  <div class="sc" style="border-left:3px solid #639922">
+    <div class="sn" style="color:#27500A">77</div>
+    <div class="sl">API endpoints built</div>
+  </div>
+  <div class="sc" style="border-left:3px solid #E24B4A">
+    <div class="sn" style="color:#A32D2D">22</div>
+    <div class="sl">Things still missing</div>
+  </div>
+  <div class="sc" style="border-left:3px solid #EF9F27">
+    <div class="sn" style="color:#633806">7</div>
+    <div class="sl">Missing web pages</div>
+  </div>
+  <div class="sc" style="border-left:3px solid #7068DD">
+    <div class="sn" style="color:#3C3489">5</div>
+    <div class="sl">Missing mobile screens</div>
+  </div>
+</div>
+
+<div class="priority-strip">
+  <span style="font-size:11px;color:var(--color-text-secondary);margin-right:4px">Build order:</span>
+  <span class="ps">1 PostgreSQL connect</span><span class="pa">→</span>
+  <span class="ps">2 Google OAuth</span><span class="pa">→</span>
+  <span class="ps">3 Socket.io live rooms</span><span class="pa">→</span>
+  <span class="ps">4 File uploads (S3)</span><span class="pa">→</span>
+  <span class="ps">5 Mobile screens</span><span class="pa">→</span>
+  <span class="ps">6 Missing web pages</span><span class="pa">→</span>
+  <span class="ps">7 Author payouts</span><span class="pa">→</span>
+  <span class="ps">8 Docker + deploy</span>
+</div>
+
+<!-- SECTION 1: BACKEND -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#FAECE7;color:#712B13;border:0.5px solid #F0997B">1</div>
+    <div><div class="st">Backend — 6 missing features</div><div class="ss">Server and infrastructure gaps</div></div>
+  </div>
+  <div class="items">
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAECE7">🔑</div>
+        <div class="icontent">
+          <div class="iname">Google OAuth + Apple OAuth login</div>
+          <div class="idesc">The Sign In modal has Google and Apple buttons — they are UI only. No backend. Users cannot actually log in with Google. Need: passport + passport-google-oauth20 + passport-apple. The user_oauth table is already in the schema waiting for this.</div>
+        </div>
+        <span class="ibadge bR">critical</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAECE7">⚡</div>
+        <div class="icontent">
+          <div class="iname">Socket.io — real-time WebSockets</div>
+          <div class="idesc">The live reading rooms in community-hub.html are a visual only. The live reader counter is simulated with setInterval. The "writing now" badge on the author page is hardcoded. Socket.io turns all of these into real live connections — readers see each other typing, live reader counts update instantly, authors see followers joining their drafts.</div>
+        </div>
+        <span class="ibadge bR">critical</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAECE7">📤</div>
+        <div class="icontent">
+          <div class="iname">File uploads — book covers + author photos</div>
+          <div class="idesc">Authors can enter a cover_url in the publish book form — but they cannot upload an actual image. There is no POST /api/upload endpoint. Need: multer + AWS S3. The schema has cover_url fields on both books and author_profiles ready to store the URL.</div>
+        </div>
+        <span class="ibadge bR">critical</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">💸</div>
+        <div class="icontent">
+          <div class="iname">Author payouts — Stripe Connect</div>
+          <div class="idesc">Readers pay via Visa card and the platform collects the money. But authors never actually receive their 95% cut. Stripe Connect allows authors to link their own bank account so their share transfers automatically. The author_payouts table is in the schema — no code exists for it yet.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">🔍</div>
+        <div class="icontent">
+          <div class="iname">Full-text search index — search_index table unused</div>
+          <div class="idesc">The schema has a search_index table with tsvector columns and GIN indexes for fast full-text search. The current GET /api/search uses ILIKE which is slow on large datasets. Replacing it with to_tsvector queries makes search instant across 4.2M books.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">🧹</div>
+        <div class="icontent">
+          <div class="iname">pg_cron — automatic database cleanup jobs</div>
+          <div class="idesc">The live_readers table fills up with stale rows forever. The schema mentions pg_cron jobs to clean them every 10 minutes — these are not set up. Also needed: monthly patron payout summaries, expired token cleanup, and trending book score recalculation every hour.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 2: MOBILE APP -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#EEEDFE;color:#3C3489;border:0.5px solid #CECBF6">2</div>
+    <div><div class="st">Mobile App (App.js) — 5 missing screens</div><div class="ss">New server endpoints built but not yet wired in the mobile app</div></div>
+  </div>
+  <div class="items">
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">✏️</div>
+        <div class="icontent">
+          <div class="iname">Edit Profile screen</div>
+          <div class="idesc">The Profile screen shows user data but has no way to edit it. There is no form to change display name, bio, country, or preferred languages. PATCH /api/users/me exists on the server — the mobile screen just does not exist yet.</div>
+        </div>
+        <span class="ibadge bR">missing</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">👥</div>
+        <div class="icontent">
+          <div class="iname">Follow / Unfollow on author and user pages</div>
+          <div class="idesc">The Patron screen shows the author but has no Follow button. POST /api/follows and DELETE /api/follows/:id both exist — the button is simply missing from the mobile UI.</div>
+        </div>
+        <span class="ibadge bR">missing</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">📊</div>
+        <div class="icontent">
+          <div class="iname">Reading Session tracker + History screen</div>
+          <div class="idesc">When a user opens a book in the app, no reading session is started. POST /api/reading-sessions and PATCH /api/reading-sessions/:id exist. There is no Reading History screen showing total minutes read, books finished, and reading streaks.</div>
+        </div>
+        <span class="ibadge bO">missing</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">💰</div>
+        <div class="icontent">
+          <div class="iname">Author Tip screen</div>
+          <div class="idesc">POST /api/tips exists on the server but there is no tip button or screen in the mobile app. Readers cannot send one-off Visa tips from mobile — only from the web.</div>
+        </div>
+        <span class="ibadge bO">missing</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">🌐</div>
+        <div class="icontent">
+          <div class="iname">Translation Projects screen</div>
+          <div class="idesc">The Borderless Reading feature — readers volunteer to translate books into their language — has no mobile screen. GET /api/translations/projects and POST /api/books/:id/translations exist on the server.</div>
+        </div>
+        <span class="ibadge bO">missing</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 3: WEB PAGES -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27">3</div>
+    <div><div class="st">Web pages — 7 pages not yet built</div><div class="ss">These are linked from the nav but the pages do not exist</div></div>
+  </div>
+  <div class="items">
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">🔎</div>
+        <div class="icontent">
+          <div class="iname">Explore / Discover page</div>
+          <div class="idesc">The main book discovery page — browse all books with filters for genre, country, era, language, and soul match. Infinite scroll. This is where most users will spend their time outside of the world map. GET /api/books powers it — the page just does not exist yet.</div>
+        </div>
+        <span class="ibadge bR">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#E24B4A"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">✍️</div>
+        <div class="icontent">
+          <div class="iname">Authors Directory page</div>
+          <div class="idesc">A grid of all author profiles — filterable by region, genre, verified status, writing-in-public status. Each card links to that author's author-universe.html page. Critical for discovery of new authors especially African writers.</div>
+        </div>
+        <span class="ibadge bR">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">🌍</div>
+        <div class="icontent">
+          <div class="iname">Languages & Translation Hub page</div>
+          <div class="idesc">Shows all 127 languages, African languages highlighted, translation projects board, side-by-side bilingual reader demo. Showcases the Borderless Reading pillar which is a core differentiator of this platform.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">📋</div>
+        <div class="icontent">
+          <div class="iname">About / Mission page</div>
+          <div class="idesc">The platform manifesto — why African literature is underrepresented, the founding story, the Fair Economy model, contact information. Investors and press will look for this first. No backend needed — pure HTML and CSS.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#FAEEDA">📚</div>
+        <div class="icontent">
+          <div class="iname">Full Book Catalogue page</div>
+          <div class="idesc">The "See all" destination linked from the homepage book shelf. All books, sortable and filterable. Infinite scroll powered by GET /api/books with pagination.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">🗺️</div>
+        <div class="icontent">
+          <div class="iname">Living World Map — deep-dive feature page</div>
+          <div class="idesc">An expanded map experience — animated era slider, literary movement heatmap layers (Harlem Renaissance, African postcolonial, Latin American Boom), pin anatomy explainer, live statistics. Powered by GET /api/books/map/pins.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EEEDFE">🔤</div>
+        <div class="icontent">
+          <div class="iname">Borderless Reading — feature page</div>
+          <div class="idesc">Side-by-side bilingual reader demo, 127-language globe animation, translation quality toggle (machine → community draft → verified), crowdfunding model explanation. Powered by GET /api/books/:id/translations.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 4: DATABASE -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#EAF3DE;color:#27500A;border:0.5px solid #97C459">4</div>
+    <div><div class="st">Database (db.js) — 5 tables in schema but not in db.js</div><div class="ss">These tables exist in PostgreSQL but have no query functions yet</div></div>
+  </div>
+  <div class="items">
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EAF3DE">🔑</div>
+        <div class="icontent">
+          <div class="iname">user_oauth table — no query functions</div>
+          <div class="idesc">Stores Google/Apple/Twitter OAuth tokens. Needed when OAuth is built — db.userOauth.findOrCreate(), db.userOauth.link() etc. Currently this table is unused.</div>
+        </div>
+        <span class="ibadge bO">needed for OAuth</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EAF3DE">💰</div>
+        <div class="icontent">
+          <div class="iname">author_payouts table — no query functions</div>
+          <div class="idesc">Tracks monthly author earnings and Stripe Connect payout transfers. Needed when author payouts are built. db.authorPayouts.record(), db.authorPayouts.listByAuthor() etc.</div>
+        </div>
+        <span class="ibadge bO">needed for payouts</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EAF3DE">📖</div>
+        <div class="icontent">
+          <div class="iname">club_books table — no query functions</div>
+          <div class="idesc">Links books to reading clubs — the current book a club is reading. No db.clubs.setCurrentBook() or db.clubs.getCurrentBook() functions exist.</div>
+        </div>
+        <span class="ibadge bP">minor</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EAF3DE">💡</div>
+        <div class="icontent">
+          <div class="iname">soul_responses table — no query functions</div>
+          <div class="idesc">Stores each individual quiz answer for soul profile refinement over time. Currently the soul profile is computed once and saved — individual answers are not stored for future retraining.</div>
+        </div>
+        <span class="ibadge bP">minor</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#EAF3DE">👥</div>
+        <div class="icontent">
+          <div class="iname">chapter_followers table — no query functions</div>
+          <div class="idesc">Tracks who is following an author's live chapter draft. The POST /api/chapters/:id/follow endpoint exists but writes to an in-memory Map rather than this table.</div>
+        </div>
+        <span class="ibadge bP">minor</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 5: DEPLOYMENT -->
+<div class="sec">
+  <div class="sh">
+    <div class="snum" style="background:#F1EFE8;color:#444441;border:0.5px solid #D3D1C7">5</div>
+    <div><div class="st">Deployment — not yet done</div><div class="ss">Everything needed to put this on the real internet</div></div>
+  </div>
+  <div class="items">
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">🐳</div>
+        <div class="icontent">
+          <div class="iname">Docker + docker-compose</div>
+          <div class="idesc">A single docker-compose.yml that starts server.js, soul_engine.py, PostgreSQL, and Redis together with one command. Without this, deploying requires manually starting 4 services in the right order.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#EF9F27"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">☁️</div>
+        <div class="icontent">
+          <div class="iname">AWS deployment — ECS + RDS + S3 + CloudFront</div>
+          <div class="idesc">No production deployment config exists. Need: ECS task definitions for the Node.js and Python services, RDS PostgreSQL instance, S3 bucket for file uploads, CloudFront CDN for static files, and Route 53 for the domain.</div>
+        </div>
+        <span class="ibadge bO">important</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">🔄</div>
+        <div class="icontent">
+          <div class="iname">GitHub Actions CI/CD pipeline</div>
+          <div class="idesc">.github/workflows/deploy.yml — on push to main: run tests, build Docker images, push to ECR, deploy to ECS. Zero-downtime rolling deployments.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">📱</div>
+        <div class="icontent">
+          <div class="iname">Push notifications — FCM for mobile</div>
+          <div class="idesc">When an author publishes a new chapter, when someone becomes a patron, when a review gets liked — no push notification reaches the mobile app. Need: firebase-admin + FCM device token storage.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">📖</div>
+        <div class="icontent">
+          <div class="iname">API documentation — Swagger / OpenAPI</div>
+          <div class="idesc">No /api/docs page exists. Publishers, developers, and partner apps need a documented API to integrate. swagger-ui-express + swagger-jsdoc auto-generates this from comments in server.js.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="item-left" style="background:#7068DD"></div>
+      <div class="item-body">
+        <div class="iico" style="background:#F1EFE8">🔔</div>
+        <div class="icontent">
+          <div class="iname">Error monitoring — Sentry</div>
+          <div class="idesc">When server.js crashes in production, no alert is sent. Sentry catches every unhandled error, shows the stack trace, and sends an email. One npm install away — required before real users or real Visa payments go live.</div>
+        </div>
+        <span class="ibadge bP">later</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>

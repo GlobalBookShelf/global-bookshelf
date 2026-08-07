@@ -1,0 +1,366 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:var(--font-sans);padding-bottom:2rem}
+.zone{margin-bottom:28px}
+.zone-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--border-radius-lg);margin-bottom:12px}
+.zone-icon{font-size:20px}
+.zone-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.zone-sub{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.cards{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.card-top{display:flex;align-items:flex-start;gap:12px;padding:13px 16px}
+.btn-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;flex-shrink:0;white-space:nowrap;align-self:flex-start;margin-top:1px}
+.btn-gold{background:#C9A84C;color:#0a0a0f}
+.btn-ghost{background:transparent;border:1px solid rgba(201,168,76,.4);color:#C9A84C}
+.btn-teal{background:rgba(58,184,176,.15);color:#3ab8b0;border:1px solid rgba(58,184,176,.3)}
+.btn-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary)}
+.btn-text{background:transparent;color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.card-body{flex:1;min-width:0}
+.card-label{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.card-what{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:5px}
+.card-needs{display:flex;align-items:flex-start;gap:8px;padding:9px 13px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.needs-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);flex-shrink:0;margin-top:1px;min-width:56px}
+.needs-val{font-size:12px;color:var(--color-text-primary);line-height:1.55}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sdG{background:#639922} .sdO{background:#EF9F27} .sdR{background:#E24B4A}
+.status-txt{font-size:11px;color:var(--color-text-secondary)}
+.status-row{display:flex;align-items:flex-start;gap:6px;padding:6px 13px;border-top:0.5px solid var(--color-border-tertiary)}
+</style>
+
+<div class="w">
+
+<!-- ══ ZONE 1: NAVIGATION BAR ══ -->
+<div class="zone">
+  <div class="zone-head" style="background:rgba(201,168,76,.06);border:0.5px solid rgba(201,168,76,.2)">
+    <div class="zone-icon">🧭</div>
+    <div>
+      <div class="zone-title">Navigation Bar — top of every page</div>
+      <div class="zone-sub">7 clickable items · always visible as user scrolls</div>
+    </div>
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gold">G  Global BookShelf</span>
+        <div class="card-body">
+          <div class="card-label">Logo — top left</div>
+          <div class="card-what">Clicking the logo always takes the user back to the homepage (global-bookshelf.html). Standard web behaviour — every website logo does this. Already works.</div>
+        </div>
+      </div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — links to global-bookshelf.html</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">Explore</span>
+        <div class="card-body">
+          <div class="card-label">Nav link — Explore</div>
+          <div class="card-what">Should open the full book catalogue — a page where users browse all 4.2 million books with filters for genre, country, language, era, and soul match. Currently links back to global-bookshelf.html (the homepage) because the Explore page does not exist yet.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">A new page: <strong>explore.html</strong> — book grid, genre filter chips, country filter, era slider, sort options (readers / rating / newest), infinite scroll. Powered by GET /api/books</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Missing — explore.html does not exist yet</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">Communities</span>
+        <div class="card-body">
+          <div class="card-label">Nav link — Communities</div>
+          <div class="card-what">Takes the user to the Communities page showing all book clubs, live reading rooms, and generational reading chains. Already works correctly.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">community-hub.html — book clubs grid, join buttons, live rooms, reading chains</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — links to community-hub.html</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">Authors</span>
+        <div class="card-body">
+          <div class="card-label">Nav link — Authors</div>
+          <div class="card-what">Should open a directory of all authors on the platform — a grid of author cards filterable by region, genre, verified status, writing-in-public status. Currently links to author-universe.html which shows ONE specific author's page, not a directory of all authors.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">A new page: <strong>authors.html</strong> — grid of all author profiles, each card shows name, country, follower count, patron count, current book being written. Powered by GET /api/authors</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Missing — authors.html (directory) does not exist yet</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">Languages</span>
+        <div class="card-body">
+          <div class="card-label">Nav link — Languages</div>
+          <div class="card-what">Should open the Languages and Translation Hub — showing all 127 languages, African languages highlighted, active translation projects, how community translation works, a side-by-side bilingual reading demo. Currently links to community-hub.html#languages which does not have this content.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">A new page: <strong>languages.html</strong> — 127 language cards, translation projects board, volunteer translator signup, bilingual reader demo. Powered by GET /api/translations/projects</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Missing — languages.html does not exist yet</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">About</span>
+        <div class="card-body">
+          <div class="card-label">Nav link — About</div>
+          <div class="card-what">Should show the platform mission, founding story, why African literature is underrepresented, the Fair Economy model (95% to authors), and a contact form. Currently links to index.html which is the technical launchpad page — not a mission/about page at all.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">A new page: <strong>about.html</strong> — manifesto, founding story, team, Fair Economy model, contact form. No backend needed — pure HTML and CSS.</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Missing — about.html does not exist yet</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">Sign In</span>
+        <div class="card-body">
+          <div class="card-label">Button — Sign In (top right)</div>
+          <div class="card-what">Opens a modal popup with email and password fields. The user enters their credentials and clicks Sign in. If correct, they are logged in — their name appears in the nav and the Sign In / Join Free buttons hide. If wrong, an error message shows. Also has a "Forgot password?" link.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Inside modal</span><span class="needs-val">Email field · Password field · Sign in button → POST /api/auth/login · Forgot password link → POST /api/auth/forgot-password · Switch to Register tab · Google login button (OAuth — not yet built)</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — modal opens, calls POST /api/auth/login, saves JWT token</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gold">Join Free</span>
+        <div class="card-body">
+          <div class="card-label">Button — Join Free (top right)</div>
+          <div class="card-what">Takes the user directly to the Soul Quiz. The idea is: instead of a boring registration form, the user starts discovering themselves through the quiz and creates an account at the end when they see their soul profile. This is the main user acquisition flow.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">ai-reading-soul.html → 3-question quiz → soul profile revealed → account created at the end via POST /api/auth/register + POST /api/soul/profile</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — navigates to ai-reading-soul.html</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ZONE 2: HERO SECTION ══ -->
+<div class="zone">
+  <div class="zone-head" style="background:rgba(58,184,176,.06);border:0.5px solid rgba(58,184,176,.2)">
+    <div class="zone-icon">🌍</div>
+    <div>
+      <div class="zone-title">Hero Section — the world map area</div>
+      <div class="zone-sub">5 interactive elements · first thing the user sees</div>
+    </div>
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gold">Explore the Map</span>
+        <div class="card-body">
+          <div class="card-label">Button — Explore the Map (main CTA)</div>
+          <div class="card-what">Expands the world map to fill the entire screen in full-map mode. The nav bar hides, the map grows to cover everything, and an Exit button appears. The user can then pan around the map, see all the book pins, hover over them to see book titles, and click a pin to open that book's page.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Inside</span><span class="needs-val">Full-screen SVG world map · book pins from GET /api/books/map/pins · hover tooltip showing book title + author + reader count · click pin → book-detail.html?id=:id · era slider still works · Exit button to collapse back · live reader dots moving around the map</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — map expands fullscreen, pins load from API</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-text">How it works →</span>
+        <div class="card-body">
+          <div class="card-label">Button — How it works</div>
+          <div class="card-what">Smoothly scrolls the page down to the Features section (the 6 feature cards below the map). No page navigation — just a scroll animation so the user stays on the homepage and sees what the platform offers.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Inside</span><span class="needs-val">Smooth scroll to the 6 feature cards section: Living World Map · AI Reading Soul · Borderless Reading · Author Universe · Living Communities · Books as Experiences</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — scrolls to features section</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-teal">🔍 Search books, authors, cities…</span>
+        <div class="card-body">
+          <div class="card-label">Search bar — on the map</div>
+          <div class="card-what">As the user types, results appear instantly below the search bar — books, authors, and cities matching the query. Clicking a result either opens that book's page or zooms the map to that city's pin. Currently the search calls GET /api/search but the results dropdown UI is missing.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">A results dropdown below the search bar showing: book results (cover emoji, title, author) · author results (name, country) · each result clickable → book-detail.html or author-universe.html. Powered by GET /api/search?q=</span></div>
+      <div class="status-row"><div class="status-dot sdO"></div><span class="status-txt">⚠ Partially done — API exists, dropdown UI not yet built</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">━━ Era Slider 1800 → 2024</span>
+        <div class="card-body">
+          <div class="card-label">Slider — Time era filter</div>
+          <div class="card-what">Dragging the slider left travels back in time — books published before that year appear on the map, newer ones fade out. At 1920 you see colonial literature. At 1960 you see post-independence African writing. At 2024 you see everything. The map opacity changes as you drag.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Inside</span><span class="needs-val">Year label updates as user drags · map pins reload from GET /api/books/map/pins?era_to=YEAR · pins for books after that year fade out · the label shows the selected year prominently next to the slider</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — slider filters map pins by era</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-teal">📖 Book pins on the map</span>
+        <div class="card-body">
+          <div class="card-label">Clickable — Book pins (gold dots)</div>
+          <div class="card-what">Each gold dot on the world map is a book pinned to its country of origin. Hovering shows a tooltip with the book title and author. Clicking opens that book's full detail page. The pins pulse and glow to show how many readers are currently reading that book.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">book-detail.html?id=:bookId — showing that specific book's cover, description, excerpt, reviews, annotations, soul match score, add to shelf button, support author button</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — pins load from API, click navigates to book detail</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ZONE 3: FEATURE CARDS ══ -->
+<div class="zone">
+  <div class="zone-head" style="background:rgba(124,111,212,.06);border:0.5px solid rgba(124,111,212,.2)">
+    <div class="zone-icon">✦</div>
+    <div>
+      <div class="zone-title">6 Feature Cards — below the map</div>
+      <div class="zone-sub">Each card is clickable and goes to a specific page</div>
+    </div>
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">🌍 Living World Map</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 1 — Living World Map</div>
+          <div class="card-what">Clicking this card enters the full-map mode — same as clicking "Explore the Map" in the hero section. It is a shortcut to the expanded map experience.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">Full-screen map mode (enterFullMap() function) · same page, map expands</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — triggers enterFullMap()</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">✦ AI Reading Soul</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 2 — AI Reading Soul</div>
+          <div class="card-what">Takes the user to the soul quiz. They answer 3 questions about what their soul needs, which literary passages move them, and when they read. The AI computes 14 soul dimensions and reveals their reading archetype — Midnight Wanderer, The Seeker, The Lyricist etc.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">ai-reading-soul.html → 3 quiz questions → soul profile page showing archetype, 14 dimensions, literary DNA, and 6 book recommendations matched to their soul</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — navigates to ai-reading-soul.html</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">🌐 Borderless Reading</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 3 — Borderless Reading</div>
+          <div class="card-what">Should go to the Languages and Translation Hub page showing how the community translates books into 127 languages. Currently goes to community-hub.html which does not have this content.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">languages.html — 127 language cards, side-by-side bilingual reader, translation project board, "become a translator" form. GET /api/translations/projects</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Missing — languages.html does not exist yet</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">✍️ Author Universe</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 4 — Author Universe</div>
+          <div class="card-what">Takes the user to an author profile page. Currently goes to a demo author page (Adaeze Okonkwo). In production this should go to the Authors Directory so the user can choose which author they want to explore.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">Currently: author-universe.html (one specific author) · Ideally should go to: authors.html (directory of all authors) so user can choose</span></div>
+      <div class="status-row"><div class="status-dot sdO"></div><span class="status-txt">⚠ Works but goes to wrong page — should go to authors directory</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">👥 Living Communities</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 5 — Living Communities</div>
+          <div class="card-what">Takes the user to the Communities page showing all book clubs, live reading rooms, and generational reading chains. Already goes to the right page.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">community-hub.html — book clubs grid, join buttons, live rooms showing how many readers are inside, generational reading chains</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — navigates to community-hub.html</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">📖 Books as Experiences</span>
+        <div class="card-body">
+          <div class="card-label">Feature card 6 — Books as Experiences</div>
+          <div class="card-what">Should show the immersive reading features — ambient soundscapes, character relationship maps, debate rooms, annotation layers. Currently goes to book-detail.html which shows these features but only for one hardcoded book.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">book-detail.html — showing the immersive reader with character map, annotations, debate room, ambient mode. User should first be asked to pick a book.</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Works — navigates to book-detail.html</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ZONE 4: BOOK SHELF ══ -->
+<div class="zone">
+  <div class="zone-head" style="background:rgba(82,168,118,.06);border:0.5px solid rgba(82,168,118,.2)">
+    <div class="zone-icon">📚</div>
+    <div>
+      <div class="zone-title">Book Shelf — "What the world is reading right now"</div>
+      <div class="zone-sub">Horizontal scrolling row of book cards · below the feature cards</div>
+    </div>
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-teal">📖 Book card</span>
+        <div class="card-body">
+          <div class="card-label">Clickable — each book card</div>
+          <div class="card-what">Clicking any book card opens that book's full detail page. The cards show the book cover (coloured spine with emoji), title, author, and live reader count. They load from the real API — GET /api/books/trending/week — so they change based on what is actually being read.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Goes to</span><span class="needs-val">book-detail.html?id=:bookId — full book page with excerpt, reviews, annotations, soul match score, add to shelf, support author button</span></div>
+      <div class="status-row"><div class="status-dot sdG"></div><span class="status-txt">✓ Already works — cards load from API, click goes to book detail</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-ghost">See all →</span>
+        <div class="card-body">
+          <div class="card-label">Link — "See all →" (top right of shelf)</div>
+          <div class="card-what">Should go to the full book catalogue page showing all books with filters. Currently links to book-detail.html which is a single book page — wrong destination.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Needs</span><span class="needs-val">Should link to explore.html (full catalogue) — not yet built. Temporary fix: link to global-bookshelf.html#books or build explore.html</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ Wrong destination — links to book-detail.html instead of explore.html</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ ZONE 5: FOOTER ══ -->
+<div class="zone">
+  <div class="zone-head" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)">
+    <div class="zone-icon">🔗</div>
+    <div>
+      <div class="zone-title">Footer links</div>
+      <div class="zone-sub">4 links · currently all go to placeholder pages</div>
+    </div>
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <span class="btn-pill btn-gray">About · Authors · Publishers · API · Privacy</span>
+        <div class="card-body">
+          <div class="card-label">Footer navigation links</div>
+          <div class="card-what">All footer links currently go to index.html or schema-explorer.html as placeholders. Each needs its own destination page. About and Privacy are pure HTML (no backend). Publishers and API need dedicated pages explaining how to partner with or integrate with Global BookShelf.</div>
+        </div>
+      </div>
+      <div class="card-needs"><span class="needs-label">Each needs</span><span class="needs-val">About → about.html · Authors → authors.html · Publishers → publishers.html (partner page) · API → api-docs.html or /api/docs (Swagger) · Privacy → privacy.html</span></div>
+      <div class="status-row"><div class="status-dot sdR"></div><span class="status-txt">✗ All go to wrong pages — none of these destination pages exist yet</span></div>
+    </div>
+
+  </div>
+</div>
+
+</div>

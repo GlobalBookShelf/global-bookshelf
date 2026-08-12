@@ -718,11 +718,11 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 
 <!-- NAV -->
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="/" class="nav-logo">Global <em>BookShelf</em></a>
   <div class="nav-breadcrumb">
-    <a href="global-bookshelf.html">Home</a><span>/</span>
-    <a href="explore.html?genre=Fiction">Fiction</a><span>/</span>
-    <a href="explore.html?country=IN">India</a><span>/</span>
+    <a href="/">Home</a><span>/</span>
+    <a href="/explore?genre=Fiction">Fiction</a><span>/</span>
+    <a href="/explore?country=IN">India</a><span>/</span>
     <span style="color:var(--pg3)">The God of Small Things</span>
   </div>
   <div class="nav-right">
@@ -763,7 +763,7 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
     <div class="hero-text">
       <div class="book-origin" id="bookOrigin" style="display:none">🇮🇳 Kerala, India · 1997</div>
       <h1 class="book-title" id="bookTitleMain">The God of<br><em>Small Things</em></h1>
-      <p class="book-author">by <a href="author-universe.html" id="bookAuthorLink">Arundhati Roy</a></p>
+      <p class="book-author">by <a href="/author-universe" id="bookAuthorLink">Arundhati Roy</a></p>
       <div class="rating-row" id="ratingRow">
         <span class="stars" id="starsDisplay">★★★★★</span>
         <span class="rating-val" id="ratingValDisplay">4.8</span>
@@ -1247,7 +1247,7 @@ clubs.forEach(c => {
     onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
     <div style="width:36px;height:36px;border-radius:8px;background:var(--pg6);display:flex;align-items:center;justify-content:center;font-size:17px">${c.flag}</div>
     <div style="flex:1"><div style="font-size:13px;color:var(--pg)">${c.name}</div><div style="font-size:10px;color:var(--pg4)">${c.members} members · next: ${c.next}</div></div>
-    <button style="font-size:11px;padding:5px 12px;border:1px solid var(--pg5);border-radius:12px;background:transparent;color:var(--pg4);cursor:pointer" onclick="window.location.href='community-hub.html'">Join</button>
+    <button style="font-size:11px;padding:5px 12px;border:1px solid var(--pg5);border-radius:12px;background:transparent;color:var(--pg4);cursor:pointer" onclick="window.location.href='/community-hub'">Join</button>
   </div>`;
 });
 

@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 <body>
 
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="/" class="nav-logo">Global <em>BookShelf</em></a>
   <div class="nav-step-track" id="stepTrack">
     <div class="nav-step active" id="ns0"></div>
     <div class="nav-step" id="ns1"></div>
@@ -940,7 +940,7 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
                    box-shadow:0 4px 24px rgba(201,168,76,.3);transition:all .2s">
             Explore your books on the map →
           </button>
-          <button onclick="window.location.href='global-bookshelf.html'"
+          <button onclick="window.location.href = '/'"
             style="padding:14px 28px;background:transparent;
                    border:1px solid rgba(245,239,227,.2);border-radius:6px;
                    color:rgba(var(--text-rgb,245,239,227), .7);font-family:var(--sans);font-size:14px;
@@ -1287,7 +1287,7 @@ function goToHomepageWithSoul() {
   }
 
   // Navigate to homepage — the homepage will show soul recommendations
-  window.location.href = 'global-bookshelf.html';
+  window.location.href = '/';
 }
 </script>
 

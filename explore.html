@@ -476,20 +476,20 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 <body>
 
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="nav-logo-mark">G</div>
     Global <span style="color:var(--gold)">BookShelf</span>
   </a>
   <ul class="nav-links">
-    <li><a href="explore.html" class="active">Explore</a></li>
-    <li><a href="community-hub.html">Communities</a></li>
-    <li><a href="authors.html">Authors</a></li>
-    <li><a href="languages.html">Languages</a></li>
-    <li><a href="about.html">About</a></li>
+    <li><a href="/explore" class="active">Explore</a></li>
+    <li><a href="/community-hub">Communities</a></li>
+    <li><a href="/authors">Authors</a></li>
+    <li><a href="/languages">Languages</a></li>
+    <li><a href="/about">About</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(onLogin)">Sign In</button>
-    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='/ai-reading-soul'">Join Free</button>
     <div id="navUserMenu">
       <div id="navUserAvatar">?</div>
       <span id="navUserName"></span>
@@ -793,7 +793,7 @@ function renderBooks(books, append) {
     const flag = b.flag || '🌍';
     const card = document.createElement('div');
     card.className = 'book-card';
-    card.onclick   = () => window.location.href = 'book-detail.html?id=' + (b.id||'');
+    card.onclick   = () => window.location.href = '/book-detail?id=' + (b.id||'');
     if (viewMode === 'list') {
       card.style.cssText = 'display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--ink2);border-radius:10px;border:1px solid rgba(245,239,227,.06)';
       card.innerHTML = `

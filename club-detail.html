@@ -524,19 +524,19 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 <body>
 
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="/" class="nav-logo">Global <em>BookShelf</em></a>
   <ul class="nav-links">
-    <li><a href="global-bookshelf.html">Explore</a></li>
-    <li><a href="author-universe.html">Authors</a></li>
-    <li><a href="community-hub.html" class="active">Communities</a></li>
-    <li><a href="ai-reading-soul.html">My Soul</a></li>
+    <li><a href="/">Explore</a></li>
+    <li><a href="/author-universe">Authors</a></li>
+    <li><a href="/community-hub" class="active">Communities</a></li>
+    <li><a href="/ai-reading-soul">My Soul</a></li>
   </ul>
-  <button class="btn-gold" onclick="window.location.href='community-hub.html'">All clubs</button>
+  <button class="btn-gold" onclick="window.location.href='/community-hub'">All clubs</button>
   <button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button>
 </nav>
 
 <div class="wrap">
-  <a href="community-hub.html" class="back-link">← Back to communities</a>
+  <a href="/community-hub" class="back-link">← Back to communities</a>
 
   <div id="clubContent">
     <div class="loading">Loading club…</div>
@@ -593,7 +593,7 @@ function flagEmoji(cc){
 async function loadClub() {
   if (!clubId) {
     document.getElementById('clubContent').innerHTML =
-      '<div class="empty"><div class="empty-emoji">🔍</div>No club specified. <a href="community-hub.html" style="color:var(--gold)">Browse clubs →</a></div>';
+      '<div class="empty"><div class="empty-emoji">🔍</div>No club specified. <a href="/community-hub" style="color:var(--gold)">Browse clubs →</a></div>';
     return;
   }
 
@@ -622,7 +622,7 @@ async function loadClub() {
   } catch (e) {
     document.getElementById('clubContent').innerHTML =
       '<div class="empty"><div class="empty-emoji">😕</div>' + (e.message || 'Could not load this club') +
-      '<br><a href="community-hub.html" style="color:var(--gold);margin-top:10px;display:inline-block">← Back to communities</a></div>';
+      '<br><a href="/community-hub" style="color:var(--gold);margin-top:10px;display:inline-block">← Back to communities</a></div>';
   }
 }
 

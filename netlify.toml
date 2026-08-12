@@ -1,0 +1,21 @@
+[build]
+  publish = "."
+
+# Serve pages without the .html suffix
+[[redirects]]
+  from = "/global-bookshelf"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/global-bookshelf.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true

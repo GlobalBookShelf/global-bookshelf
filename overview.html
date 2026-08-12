@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global BookShelf — Project Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --text-rgb:245,239,227;
+  --ink-rgb:7,7,16;
+
+  --ink:#07070e;--ink2:#10101a;--ink3:#181823;
+  --pg:#f4ede0;--pg3:rgba(244,237,224,.68);--pg4:rgba(244,237,224,.36);--pg5:rgba(244,237,224,.1);--pg6:rgba(244,237,224,.05);
+  --gold:#c8a44a;--gold2:#e6c560;--goldd:rgba(200,164,74,.14);
+  --teal:#36b4ac;--coral:#de5848;--violet:#8b78d6;--sage:#68a878;--amber:#c97e32;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+
+/* ── READING ROOM — daylight parchment theme ── */
+[data-theme="day"]{
+  --text-rgb:43,33,24;
+  /* text-color families used across pages */
+  --parchment:#2b2118;--parchment2:#3a2e22;--parchment3:rgba(43,33,24,.7);
+  --muted:rgba(43,33,24,.58);--muted2:rgba(43,33,24,.3);--muted3:rgba(43,33,24,.18);
+  --paper:#f7f3e9;--text:#2b2118;
+  --amber:#a85f1e;
+
+  --ink:#f7f3e9;--ink2:#fffdf7;--ink3:#f1ebdc;--ink4:#e8e0cd;--ink5:#ddd3bc;
+  --pg:#2b2118;--pg2:#3a2e22;--pg3:rgba(43,33,24,.72);--pg4:rgba(43,33,24,.48);--pg5:rgba(43,33,24,.13);--pg6:rgba(43,33,24,.09);
+  --gold:#9a7b2f;--gold2:#836722;--goldd:rgba(154,123,47,.13);--goldb:rgba(154,123,47,.32);
+  --teal:#1d7d76;--teald:rgba(29,125,118,.12);
+  --coral:#b83d24;--corald:rgba(184,61,36,.11);
+  --violet:#5f4bb0;--violetd:rgba(95,75,176,.11);
+  --sage:#3f7d51;
+  --ink-rgb:247,243,233;
+  --paper:#f7f3e9;--muted:rgba(43,33,24,.55);--text:#2b2118;
+}
+html,body{transition:background .35s ease,color .35s ease}
+.theme-toggle{background:none;border:1px solid var(--pg5,rgba(128,128,128,.25));color:var(--pg3,#888);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s;flex-shrink:0;padding:0;line-height:1}
+.theme-toggle:hover{border-color:var(--goldb,rgba(197,160,56,.4));color:var(--gold,#c5a038);transform:rotate(-12deg)}
+
+html,body{width:100%;min-height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.wrap{max-width:1000px;margin:0 auto;padding:80px 2rem;position:relative;z-index:1}
+
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.eyebrow::before,.eyebrow::after{content:'';width:24px;height:1px;background:var(--gold);opacity:.5}
+.main-title{font-family:var(--serif);font-size:clamp(40px,6vw,76px);font-weight:300;line-height:1.05;
+  color:var(--pg);margin-bottom:14px;letter-spacing:-.01em;text-align:center}
+.main-title em{font-style:italic;color:var(--gold)}
+.main-sub{font-size:15px;font-weight:300;color:var(--pg3);text-align:center;max-width:520px;
+  margin:0 auto 60px;line-height:1.7}
+
+.pages-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:60px}
+.page-card{background:var(--ink2);border:1px solid var(--pg5);border-radius:12px;overflow:hidden;
+  text-decoration:none;display:flex;flex-direction:column;transition:all .25s;position:relative;
+  animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.page-card:hover{transform:translateY(-4px);border-color:rgba(200,164,74,.25);
+  box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.page-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--page-color,var(--gold))}
+.page-banner{height:120px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden}
+.page-banner-glow{position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(200,164,74,.08) 0%,transparent 70%)}
+.page-icon{font-size:40px;position:relative;z-index:1}
+.page-body{padding:20px}
+.page-num{font-family:var(--mono);font-size:10px;color:var(--pg4);letter-spacing:.08em;margin-bottom:8px}
+.page-title{font-family:var(--serif);font-size:22px;color:var(--pg);margin-bottom:6px;line-height:1.2}
+.page-desc{font-size:12px;color:var(--pg3);line-height:1.65;margin-bottom:14px;font-weight:300}
+.page-features{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.pf{font-size:11px;color:var(--pg4);display:flex;align-items:center;gap:6px}
+.pf::before{content:'✓';color:var(--page-color,var(--gold));font-size:10px}
+.page-cta{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;
+  color:var(--page-color,var(--gold));letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 16px;border:1px solid var(--page-color,var(--gold));border-radius:6px;
+  transition:all .2s;background:transparent;cursor:pointer;font-family:var(--sans)}
+.page-cta:hover{background:rgba(200,164,74,.1)}
+
+/* Schema card - full width */
+.schema-card{grid-column:1/-1}
+
+/* Status bar */
+.status-bar{background:var(--ink2);border:1px solid var(--pg5);border-radius:12px;padding:24px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:60px;animation:fadeUp .5s ease .5s both}
+.st-item{text-align:center}
+.st-n{font-family:var(--serif);font-size:28px;color:var(--pg)}
+.st-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pg4);margin-top:4px}
+.st-bar{height:3px;border-radius:2px;margin-top:8px}
+
+/* Next up section */
+.next-section{margin-top:60px}
+.next-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.next-item{background:var(--ink2);border:1px solid var(--pg5);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s}
+.next-item:hover{border-color:rgba(200,164,74,.2);transform:translateY(-2px)}
+.ni-num{font-family:var(--mono);font-size:10px;color:var(--pg4);margin-bottom:6px}
+.ni-title{font-size:14px;color:var(--pg);margin-bottom:4px;font-weight:400}
+.ni-desc{font-size:11px;color:var(--pg4);line-height:1.5}
+
+/* Footer */
+.project-footer{border-top:1px solid var(--pg5);margin-top:60px;padding-top:32px;
+  display:flex;align-items:center;justify-content:space-between}
+.pf-logo{font-family:var(--serif);font-size:20px;color:var(--pg3)}
+.pf-logo em{color:var(--gold);font-style:italic}
+.pf-copy{font-size:11px;color:rgba(244,237,224,.2);letter-spacing:.05em}
+
+/* GBS-MOBILE-FIXES — small screens */
+@media (max-width: 900px){
+  .filter-strip{
+    position: fixed !important;
+    right: auto !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 84px !important;
+    transform: none !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 6px 14px 8px !important;
+    z-index: 45 !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .filter-strip::-webkit-scrollbar{ display:none; }
+  .filter-chip{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center;
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+  }
+
+  .time-slider-wrap{ left: 12px !important; right: auto !important; }
+
+  .hero-title{ font-size: clamp(30px, 9vw, 48px) !important; }
+  .hero-sub{ font-size: 13px !important; padding: 0 20px; }
+  .hero-content{ bottom: 150px !important; }
+  .hero-eyebrow{ font-size: 9px !important; letter-spacing: .18em !important; }
+
+  .search-wrap{ width: min(88vw, 360px) !important; top: 70px !important; }
+
+  nav{ padding: 12px 16px !important; flex-wrap: wrap !important; gap: 8px; }
+  .nav-links{ order: 3; width: 100%; justify-content: center; flex-wrap: wrap; gap: 14px !important; }
+
+  .stats-bar{ overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .stats-bar::-webkit-scrollbar{ display:none; }
+
+  html, body{ max-width: 100%; overflow-x: hidden; }
+}
+
+@media (max-width: 560px){
+  .hero-content{ bottom: 140px !important; }
+  .filter-strip{ bottom: 76px !important; }
+  .search-wrap{ top: 64px !important; }
+}
+
+
+/* GBS-MOBILE-FIX2 — keep chips clear of hero buttons */
+@media (max-width: 900px){
+  .filter-strip{
+    bottom: 0 !important;
+    padding: 10px 14px 12px !important;
+    background: linear-gradient(to top,
+      rgba(var(--ink-rgb,7,7,16),0.94),
+      rgba(var(--ink-rgb,7,7,16),0.75) 62%,
+      rgba(var(--ink-rgb,7,7,16),0)) !important;
+    z-index: 60 !important;
+  }
+  .hero-content{ bottom: 104px !important; }
+  .scroll-hint{ display: none !important; }
+  .stats-bar{ padding-bottom: 58px !important; }
+}
+@media (max-width: 560px){
+  .hero-content{ bottom: 98px !important; }
+  .filter-strip{ padding: 9px 12px 11px !important; }
+  .hero-actions{ flex-wrap: wrap; gap: 10px !important; }
+}
+
+
+/* GBS-CHIPS-SLIDE — chips slide away instead of covering content */
+@media (max-width: 900px){
+  .filter-strip{
+    transition: transform .28s ease, opacity .28s ease !important;
+    will-change: transform;
+  }
+  .filter-strip.chips-hidden{
+    transform: translateY(115%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  /* small pull tab so the strip can always be brought back */
+  .chips-tab{
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 61;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px 7px;
+    border-radius: 12px 12px 0 0;
+    border: 1px solid var(--goldb, rgba(201,168,76,.3));
+    border-bottom: none;
+    background: rgba(var(--ink-rgb,7,7,16), .92);
+    color: var(--gold, #c5a038);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-family: var(--sans, sans-serif);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  .chips-tab.show{ display: inline-flex; }
+}
+@media (min-width: 901px){
+  .chips-tab{ display: none !important; }
+}
+
+
+/* GBS-HEADER-FIX — phone header layout */
+@media (max-width: 900px){
+  nav{
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    row-gap: 6px !important;
+    column-gap: 8px !important;
+    padding: 10px 12px 6px !important;
+  }
+
+  /* row 1: logo on the left, actions on the right */
+  .nav-logo{ order: 1; flex: 1 1 auto; min-width: 0; }
+  .nav-logo-text{ font-size: 17px !important; white-space: nowrap; }
+  .nav-actions{
+    order: 2;
+    flex: 0 0 auto;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+  }
+  .nav-actions .btn-ghost,
+  .nav-actions .btn-primary{
+    padding: 7px 11px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+  .theme-toggle{
+    order: 2;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 13px !important;
+  }
+
+  /* row 2: nav links, swipeable sideways */
+  .nav-links{
+    order: 3 !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 18px !important;
+    margin: 0 !important;
+    padding: 4px 2px 6px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+  }
+  .nav-links::-webkit-scrollbar{ display: none; }
+  .nav-links li{ flex: 0 0 auto !important; }
+  .nav-links a{ font-size: 13px !important; white-space: nowrap !important; }
+
+  /* search bar sits BELOW the whole header instead of over it */
+  .search-wrap{
+    position: absolute !important;
+    top: 118px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(90vw, 380px) !important;
+    z-index: 25 !important;
+  }
+
+  /* hero text starts under the search bar */
+  .hero-content{ padding-top: 0 !important; }
+  .hero-eyebrow{ margin-top: 8px !important; }
+}
+
+@media (max-width: 560px){
+  .nav-logo-mark{ width: 30px !important; height: 30px !important; font-size: 15px !important; }
+  .nav-logo-text{ font-size: 15px !important; }
+  .nav-actions .btn-ghost,
+  .nav-actions .btn-primary{ padding: 6px 9px !important; font-size: 10.5px !important; }
+  .nav-links{ gap: 15px !important; }
+  .nav-links a{ font-size: 12.5px !important; }
+  .search-wrap{ top: 112px !important; }
+}
+
+
+/* GBS-LIFT-BUTTONS — hero buttons clear of the bottom chip strip */
+@media (max-width: 900px){
+  .hero-content{
+    bottom: auto !important;
+    top: 46% !important;
+    transform: translateY(-42%) !important;
+    padding-bottom: 0 !important;
+  }
+  .hero-actions{
+    margin-top: 18px !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    row-gap: 10px !important;
+  }
+  /* chips keep to the very bottom edge */
+  .filter-strip{ bottom: 0 !important; }
+  /* the decorative scroll cue sat right between them */
+  .scroll-hint{ display: none !important; }
+}
+
+@media (max-width: 560px){
+  .hero-content{ top: 44% !important; transform: translateY(-40%) !important; }
+  .hero-actions{ margin-top: 14px !important; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-ghost{ padding: 11px 18px !important; font-size: 12px !important; }
+}
+
+/* very short screens: shrink type rather than let things collide */
+@media (max-width: 900px) and (max-height: 700px){
+  .hero-title{ font-size: clamp(26px, 7.5vw, 38px) !important; }
+  .hero-sub{ font-size: 12px !important; }
+  .hero-content{ top: 42% !important; }
+}
+
+
+/* GBS-CHIPS-HERO-ONLY — chip strip lives with the hero only */
+@media (max-width: 900px){
+  .filter-strip{
+    transition: opacity .25s ease, transform .25s ease, visibility .25s ease !important;
+  }
+  .filter-strip.chips-off{
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(115%) !important;
+    pointer-events: none !important;
+  }
+  /* the pull tab must never linger past the hero either */
+  .chips-tab.chips-off{
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* app-download badges must stay inside their own section, never float near the nav */
+  .app-badges{ flex-wrap: wrap !important; gap: 10px !important; }
+  .app-badge{ flex: 0 0 auto !important; }
+  section, footer{ position: relative; }
+}
+
+
+/* GBS-CHIPS-FINAL — chips scroll away with the hero instead of floating */
+@media (max-width: 900px){
+  .filter-strip{
+    position: absolute !important;   /* was fixed - this is the actual fix */
+    bottom: 18px !important;
+    left: 0 !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 8px 14px 10px !important;
+    z-index: 40 !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    background: none !important;
+    mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 16px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 16px), transparent 100%);
+  }
+  .filter-strip::-webkit-scrollbar{ display: none; }
+  .filter-chip{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center;
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+  }
+
+  /* the floating pull tab from the earlier attempt is no longer needed */
+  .chips-tab{ display: none !important; }
+
+  /* hero buttons sit above the chip row */
+  .hero-content{ bottom: 96px !important; top: auto !important; transform: none !important; }
+  .scroll-hint{ display: none !important; }
+}
+
+@media (max-width: 560px){
+  .filter-strip{ bottom: 14px !important; }
+  .hero-content{ bottom: 88px !important; }
+}
+
+@media (max-width: 900px) and (max-height: 700px){
+  .hero-title{ font-size: clamp(26px, 7.5vw, 38px) !important; }
+  .hero-sub{ font-size: 12px !important; }
+  .hero-content{ bottom: 84px !important; }
+}
+
+
+/* GBS-NUDGE-BUTTONS — small lift so buttons clear the live stats bar */
+@media (max-width: 900px){
+  .hero-content{ bottom: 132px !important; }
+  .filter-strip{ bottom: 12px !important; }
+}
+@media (max-width: 560px){
+  .hero-content{ bottom: 124px !important; }
+  .filter-strip{ bottom: 10px !important; }
+}
+@media (max-width: 900px) and (max-height: 700px){
+  .hero-content{ bottom: 116px !important; }
+}
+
+</style>
+<script>
+// Reading light — applied before paint so there is no flash
+(function(){
+  var t = 'night';
+  try { t = localStorage.getItem('gbs-theme') || 'night'; } catch(e){}
+  if (t === 'day') document.documentElement.setAttribute('data-theme','day');
+})();
+function toggleTheme(){
+  var el = document.documentElement;
+  var isDay = el.getAttribute('data-theme') === 'day';
+  if (isDay) el.removeAttribute('data-theme');
+  else el.setAttribute('data-theme','day');
+  try { localStorage.setItem('gbs-theme', isDay ? 'night' : 'day'); } catch(e){}
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  var isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  document.querySelectorAll('.theme-toggle').forEach(function(b){
+    b.textContent = isDay ? '\u2600' : '\u263E';
+    b.title = isDay ? 'Reading Room \u2014 switch to Night Library'
+                    : 'Night Library \u2014 switch to Reading Room';
+  });
+}
+document.addEventListener('DOMContentLoaded', syncThemeIcon);
+</script>
+</head>
+<body>
+<div style="position:fixed;top:14px;right:16px;z-index:9999"><button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button></div>
+
+<div class="wrap">
+
+  <div style="text-align:center;margin-bottom:8px;animation:fadeUp .4s ease both">
+    <div class="eyebrow">Global BookShelf · Build Log</div>
+    <h1 class="main-title">The Wonder of<br>the <em>World</em></h1>
+    <p class="main-sub">Five production-grade pages built. The architecture is live. Every page links to the next. Click any card to open it.</p>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="st-item"><div class="st-n" style="color:var(--gold)">5</div><div class="st-l">Pages built</div><div class="st-bar" style="background:var(--gold)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--teal)">29</div><div class="st-l">DB tables</div><div class="st-bar" style="background:var(--teal)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--violet)">62</div><div class="st-l">DB indexes</div><div class="st-bar" style="background:var(--violet)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--coral)">4</div><div class="st-l">AI features</div><div class="st-bar" style="background:var(--coral)"></div></div>
+    <div class="st-item"><div class="st-n" style="color:var(--sage)">∞</div><div class="st-l">Ambition</div><div class="st-bar" style="background:var(--sage)"></div></div>
+  </div>
+
+  <!-- PAGES GRID -->
+  <div class="pages-grid">
+
+    <!-- Homepage -->
+    <a href="/" class="page-card" style="--page-color:var(--gold);animation-delay:.06s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow"></div>
+        <span class="page-icon">🌍</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 01 — HOMEPAGE</div>
+        <div class="page-title">The Living World Map</div>
+        <div class="page-desc">The showstopper. A cinematic dark globe with animated book pins, live reader pulses, time-travel slider, and real-time reader stats.</div>
+        <div class="page-features">
+          <div class="pf">3D world map with 12 book pins</div>
+          <div class="pf">Live reader count (JS animated)</div>
+          <div class="pf">Genre filter chips + time era slider</div>
+          <div class="pf">Live marquee feed of global activity</div>
+          <div class="pf">"Pinned This Hour" book shelf</div>
+        </div>
+        <div class="page-cta">Open page →</div>
+      </div>
+    </a>
+
+    <!-- AI Soul -->
+    <a href="/ai-reading-soul" class="page-card" style="--page-color:var(--coral);animation-delay:.1s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(222,88,72,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">✦</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 02 — AI READING SOUL</div>
+        <div class="page-title">The Reading Soul Onboarding</div>
+        <div class="page-desc">A 5-screen quiz experience that learns who you are — then builds your complete Soul Profile with archetype, dimensions, and book matches.</div>
+        <div class="page-features">
+          <div class="pf">6-card emotional need selector</div>
+          <div class="pf">Passage resonance screen (6 real quotes)</div>
+          <div class="pf">6 animated reading dial sliders</div>
+          <div class="pf">Reading ritual cards</div>
+          <div class="pf">Animated soul analysis + full dashboard</div>
+        </div>
+        <div class="page-cta" style="color:var(--coral);border-color:var(--coral)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Author Universe -->
+    <a href="/author-universe" class="page-card" style="--page-color:var(--amber);animation-delay:.14s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(201,126,50,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">✍️</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 03 — AUTHOR UNIVERSE</div>
+        <div class="page-title">Author Profile + Earnings</div>
+        <div class="page-desc">Full author profile for Adaeze Okonkwo — bio, writing-in-public with live cursor, earnings dashboard, patronage tiers, reader Q&A, and world readership map.</div>
+        <div class="page-features">
+          <div class="pf">Cinematic hero with live stats</div>
+          <div class="pf">Writing-in-public with blinking cursor</div>
+          <div class="pf">Earnings bar chart + income breakdown</div>
+          <div class="pf">3 patron tiers with live patron counts</div>
+          <div class="pf">Q&A inbox with author answers</div>
+        </div>
+        <div class="page-cta" style="color:var(--amber);border-color:var(--amber)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Book Detail -->
+    <a href="/book-detail" class="page-card" style="--page-color:var(--teal);animation-delay:.18s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(54,180,172,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">📖</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 04 — BOOK DETAIL</div>
+        <div class="page-title">Immersive Book Experience</div>
+        <div class="page-desc">The God of Small Things — full detail page with 3D cover, immersive reader with ambient mode, character relationship SVG map, live annotations, and endings debate room.</div>
+        <div class="page-features">
+          <div class="pf">3D rotating book cover</div>
+          <div class="pf">Ambient reading mode (🌧 rain overlay)</div>
+          <div class="pf">SVG character relationship map (clickable)</div>
+          <div class="pf">Live reader annotations with popups</div>
+          <div class="pf">Endings debate room with live voting</div>
+        </div>
+        <div class="page-cta" style="color:var(--teal);border-color:var(--teal)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Community -->
+    <a href="/community-hub" class="page-card" style="--page-color:var(--sage);animation-delay:.22s">
+      <div class="page-banner" style="background:var(--ink3)">
+        <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(104,168,120,.1) 0%,transparent 70%)"></div>
+        <span class="page-icon">👥</span>
+      </div>
+      <div class="page-body">
+        <div class="page-num">PAGE 05 — COMMUNITY HUB</div>
+        <div class="page-title">Cross-World Book Clubs</div>
+        <div class="page-desc">Soul-matched club discovery, 4 live reading rooms in session, clubs grid across 6 cultures, generational reading chains, translation volunteer calls, and a global live activity feed.</div>
+        <div class="page-features">
+          <div class="pf">3 soul-matched club recommendations</div>
+          <div class="pf">4 live reading rooms with topics</div>
+          <div class="pf">6 club cards with join flow</div>
+          <div class="pf">Create-a-club form (functional)</div>
+          <div class="pf">Generational reading chain feature</div>
+        </div>
+        <div class="page-cta" style="color:var(--sage);border-color:var(--sage)">Open page →</div>
+      </div>
+    </a>
+
+    <!-- Database -->
+    <a href="/schema-explorer" class="page-card schema-card" style="--page-color:var(--violet);animation-delay:.26s">
+      <div style="display:flex;align-items:stretch;min-height:160px">
+        <div class="page-banner" style="background:var(--ink3);width:200px;flex-shrink:0;flex-direction:column;gap:6px">
+          <div class="page-banner-glow" style="background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(139,120,214,.12) 0%,transparent 70%)"></div>
+          <span class="page-icon" style="position:relative;z-index:1">🗄</span>
+          <div style="font-family:var(--mono);font-size:9px;color:rgba(139,120,214,.7);position:relative;z-index:1;letter-spacing:.08em">PostgreSQL 15</div>
+        </div>
+        <div class="page-body" style="flex:1;display:flex;gap:32px;align-items:flex-start">
+          <div style="flex:1">
+            <div class="page-num">INFRASTRUCTURE — DATABASE</div>
+            <div class="page-title">Interactive Schema Explorer + Production SQL</div>
+            <div class="page-desc">29 tables, 62 indexes, 11 triggers, 4 views, row-level security, pgvector for AI matching, partitioned analytics, and full design decision documentation.</div>
+            <div class="page-cta" style="color:var(--violet);border-color:var(--violet)">Explore schema →</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex-shrink:0">
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">29</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Tables</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">62</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Indexes</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">11</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Triggers</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--pg)">4</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">Views</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--teal)">✓</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">pgvector</div>
+            </div>
+            <div style="text-align:center;background:var(--ink3);border-radius:8px;padding:12px">
+              <div style="font-family:var(--serif);font-size:22px;color:var(--teal)">✓</div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--pg4)">RLS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /pages-grid -->
+
+  <!-- NEXT UP -->
+  <div class="next-section">
+    <div style="margin-bottom:4px">
+      <div class="eyebrow" style="justify-content:flex-start">What we build next</div>
+      <div style="font-family:var(--serif);font-size:clamp(22px,3vw,32px);font-weight:300;color:var(--pg)">Still to come — <em style="color:var(--gold)">tell me which to build</em></div>
+    </div>
+    <div class="next-grid">
+      <div class="next-item" style="animation-delay:.3s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Backend API (Node.js + Express)</div>
+        <div class="ni-desc">Full REST API connecting all pages to the database. Auth, patronage endpoints, soul matching, real-time websockets for live readers.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.35s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Mobile app (React Native)</div>
+        <div class="ni-desc">iOS + Android app with offline reading, push notifications for chapter releases, and the world map in your pocket.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.4s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Admin Dashboard</div>
+        <div class="ni-desc">Moderator tools, author earnings analytics, content flagging, community health metrics, and growth dashboards.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.45s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Payment integration (Stripe)</div>
+        <div class="ni-desc">Stripe Connect for author payouts, subscription billing, tip system, and the platform fee engine.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.5s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">AI Soul engine (Python)</div>
+        <div class="ni-desc">The actual ML pipeline: embedding generation with OpenAI, HNSW search, soul score computation, and the recommendation batch job.</div>
+      </div>
+      <div class="next-item" style="animation-delay:.55s">
+        <div class="ni-num">NEXT BUILD</div>
+        <div class="ni-title">Search + Discovery layer</div>
+        <div class="ni-desc">Combined pgvector semantic search + pg_trgm text search + faceted genre/language/year filtering powering every search box.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="project-footer">
+    <div class="pf-logo">Global <em>BookShelf</em></div>
+    <div style="font-size:12px;color:var(--pg4);font-family:var(--serif);font-style:italic">"The Wonder of the World — built page by page"</div>
+    <div class="pf-copy">© 2025 · All files in /outputs/</div>
+  </div>
+
+</div>
+
+<script>
+/* GBS-CHIPS-SLIDE */
+(function(){
+  function init(){
+    var strip = document.querySelector('.filter-strip');
+    if (!strip) return;
+
+    var tab = document.createElement('button');
+    tab.className = 'chips-tab';
+    tab.type = 'button';
+    tab.setAttribute('aria-label','Show genre filters');
+    tab.textContent = 'Genres';
+    document.body.appendChild(tab);
+
+    var lastY = window.pageYOffset || 0;
+    var hidden = false;
+    var ticking = false;
+
+    function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+    function setHidden(v){
+      if (v === hidden) return;
+      hidden = v;
+      strip.classList.toggle('chips-hidden', v);
+      tab.classList.toggle('show', v && isMobile());
+    }
+
+    function onScroll(){
+      if (!isMobile()) { setHidden(false); return; }
+      var y = window.pageYOffset || 0;
+      if (y < 40) { setHidden(false); }
+      else if (y > lastY + 6) { setHidden(true); }   // scrolling down -> get out of the way
+      else if (y < lastY - 6) { setHidden(false); }  // scrolling up   -> come back
+      lastY = y;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function(){
+      if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
+    }, { passive: true });
+
+    tab.addEventListener('click', function(){ setHidden(false); });
+
+    window.addEventListener('resize', function(){
+      if (!isMobile()) setHidden(false);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+</script>
+
+<script>
+/* GBS-CHIPS-HERO-ONLY */
+(function(){
+  function init(){
+    var strip = document.querySelector('.filter-strip');
+    if (!strip) return;
+    var hero = document.querySelector('.hero') || document.querySelector('#map-container');
+    var tab  = document.querySelector('.chips-tab');
+
+    function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+    function update(){
+      if (!isMobile()){
+        strip.classList.remove('chips-off');
+        if (tab) tab.classList.remove('chips-off');
+        return;
+      }
+      // hide once the hero has scrolled out of view
+      var limit = hero ? hero.offsetHeight - 120 : window.innerHeight - 120;
+      var past  = (window.pageYOffset || 0) > limit;
+      strip.classList.toggle('chips-off', past);
+      if (tab) tab.classList.toggle('chips-off', past);
+    }
+
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if (!ticking){
+        ticking = true;
+        window.requestAnimationFrame(function(){ update(); ticking = false; });
+      }
+    }, { passive: true });
+
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+</script>
+</body>
+</html>

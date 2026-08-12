@@ -675,19 +675,19 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 
 <!-- ── NAV ── -->
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="/" class="nav-logo">Global <em>BookShelf</em></a>
   <ul class="nav-links">
-    <li><a href="explore.html">Explore</a></li>
-    <li><a href="authors.html">Authors Directory</a></li>
-    <li><a href="author-universe.html" class="active">This Author</a></li>
-    <li><a href="community-hub.html">Communities</a></li>
-    <li><a href="languages.html">Languages</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="upload-book.html" style="color:var(--gold)">📤 Upload Book</a></li>
+    <li><a href="/explore">Explore</a></li>
+    <li><a href="/authors">Authors Directory</a></li>
+    <li><a href="/author-universe" class="active">This Author</a></li>
+    <li><a href="/community-hub">Communities</a></li>
+    <li><a href="/languages">Languages</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/upload-book" style="color:var(--gold)">📤 Upload Book</a></li>
   </ul>
   <div class="nav-cta">
-    <button class="btn-outline" onclick="window.location.href='global-bookshelf.html'">Sign in</button>
-    <button class="btn-gold" onclick="window.location.href='ai-reading-soul.html'">Join free</button>
+    <button class="btn-outline" onclick="window.location.href = '/'">Sign in</button>
+    <button class="btn-gold" onclick="window.location.href='/ai-reading-soul'">Join free</button>
   </div>
   <button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button>
 </nav>
@@ -1205,7 +1205,7 @@ const alsoRead = [
 ];
 const alsoEl = document.getElementById('alsoRead');
 alsoRead.forEach(a => {
-  alsoEl.innerHTML += `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--pg6);cursor:pointer" onmouseover="this.style.opacity='.75';this.style.cursor='pointer'" onmouseout="this.style.opacity='1'" onclick="window.location.href='author-universe.html'">
+  alsoEl.innerHTML += `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--pg6);cursor:pointer" onmouseover="this.style.opacity='.75';this.style.cursor='pointer'" onmouseout="this.style.opacity='1'" onclick="window.location.href='/author-universe'">
     <div style="width:36px;height:36px;border-radius:50%;background:var(--ink3);border:1px solid var(--pg6);display:flex;align-items:center;justify-content:center;font-size:16px">${a.country}</div>
     <div style="flex:1"><div style="font-size:13px;color:var(--pg)">${a.name}</div></div>
     <div style="font-size:11px;color:var(--teal)">${a.match}</div>

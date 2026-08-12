@@ -496,20 +496,20 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 <body>
 
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="nav-logo-mark">G</div>
     Global <span style="color:var(--gold)">BookShelf</span>
   </a>
   <ul class="nav-links">
-    <li><a href="explore.html">Explore</a></li>
-    <li><a href="community-hub.html">Communities</a></li>
-    <li><a href="authors.html">Authors</a></li>
-    <li><a href="languages.html">Languages</a></li>
-    <li><a href="about.html" class="active">About</a></li>
+    <li><a href="/explore">Explore</a></li>
+    <li><a href="/community-hub">Communities</a></li>
+    <li><a href="/authors">Authors</a></li>
+    <li><a href="/languages">Languages</a></li>
+    <li><a href="/about" class="active">About</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
-    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='/ai-reading-soul'">Join Free</button>
     <div id="navUserMenu">
       <div id="navUserAvatar">?</div>
       <span id="navUserName"></span>
@@ -525,8 +525,8 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
   <div class="hero-title">Literature belongs<br>to <em>everyone</em></div>
   <div class="hero-sub">Global BookShelf was built on a single conviction — that the world's greatest stories should be accessible to every reader, in every language, from every culture. Not just the ones published in New York and London.</div>
   <div class="hero-cta">
-    <button class="btn-cta" onclick="window.location.href='ai-reading-soul.html'">Start reading free</button>
-    <button class="btn-outline" onclick="window.location.href='explore.html'">Browse books →</button>
+    <button class="btn-cta" onclick="window.location.href='/ai-reading-soul'">Start reading free</button>
+    <button class="btn-outline" onclick="window.location.href='/explore'">Browse books →</button>
   </div>
 </div>
 
@@ -683,11 +683,11 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 <footer>
   <div class="footer-logo">Global BookShelf</div>
   <div class="footer-links">
-    <a href="about.html">About</a>
-    <a href="authors.html">Authors</a>
-    <a href="about.html#publishers">Publishers</a>
-    <a href="about.html#privacy">Privacy</a>
-    <a href="explore.html">Explore</a>
+    <a href="/about">About</a>
+    <a href="/authors">Authors</a>
+    <a href="/about#publishers">Publishers</a>
+    <a href="/about#privacy">Privacy</a>
+    <a href="/explore">Explore</a>
   </div>
   <div class="footer-copy">© 2025 Global BookShelf. The World's Living Library.</div>
 </footer>

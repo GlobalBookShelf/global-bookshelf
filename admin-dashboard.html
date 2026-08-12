@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
         <span id="apiStatus">Checking…</span>
       </div>
       <button class="topbar-btn" onclick="refreshCurrent()">↻ Refresh</button>
-      <button class="topbar-btn gold" onclick="window.location.href='global-bookshelf.html'">← Live site</button>
+      <button class="topbar-btn gold" onclick="window.location.href = '/'">← Live site</button>
     </div>
   </div>
 
@@ -1155,7 +1155,7 @@ function renderBooks(books) {
       <div class="empty-icon">📚</div>
       <div class="empty-title">No books found</div>
       <div class="empty-sub">Books will appear here when authors publish them</div>
-      <button class="btn-primary" onclick="window.location.href='author-universe.html'">Go to Author page</button>
+      <button class="btn-primary" onclick="window.location.href='/author-universe'">Go to Author page</button>
     </div>`);
     return;
   }
@@ -1169,7 +1169,7 @@ function renderBooks(books) {
       <td style="color:var(--pg3)">${b.published_year||'—'}</td>
       <td><span class="badge ${b.status==='published'?'badge-green':b.status==='draft'?'badge-gold':'badge-red'}">${b.status||'draft'}</span></td>
       <td style="display:flex;gap:6px">
-        <button class="action-btn teal" onclick="window.location.href='book-detail.html?id=${b.id}'">View</button>
+        <button class="action-btn teal" onclick="window.location.href='/book-detail?id=${b.id}'">View</button>
         ${b.status==='draft'?`<button class="action-btn gold" onclick="approveBook('${b.id}','${b.title}',this)">Approve</button>`:''}
       </td>
     </tr>`).join('')}</tbody>
@@ -1253,7 +1253,7 @@ async function loadClubs() {
         <div class="empty-icon">👥</div>
         <div class="empty-title">No communities yet</div>
         <div class="empty-sub">Book clubs appear here when readers create them from the Communities page</div>
-        <button class="btn-ghost" onclick="window.location.href='community-hub.html'">Go to Communities →</button>
+        <button class="btn-ghost" onclick="window.location.href='/community-hub'">Go to Communities →</button>
       </div>`);
       return;
     }

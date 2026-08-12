@@ -467,20 +467,20 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 </head>
 <body>
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="nav-logo-mark">G</div>
     Global <span style="color:var(--gold)">BookShelf</span>
   </a>
   <ul class="nav-links">
-    <li><a href="explore.html">Explore</a></li>
-    <li><a href="community-hub.html">Communities</a></li>
-    <li><a href="authors.html">Authors</a></li>
-    <li><a href="languages.html" class="active">Languages</a></li>
-    <li><a href="about.html">About</a></li>
+    <li><a href="/explore">Explore</a></li>
+    <li><a href="/community-hub">Communities</a></li>
+    <li><a href="/authors">Authors</a></li>
+    <li><a href="/languages" class="active">Languages</a></li>
+    <li><a href="/about">About</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
-    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='/ai-reading-soul'">Join Free</button>
     <div id="navUserMenu">
       <div id="navUserAvatar">?</div>
       <span id="navUserName"></span>
@@ -648,7 +648,7 @@ function renderLangGrid(langs, containerId, isAfrican) {
   langs.forEach(l => {
     const card = document.createElement('div');
     card.className = 'lang-card' + (isAfrican ? ' african' : '');
-    card.onclick   = () => window.location.href = 'explore.html?lang=' + l.code;
+    card.onclick   = () => window.location.href = '/explore?lang=' + l.code;
     card.innerHTML = `<div class="lang-flag">${l.flag}</div><div class="lang-name">${l.name}</div><div class="lang-books">${l.books.toLocaleString()} books</div>${l.badge?`<div class="lang-badge">${l.badge}</div>`:''}`;
     grid.appendChild(card);
   });

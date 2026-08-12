@@ -606,12 +606,12 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 
 <!-- NAV -->
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">Global <em>BookShelf</em></a>
+  <a href="/" class="nav-logo">Global <em>BookShelf</em></a>
   <ul class="nav-links">
-    <li><a href="global-bookshelf.html">Explore</a></li>
-    <li><a href="author-universe.html">Authors</a></li>
+    <li><a href="/">Explore</a></li>
+    <li><a href="/author-universe">Authors</a></li>
     <li><a href="#" class="active">Communities</a></li>
-    <li><a href="ai-reading-soul.html">My Soul</a></li>
+    <li><a href="/ai-reading-soul">My Soul</a></li>
   </ul>
   <button class="btn-gold" onclick="showCreateModal()">+ Start a club</button>
   <button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button>
@@ -989,7 +989,7 @@ async function createClub(){
       btn.textContent = 'Create club →';
       btn.style.background = 'var(--gold)';
       btn.disabled = false;
-      if (data.club?.id) window.location.href = 'club-detail.html?id=' + data.club.id;
+      if (data.club?.id) window.location.href = '/club-detail?id=' + data.club.id;
     }, 1200);
   } catch(e) {
     API.toast(e.message, 'error');
@@ -1037,7 +1037,7 @@ async function loadClubs() {
       el.onclick = (e) => {
         // Don't navigate if the join button was clicked
         if (e.target.closest('.btn-join')) return;
-        window.location.href = 'club-detail.html?id=' + club.id;
+        window.location.href = '/club-detail?id=' + club.id;
       };
       el.innerHTML = `
         <div class="club-card-banner" style="background:rgba(198,162,64,.1)">
@@ -1058,7 +1058,7 @@ async function loadClubs() {
           </button>
           <button
             style="width:100%;margin-top:6px;padding:8px;background:var(--gold);border:none;border-radius:6px;color:var(--ink);font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;cursor:pointer"
-            onclick="window.location.href='club-detail.html?id=${club.id}'">
+            onclick="window.location.href='/club-detail?id=${club.id}'">
             Open club →
           </button>
         </div>`;

@@ -456,20 +456,20 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
 </head>
 <body>
 <nav>
-  <a href="global-bookshelf.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <div class="nav-logo-mark">G</div>
     Global <span style="color:var(--gold)">BookShelf</span>
   </a>
   <ul class="nav-links">
-    <li><a href="explore.html">Explore</a></li>
-    <li><a href="community-hub.html">Communities</a></li>
-    <li><a href="authors.html" class="active">Authors</a></li>
-    <li><a href="languages.html">Languages</a></li>
-    <li><a href="about.html">About</a></li>
+    <li><a href="/explore">Explore</a></li>
+    <li><a href="/community-hub">Communities</a></li>
+    <li><a href="/authors" class="active">Authors</a></li>
+    <li><a href="/languages">Languages</a></li>
+    <li><a href="/about">About</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-ghost" id="navSignIn" onclick="API.openSignInModal(updateNav)">Sign In</button>
-    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='ai-reading-soul.html'">Join Free</button>
+    <button class="btn-primary" id="navJoinFree" onclick="window.location.href='/ai-reading-soul'">Join Free</button>
     <div id="navUserMenu">
       <div id="navUserAvatar">?</div>
       <span id="navUserName"></span>
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', syncThemeIcon);
         <div class="bab-text-title">Are you a writer? Join Global BookShelf</div>
         <div class="bab-text-sub">Write in public. Build a following. Earn 95% of every patron subscription directly to your bank account. No gatekeepers.</div>
       </div>
-      <button class="bab-btn" onclick="window.location.href='author-universe.html'">Become an author →</button>
+      <button class="bab-btn" onclick="window.location.href='/author-universe'">Become an author →</button>
     </div>
     <div class="results-header">
       <div class="results-count" id="authorsCount">Loading authors…</div>
@@ -567,7 +567,7 @@ function renderAuthors(authors) {
     const name   = a.display_name || a.pen_name || '—';
     const card   = document.createElement('div');
     card.className = 'author-card';
-    card.onclick   = () => window.location.href = 'author-universe.html?id=' + (a.id||'');
+    card.onclick   = () => window.location.href = '/author-universe?id=' + (a.id||'');
     const initial  = name[0].toUpperCase();
     const countryColors = {NG:'#7B5E3A',KE:'#3A6A3A',GH:'#C4803A',ZA:'#3A5A7B',EG:'#A09060',US:'#2C3E50',JP:'#3D5A5E',IN:'#A0522D',BR:'#8B6B35',MA:'#6A4A8B',ZW:'#8B4A2A'};
     const accentColor = countryColors[a.origin_country||''] || '#4A5568';
@@ -590,7 +590,7 @@ function renderAuthors(authors) {
         </div>
         <div class="author-genres">${(a.genres||[]).slice(0,3).map(g=>`<span class="genre-tag">${g}</span>`).join('')}</div>
         ${a.bio?`<div class="author-writing">${a.bio}</div>`:''}
-        <button class="btn-visit" onclick="event.stopPropagation();window.location.href='author-universe.html?id=${a.id||''}'">Visit author page →</button>
+        <button class="btn-visit" onclick="event.stopPropagation();window.location.href='/author-universe?id=${a.id||''}'">Visit author page →</button>
       </div>`;
     grid.appendChild(card);
   });

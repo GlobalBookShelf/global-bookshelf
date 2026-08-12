@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin-dashboard.html
+Disallow: /schema-explorer.html
+
+Sitemap: https://global-bookshelf-app.netlify.app/sitemap.xml

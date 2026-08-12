@@ -9,6 +9,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  --ink-rgb:7,7,16;
+
   --ink:#07070e;--ink2:#10101a;--ink3:#181823;--ink4:#202030;
   --pg:#f4ede0;--pg2:rgba(244,237,224,.8);--pg3:rgba(244,237,224,.5);--pg4:rgba(244,237,224,.15);
   --gold:#c8a44a;--gold2:#e6c560;--goldd:rgba(200,164,74,.12);--goldb:rgba(200,164,74,.3);
@@ -17,6 +19,29 @@
   --sans:'DM Sans',sans-serif;
   --mono:'DM Mono',monospace;
 }
+
+/* ── READING ROOM — daylight parchment theme ── */
+[data-theme="day"]{
+  /* text-color families used across pages */
+  --parchment:#2b2118;--parchment2:#3a2e22;--parchment3:rgba(43,33,24,.7);
+  --muted:rgba(43,33,24,.58);--muted2:rgba(43,33,24,.3);--muted3:rgba(43,33,24,.18);
+  --paper:#f7f3e9;--text:#2b2118;
+  --amber:#a85f1e;
+
+  --ink:#f7f3e9;--ink2:#fffdf7;--ink3:#f1ebdc;--ink4:#e8e0cd;--ink5:#ddd3bc;
+  --pg:#2b2118;--pg2:#3a2e22;--pg3:rgba(43,33,24,.72);--pg4:rgba(43,33,24,.48);--pg5:rgba(43,33,24,.13);--pg6:rgba(43,33,24,.09);
+  --gold:#9a7b2f;--gold2:#836722;--goldd:rgba(154,123,47,.13);--goldb:rgba(154,123,47,.32);
+  --teal:#1d7d76;--teald:rgba(29,125,118,.12);
+  --coral:#b83d24;--corald:rgba(184,61,36,.11);
+  --violet:#5f4bb0;--violetd:rgba(95,75,176,.11);
+  --sage:#3f7d51;
+  --ink-rgb:247,243,233;
+  --paper:#f7f3e9;--muted:rgba(43,33,24,.55);--text:#2b2118;
+}
+html,body{transition:background .35s ease,color .35s ease}
+.theme-toggle{background:none;border:1px solid var(--pg5,rgba(128,128,128,.25));color:var(--pg3,#888);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s;flex-shrink:0;padding:0;line-height:1}
+.theme-toggle:hover{border-color:var(--goldb,rgba(197,160,56,.4));color:var(--gold,#c5a038);transform:rotate(-12deg)}
+
 html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden}
 .layout{display:flex;min-height:100vh}
 
@@ -37,7 +62,7 @@ html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font
 .sb-link:hover{color:var(--pg);background:var(--pg4)}
 .sb-link.active{color:var(--gold);border-left-color:var(--gold);background:var(--goldd)}
 .sb-icon{font-size:15px;width:18px;text-align:center}
-.sb-badge{background:var(--coral);color:#fff;font-size:10px;font-weight:500;
+.sb-badge{background:var(--coral);color:var(--text,#f5efe3);font-size:10px;font-weight:500;
   padding:1px 6px;border-radius:8px;margin-left:auto}
 .sb-bottom{margin-top:auto;padding:16px 18px;border-top:1px solid var(--pg4)}
 .sb-logout{font-size:12px;color:var(--pg3);cursor:pointer;padding:8px 0;
@@ -192,10 +217,10 @@ select.form-input{cursor:pointer}
 
 /* ── VISA CARD ── */
 .visa-card{background:linear-gradient(135deg,#1A3A6A,#0F2244);border-radius:10px;
-  padding:18px;color:#fff;position:relative}
-.vc-type{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:10px}
-.vc-amount{font-family:var(--serif);font-size:28px;color:#fff;margin-bottom:4px}
-.vc-label{font-size:11px;color:rgba(255,255,255,.5)}
+  padding:18px;color:var(--text,#f5efe3);position:relative}
+.vc-type{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(var(--text-rgb,245,239,227), .5);margin-bottom:10px}
+.vc-amount{font-family:var(--serif);font-size:28px;color:var(--text,#f5efe3);margin-bottom:4px}
+.vc-label{font-size:11px;color:rgba(var(--text-rgb,245,239,227), .5)}
 .vc-visa{position:absolute;top:18px;right:18px;font-size:18px;font-style:italic;
   font-weight:700;letter-spacing:2px;color:#F9C84F}
 
@@ -213,8 +238,35 @@ select.form-input{cursor:pointer}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
 </style>
+<script>
+// Reading light — applied before paint so there is no flash
+(function(){
+  var t = 'night';
+  try { t = localStorage.getItem('gbs-theme') || 'night'; } catch(e){}
+  if (t === 'day') document.documentElement.setAttribute('data-theme','day');
+})();
+function toggleTheme(){
+  var el = document.documentElement;
+  var isDay = el.getAttribute('data-theme') === 'day';
+  if (isDay) el.removeAttribute('data-theme');
+  else el.setAttribute('data-theme','day');
+  try { localStorage.setItem('gbs-theme', isDay ? 'night' : 'day'); } catch(e){}
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  var isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  document.querySelectorAll('.theme-toggle').forEach(function(b){
+    b.textContent = isDay ? '\u2600' : '\u263E';
+    b.title = isDay ? 'Reading Room \u2014 switch to Night Library'
+                    : 'Night Library \u2014 switch to Reading Room';
+  });
+}
+document.addEventListener('DOMContentLoaded', syncThemeIcon);
+</script>
 </head>
 <body>
+<div style="position:fixed;top:14px;right:16px;z-index:9999"><button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button></div>
+
 <div class="layout">
 
 <!-- ── SIDEBAR ── -->

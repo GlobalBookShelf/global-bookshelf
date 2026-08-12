@@ -8,6 +8,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  --ink-rgb:7,7,16;
+
   --ink:#07070e;--ink2:#101018;--ink3:#171722;--ink4:#1f1f2c;--ink5:#272736;
   --pg:#f3ecde;--pg2:#ebe1ce;--pg3:rgba(243,236,222,.68);--pg4:rgba(243,236,222,.36);--pg5:rgba(243,236,222,.12);--pg6:rgba(243,236,222,.05);
   --gold:#c6a240;--gold2:#e4c058;--goldd:rgba(198,162,64,.16);--goldb:rgba(198,162,64,.28);
@@ -21,6 +23,29 @@
   --mono:'DM Mono',monospace;
   --r:10px;--rs:6px;
 }
+
+/* ── READING ROOM — daylight parchment theme ── */
+[data-theme="day"]{
+  /* text-color families used across pages */
+  --parchment:#2b2118;--parchment2:#3a2e22;--parchment3:rgba(43,33,24,.7);
+  --muted:rgba(43,33,24,.58);--muted2:rgba(43,33,24,.3);--muted3:rgba(43,33,24,.18);
+  --paper:#f7f3e9;--text:#2b2118;
+  --amber:#a85f1e;
+
+  --ink:#f7f3e9;--ink2:#fffdf7;--ink3:#f1ebdc;--ink4:#e8e0cd;--ink5:#ddd3bc;
+  --pg:#2b2118;--pg2:#3a2e22;--pg3:rgba(43,33,24,.72);--pg4:rgba(43,33,24,.48);--pg5:rgba(43,33,24,.13);--pg6:rgba(43,33,24,.09);
+  --gold:#9a7b2f;--gold2:#836722;--goldd:rgba(154,123,47,.13);--goldb:rgba(154,123,47,.32);
+  --teal:#1d7d76;--teald:rgba(29,125,118,.12);
+  --coral:#b83d24;--corald:rgba(184,61,36,.11);
+  --violet:#5f4bb0;--violetd:rgba(95,75,176,.11);
+  --sage:#3f7d51;
+  --ink-rgb:247,243,233;
+  --paper:#f7f3e9;--muted:rgba(43,33,24,.55);--text:#2b2118;
+}
+html,body{transition:background .35s ease,color .35s ease}
+.theme-toggle{background:none;border:1px solid var(--pg5,rgba(128,128,128,.25));color:var(--pg3,#888);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s;flex-shrink:0;padding:0;line-height:1}
+.theme-toggle:hover{border-color:var(--goldb,rgba(197,160,56,.4));color:var(--gold,#c5a038);transform:rotate(-12deg)}
+
 html,body{width:100%;min-height:100%;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden;scroll-behavior:smooth}
 
 /* noise */
@@ -30,7 +55,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opac
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
   display:flex;align-items:center;justify-content:space-between;padding:0 2rem;
-  background:rgba(7,7,14,.95);border-bottom:1px solid var(--pg6);backdrop-filter:blur(14px)}
+  background:var(--ink);border-bottom:1px solid var(--pg6);backdrop-filter:blur(14px)}
 .nav-logo{font-family:var(--serif);font-size:17px;color:var(--pg);text-decoration:none}
 .nav-logo em{color:var(--gold);font-style:italic}
 .nav-breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--pg4)}
@@ -73,10 +98,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
 .cover-spine{position:absolute;left:0;top:0;bottom:0;width:14px;
   background:linear-gradient(180deg,#6B2A1A,#9B3528,#6B2A1A);
   border-radius:3px 0 0 3px;transform:rotateY(90deg) translateZ(-7px);transform-origin:left}
-.cover-title-text{font-family:var(--serif);font-size:20px;font-weight:500;color:rgba(255,255,255,.92);
+.cover-title-text{font-family:var(--serif);font-size:20px;font-weight:500;color:rgba(var(--text-rgb,245,239,227), .92);
   text-align:center;padding:0 16px;line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,.5);margin-bottom:10px}
 .cover-author-text{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(255,255,255,.6);text-align:center}
+  color:rgba(var(--text-rgb,245,239,227), .6);text-align:center}
 .cover-deco{width:60px;height:1px;background:rgba(255,255,255,.3);margin:10px auto}
 .cover-badge{position:absolute;top:-10px;right:-10px;background:var(--gold);
   color:var(--ink);font-size:9px;font-weight:500;letter-spacing:.08em;
@@ -325,6 +350,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
   <script src="api.js"></script>
 <script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
 
+<script>
+// Reading light — applied before paint so there is no flash
+(function(){
+  var t = 'night';
+  try { t = localStorage.getItem('gbs-theme') || 'night'; } catch(e){}
+  if (t === 'day') document.documentElement.setAttribute('data-theme','day');
+})();
+function toggleTheme(){
+  var el = document.documentElement;
+  var isDay = el.getAttribute('data-theme') === 'day';
+  if (isDay) el.removeAttribute('data-theme');
+  else el.setAttribute('data-theme','day');
+  try { localStorage.setItem('gbs-theme', isDay ? 'night' : 'day'); } catch(e){}
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  var isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  document.querySelectorAll('.theme-toggle').forEach(function(b){
+    b.textContent = isDay ? '\u2600' : '\u263E';
+    b.title = isDay ? 'Reading Room \u2014 switch to Night Library'
+                    : 'Night Library \u2014 switch to Reading Room';
+  });
+}
+document.addEventListener('DOMContentLoaded', syncThemeIcon);
+</script>
 </head>
 <body>
 
@@ -349,6 +399,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
     <button class="btn-sm btn-shelf" onclick="toggleShelf(this)">+ Add to shelf</button>
     <button class="btn-sm btn-read" onclick="scrollToReader()">Read now</button>
   </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button>
 </nav>
 
 <!-- READING PROGRESS -->
@@ -1288,12 +1339,12 @@ function showReviewForm() {
   form.style.cssText = 'position:fixed;inset:0;z-index:2500;display:flex;align-items:center;justify-content:center;background:rgba(7,7,14,.8);backdrop-filter:blur(8px)';
   form.innerHTML = `
     <div style="background:#111119;border:1px solid rgba(198,162,64,.28);border-radius:12px;padding:28px;width:400px;max-width:94vw">
-      <div style="font-family:Georgia,serif;font-size:18px;color:#f3ecde;margin-bottom:16px">Write a review</div>
+      <div style="font-family:Georgia,serif;font-size:18px;color:var(--text,#f3ecde);margin-bottom:16px">Write a review</div>
       <div style="display:flex;gap:8px;margin-bottom:16px" id="starRow">
         ${[1,2,3,4,5].map(n=>`<span style="font-size:26px;cursor:pointer;color:rgba(198,162,64,.3)" data-star="${n}" onclick="setStars(${n})">★</span>`).join('')}
       </div>
       <textarea id="reviewBody" placeholder="What did this book do to you?" rows="4"
-        style="width:100%;padding:12px;background:rgba(243,236,222,.05);border:1px solid rgba(243,236,222,.12);border-radius:7px;color:#f3ecde;font-family:DM Sans,sans-serif;font-size:13px;resize:vertical;outline:none;margin-bottom:14px"></textarea>
+        style="width:100%;padding:12px;background:rgba(243,236,222,.05);border:1px solid rgba(243,236,222,.12);border-radius:7px;color:var(--text,#f3ecde);font-family:DM Sans,sans-serif;font-size:13px;resize:vertical;outline:none;margin-bottom:14px"></textarea>
       <div style="display:flex;gap:10px">
         <button onclick="submitReview()" style="flex:1;padding:11px;background:#c6a240;border:none;border-radius:6px;color:#07070e;font-family:DM Sans,sans-serif;font-size:13px;font-weight:500;cursor:pointer">Submit review</button>
         <button onclick="document.getElementById('gbsReviewForm').remove()" style="padding:11px 16px;background:transparent;border:1px solid rgba(243,236,222,.15);border-radius:6px;color:rgba(243,236,222,.5);font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer">Cancel</button>

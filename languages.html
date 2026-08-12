@@ -8,9 +8,36 @@
 <script src="api.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+:root{
+  --text-rgb:245,239,227;
+  --ink-rgb:7,7,16;
+--ink:#0a0a0f;--ink2:#13131c;--ink3:#1c1c28;--pg:#f5efe3;--pg2:rgba(245,239,227,.72);--pg3:rgba(245,239,227,.45);--pg4:rgba(245,239,227,.18);--gold:#c9a84c;--gold2:#e8c96a;--goldd:rgba(201,168,76,.13);--goldb:rgba(201,168,76,.28);--teal:#3ab8b0;--coral:#e05c4a;--sage:#52a876;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',sans-serif}
+
+/* ── READING ROOM — daylight parchment theme ── */
+[data-theme="day"]{
+  --text-rgb:43,33,24;
+  /* text-color families used across pages */
+  --parchment:#2b2118;--parchment2:#3a2e22;--parchment3:rgba(43,33,24,.7);
+  --muted:rgba(43,33,24,.58);--muted2:rgba(43,33,24,.3);--muted3:rgba(43,33,24,.18);
+  --paper:#f7f3e9;--text:#2b2118;
+  --amber:#a85f1e;
+
+  --ink:#f7f3e9;--ink2:#fffdf7;--ink3:#f1ebdc;--ink4:#e8e0cd;--ink5:#ddd3bc;
+  --pg:#2b2118;--pg2:#3a2e22;--pg3:rgba(43,33,24,.72);--pg4:rgba(43,33,24,.48);--pg5:rgba(43,33,24,.13);--pg6:rgba(43,33,24,.09);
+  --gold:#9a7b2f;--gold2:#836722;--goldd:rgba(154,123,47,.13);--goldb:rgba(154,123,47,.32);
+  --teal:#1d7d76;--teald:rgba(29,125,118,.12);
+  --coral:#b83d24;--corald:rgba(184,61,36,.11);
+  --violet:#5f4bb0;--violetd:rgba(95,75,176,.11);
+  --sage:#3f7d51;
+  --ink-rgb:247,243,233;
+  --paper:#f7f3e9;--muted:rgba(43,33,24,.55);--text:#2b2118;
+}
+html,body{transition:background .35s ease,color .35s ease}
+.theme-toggle{background:none;border:1px solid var(--pg5,rgba(128,128,128,.25));color:var(--pg3,#888);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s;flex-shrink:0;padding:0;line-height:1}
+.theme-toggle:hover{border-color:var(--goldb,rgba(197,160,56,.4));color:var(--gold,#c5a038);transform:rotate(-12deg)}
+
 html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans)}
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:rgba(10,10,15,.96);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:var(--ink);border-bottom:1px solid rgba(245,239,227,.07);backdrop-filter:blur(12px)}
 .nav-logo{font-family:var(--serif);font-size:18px;color:var(--pg);text-decoration:none;display:flex;align-items:center;gap:8px}
 .nav-logo-mark{width:28px;height:28px;border:1px solid var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--gold);font-style:italic}
 .nav-links{display:flex;gap:0;list-style:none}
@@ -82,6 +109,31 @@ section{padding:60px 2.5rem;max-width:1100px;margin:0 auto}
 .success-msg{display:none;padding:14px;background:rgba(82,168,118,.1);border:1px solid rgba(82,168,118,.25);border-radius:8px;font-size:13px;color:var(--sage);margin-top:14px}
 .sep{border:none;border-top:1px solid rgba(245,239,227,.06)}
 </style>
+<script>
+// Reading light — applied before paint so there is no flash
+(function(){
+  var t = 'night';
+  try { t = localStorage.getItem('gbs-theme') || 'night'; } catch(e){}
+  if (t === 'day') document.documentElement.setAttribute('data-theme','day');
+})();
+function toggleTheme(){
+  var el = document.documentElement;
+  var isDay = el.getAttribute('data-theme') === 'day';
+  if (isDay) el.removeAttribute('data-theme');
+  else el.setAttribute('data-theme','day');
+  try { localStorage.setItem('gbs-theme', isDay ? 'night' : 'day'); } catch(e){}
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  var isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  document.querySelectorAll('.theme-toggle').forEach(function(b){
+    b.textContent = isDay ? '\u2600' : '\u263E';
+    b.title = isDay ? 'Reading Room \u2014 switch to Night Library'
+                    : 'Night Library \u2014 switch to Reading Room';
+  });
+}
+document.addEventListener('DOMContentLoaded', syncThemeIcon);
+</script>
 </head>
 <body>
 <nav>
@@ -105,6 +157,7 @@ section{padding:60px 2.5rem;max-width:1100px;margin:0 auto}
       <button id="navSignOutBtn" onclick="API.logout()">Sign out</button>
     </div>
   </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button>
 </nav>
 
 <div class="hero">

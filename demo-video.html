@@ -9,6 +9,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
+  --ink-rgb:7,7,16;
+
   --ink:#0a0a0f; --ink2:#13131c; --ink3:#1c1c28; --ink4:#242433;
   --pg:#f5efe3; --pg2:rgba(245,239,227,.72); --pg3:rgba(245,239,227,.45); --pg4:rgba(245,239,227,.22);
   --gold:#c9a84c; --gold2:#e8c96a; --goldd:rgba(201,168,76,.13); --goldb:rgba(201,168,76,.28);
@@ -21,6 +23,29 @@
   --mono:'DM Mono',monospace;
   --r:10px; --rs:6px;
 }
+
+/* ── READING ROOM — daylight parchment theme ── */
+[data-theme="day"]{
+  /* text-color families used across pages */
+  --parchment:#2b2118;--parchment2:#3a2e22;--parchment3:rgba(43,33,24,.7);
+  --muted:rgba(43,33,24,.58);--muted2:rgba(43,33,24,.3);--muted3:rgba(43,33,24,.18);
+  --paper:#f7f3e9;--text:#2b2118;
+  --amber:#a85f1e;
+
+  --ink:#f7f3e9;--ink2:#fffdf7;--ink3:#f1ebdc;--ink4:#e8e0cd;--ink5:#ddd3bc;
+  --pg:#2b2118;--pg2:#3a2e22;--pg3:rgba(43,33,24,.72);--pg4:rgba(43,33,24,.48);--pg5:rgba(43,33,24,.13);--pg6:rgba(43,33,24,.09);
+  --gold:#9a7b2f;--gold2:#836722;--goldd:rgba(154,123,47,.13);--goldb:rgba(154,123,47,.32);
+  --teal:#1d7d76;--teald:rgba(29,125,118,.12);
+  --coral:#b83d24;--corald:rgba(184,61,36,.11);
+  --violet:#5f4bb0;--violetd:rgba(95,75,176,.11);
+  --sage:#3f7d51;
+  --ink-rgb:247,243,233;
+  --paper:#f7f3e9;--muted:rgba(43,33,24,.55);--text:#2b2118;
+}
+html,body{transition:background .35s ease,color .35s ease}
+.theme-toggle{background:none;border:1px solid var(--pg5,rgba(128,128,128,.25));color:var(--pg3,#888);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,transform .2s;flex-shrink:0;padding:0;line-height:1}
+.theme-toggle:hover{border-color:var(--goldb,rgba(197,160,56,.4));color:var(--gold,#c5a038);transform:rotate(-12deg)}
+
 
 html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font-family:var(--sans);overflow-x:hidden}
 
@@ -61,7 +86,7 @@ html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font
 .btn-fullscreen{background:transparent;border:1px solid var(--ink4);border-radius:6px;color:var(--pg3);padding:6px 10px;font-size:13px;cursor:pointer}
 
 /* ── SHARED SCENE ELEMENTS ── */
-.scene-nav{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--ink4);background:rgba(10,10,15,.9);flex-shrink:0}
+.scene-nav{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid var(--ink4);background:var(--ink);flex-shrink:0}
 .nav-logo{font-family:var(--serif);font-size:17px;color:var(--pg)}
 .nav-logo em{color:var(--gold)}
 .nav-links{display:flex;gap:24px}
@@ -88,7 +113,7 @@ html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font
 .map-svg{width:100%;height:100%;opacity:.65}
 .map-pin{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px var(--goldd);cursor:pointer;transform:translate(-50%,-50%);animation:pinPop .5s ease-out backwards}
 @keyframes pinPop{from{transform:translate(-50%,-50%) scale(0)}to{transform:translate(-50%,-50%) scale(1)}}
-.map-tooltip{position:absolute;background:rgba(10,10,15,.96);border:1px solid var(--goldb);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--pg2);pointer-events:none;white-space:nowrap;transform:translate(-50%,-130%)}
+.map-tooltip{position:absolute;background:rgba(var(--ink-rgb), .96);border:1px solid var(--goldb);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--pg2);pointer-events:none;white-space:nowrap;transform:translate(-50%,-130%)}
 
 /* ── SCENE 2 — SOUL QUIZ ── */
 .quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:28px}
@@ -166,12 +191,12 @@ html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font
 .tier-benefit{font-size:11px;color:var(--pg3);margin-bottom:3px}
 .visa-card-visual{width:100%;max-width:340px;background:linear-gradient(135deg,#1A3A6A,#0F2244);border-radius:12px;padding:18px 22px;margin-bottom:18px}
 .visa-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.visa-type{font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.5);text-transform:uppercase}
+.visa-type{font-size:11px;letter-spacing:.12em;color:rgba(var(--text-rgb,245,239,227), .5);text-transform:uppercase}
 .visa-brand{font-size:20px;font-style:italic;font-weight:700;letter-spacing:2px;color:#F9C84F}
-.visa-num{font-size:18px;letter-spacing:4px;color:#fff;margin-bottom:14px;font-family:var(--mono)}
+.visa-num{font-size:18px;letter-spacing:4px;color:var(--text,#f5efe3);margin-bottom:14px;font-family:var(--mono)}
 .visa-bottom{display:flex;justify-content:space-between}
-.visa-holder,.visa-expiry{color:rgba(255,255,255,.7);font-size:12px}
-.visa-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:2px}
+.visa-holder,.visa-expiry{color:rgba(var(--text-rgb,245,239,227), .7);font-size:12px}
+.visa-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(var(--text-rgb,245,239,227), .4);display:block;margin-bottom:2px}
 .payment-success{text-align:center;padding:24px}
 .success-icon{font-size:48px;margin-bottom:12px}
 .success-title{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--gold);margin-bottom:6px}
@@ -220,11 +245,38 @@ html,body{width:100%;min-height:100vh;background:var(--ink);color:var(--pg);font
 
 /* ── SCENE TITLE OVERLAY ── */
 .scene-title-overlay{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:10;pointer-events:none}
-.scene-pill{background:rgba(10,10,15,.85);border:1px solid var(--goldb);border-radius:16px;padding:4px 14px;font-size:11px;color:var(--gold);letter-spacing:.08em;white-space:nowrap;backdrop-filter:blur(4px)}
+.scene-pill{background:rgba(var(--ink-rgb), .85);border:1px solid var(--goldb);border-radius:16px;padding:4px 14px;font-size:11px;color:var(--gold);letter-spacing:.08em;white-space:nowrap;backdrop-filter:blur(4px)}
 .scene-num-badge{background:var(--goldd);border:1px solid var(--goldb);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold);font-weight:500;flex-shrink:0}
 </style>
+<script>
+// Reading light — applied before paint so there is no flash
+(function(){
+  var t = 'night';
+  try { t = localStorage.getItem('gbs-theme') || 'night'; } catch(e){}
+  if (t === 'day') document.documentElement.setAttribute('data-theme','day');
+})();
+function toggleTheme(){
+  var el = document.documentElement;
+  var isDay = el.getAttribute('data-theme') === 'day';
+  if (isDay) el.removeAttribute('data-theme');
+  else el.setAttribute('data-theme','day');
+  try { localStorage.setItem('gbs-theme', isDay ? 'night' : 'day'); } catch(e){}
+  syncThemeIcon();
+}
+function syncThemeIcon(){
+  var isDay = document.documentElement.getAttribute('data-theme') === 'day';
+  document.querySelectorAll('.theme-toggle').forEach(function(b){
+    b.textContent = isDay ? '\u2600' : '\u263E';
+    b.title = isDay ? 'Reading Room \u2014 switch to Night Library'
+                    : 'Night Library \u2014 switch to Reading Room';
+  });
+}
+document.addEventListener('DOMContentLoaded', syncThemeIcon);
+</script>
 </head>
 <body>
+<div style="position:fixed;top:14px;right:16px;z-index:9999"><button class="theme-toggle" onclick="toggleTheme()" title="Switch reading light" aria-label="Switch theme">☾</button></div>
+
 
 <div class="player">
 

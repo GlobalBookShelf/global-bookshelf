@@ -583,6 +583,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:58px;
   .hero-content{ top: 42% !important; }
 }
 
+
+/* GBS-CHIPS-HERO-ONLY — chip strip lives with the hero only */
+@media (max-width: 900px){
+  .filter-strip{
+    transition: opacity .25s ease, transform .25s ease, visibility .25s ease !important;
+  }
+  .filter-strip.chips-off{
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(115%) !important;
+    pointer-events: none !important;
+  }
+  /* the pull tab must never linger past the hero either */
+  .chips-tab.chips-off{
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* app-download badges must stay inside their own section, never float near the nav */
+  .app-badges{ flex-wrap: wrap !important; gap: 10px !important; }
+  .app-badge{ flex: 0 0 auto !important; }
+  section, footer{ position: relative; }
+}
+
 </style>
   <script src="api.js"></script>
 <script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>
@@ -1665,6 +1690,48 @@ function filterAnns(type, btn) {
     window.addEventListener('resize', function(){
       if (!isMobile()) setHidden(false);
     });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
+</script>
+
+<script>
+/* GBS-CHIPS-HERO-ONLY */
+(function(){
+  function init(){
+    var strip = document.querySelector('.filter-strip');
+    if (!strip) return;
+    var hero = document.querySelector('.hero') || document.querySelector('#map-container');
+    var tab  = document.querySelector('.chips-tab');
+
+    function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+    function update(){
+      if (!isMobile()){
+        strip.classList.remove('chips-off');
+        if (tab) tab.classList.remove('chips-off');
+        return;
+      }
+      // hide once the hero has scrolled out of view
+      var limit = hero ? hero.offsetHeight - 120 : window.innerHeight - 120;
+      var past  = (window.pageYOffset || 0) > limit;
+      strip.classList.toggle('chips-off', past);
+      if (tab) tab.classList.toggle('chips-off', past);
+    }
+
+    var ticking = false;
+    window.addEventListener('scroll', function(){
+      if (!ticking){
+        ticking = true;
+        window.requestAnimationFrame(function(){ update(); ticking = false; });
+      }
+    }, { passive: true });
+
+    window.addEventListener('resize', update);
+    update();
   }
 
   if (document.readyState === 'loading') {

@@ -1381,6 +1381,41 @@ html,body{transition:background .35s ease,color .35s ease}
   .search-wrap{ top: 112px !important; }
 }
 
+
+/* GBS-LIFT-BUTTONS — hero buttons clear of the bottom chip strip */
+@media (max-width: 900px){
+  .hero-content{
+    bottom: auto !important;
+    top: 46% !important;
+    transform: translateY(-42%) !important;
+    padding-bottom: 0 !important;
+  }
+  .hero-actions{
+    margin-top: 18px !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    row-gap: 10px !important;
+  }
+  /* chips keep to the very bottom edge */
+  .filter-strip{ bottom: 0 !important; }
+  /* the decorative scroll cue sat right between them */
+  .scroll-hint{ display: none !important; }
+}
+
+@media (max-width: 560px){
+  .hero-content{ top: 44% !important; transform: translateY(-40%) !important; }
+  .hero-actions{ margin-top: 14px !important; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-ghost{ padding: 11px 18px !important; font-size: 12px !important; }
+}
+
+/* very short screens: shrink type rather than let things collide */
+@media (max-width: 900px) and (max-height: 700px){
+  .hero-title{ font-size: clamp(26px, 7.5vw, 38px) !important; }
+  .hero-sub{ font-size: 12px !important; }
+  .hero-content{ top: 42% !important; }
+}
+
 </style>
 <script src="api.js"></script>
 <script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available — install with: npm install socket.io')"></script>

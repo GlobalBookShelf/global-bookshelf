@@ -1179,6 +1179,63 @@ html,body{transition:background .35s ease,color .35s ease}
     white-space: nowrap; pointer-events: none;
   }
   .gbs-toast.show { transform: translateX(-50%) translateY(0); }
+
+/* GBS-MOBILE-FIXES — small screens */
+@media (max-width: 900px){
+  .filter-strip{
+    position: fixed !important;
+    right: auto !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 84px !important;
+    transform: none !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 6px 14px 8px !important;
+    z-index: 45 !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .filter-strip::-webkit-scrollbar{ display:none; }
+  .filter-chip{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center;
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+  }
+
+  .time-slider-wrap{ left: 12px !important; right: auto !important; }
+
+  .hero-title{ font-size: clamp(30px, 9vw, 48px) !important; }
+  .hero-sub{ font-size: 13px !important; padding: 0 20px; }
+  .hero-content{ bottom: 150px !important; }
+  .hero-eyebrow{ font-size: 9px !important; letter-spacing: .18em !important; }
+
+  .search-wrap{ width: min(88vw, 360px) !important; top: 70px !important; }
+
+  nav{ padding: 12px 16px !important; flex-wrap: wrap !important; gap: 8px; }
+  .nav-links{ order: 3; width: 100%; justify-content: center; flex-wrap: wrap; gap: 14px !important; }
+
+  .stats-bar{ overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .stats-bar::-webkit-scrollbar{ display:none; }
+
+  html, body{ max-width: 100%; overflow-x: hidden; }
+}
+
+@media (max-width: 560px){
+  .hero-content{ bottom: 140px !important; }
+  .filter-strip{ bottom: 76px !important; }
+  .search-wrap{ top: 64px !important; }
+}
+
 </style>
 <script src="api.js"></script>
 <script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available — install with: npm install socket.io')"></script>

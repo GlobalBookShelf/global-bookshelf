@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
   h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
   body{margin:0;padding:0;font-family:var(--font-sans,sans-serif)}
@@ -47,6 +48,63 @@
   .pulse{animation:pulse 1.2s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
   @media(prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+/* GBS-MOBILE-FIXES — small screens */
+@media (max-width: 900px){
+  .filter-strip{
+    position: fixed !important;
+    right: auto !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 84px !important;
+    transform: none !important;
+    width: 100% !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 6px 14px 8px !important;
+    z-index: 45 !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  .filter-strip::-webkit-scrollbar{ display:none; }
+  .filter-chip{
+    flex: 0 0 auto !important;
+    scroll-snap-align: center;
+    font-size: 12px !important;
+    padding: 8px 14px !important;
+  }
+
+  .time-slider-wrap{ left: 12px !important; right: auto !important; }
+
+  .hero-title{ font-size: clamp(30px, 9vw, 48px) !important; }
+  .hero-sub{ font-size: 13px !important; padding: 0 20px; }
+  .hero-content{ bottom: 150px !important; }
+  .hero-eyebrow{ font-size: 9px !important; letter-spacing: .18em !important; }
+
+  .search-wrap{ width: min(88vw, 360px) !important; top: 70px !important; }
+
+  nav{ padding: 12px 16px !important; flex-wrap: wrap !important; gap: 8px; }
+  .nav-links{ order: 3; width: 100%; justify-content: center; flex-wrap: wrap; gap: 14px !important; }
+
+  .stats-bar{ overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .stats-bar::-webkit-scrollbar{ display:none; }
+
+  html, body{ max-width: 100%; overflow-x: hidden; }
+}
+
+@media (max-width: 560px){
+  .hero-content{ bottom: 140px !important; }
+  .filter-strip{ bottom: 76px !important; }
+  .search-wrap{ top: 64px !important; }
+}
+
 </style>
 </head>
 <body>

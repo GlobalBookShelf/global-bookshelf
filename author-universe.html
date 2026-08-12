@@ -368,6 +368,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:62px;display:flex;ali
   .search-wrap{ top: 64px !important; }
 }
 
+
+/* GBS-MOBILE-FIX2 — keep chips clear of hero buttons */
+@media (max-width: 900px){
+  .filter-strip{
+    bottom: 0 !important;
+    padding: 10px 14px 12px !important;
+    background: linear-gradient(to top,
+      rgba(var(--ink-rgb,7,7,16),0.94),
+      rgba(var(--ink-rgb,7,7,16),0.75) 62%,
+      rgba(var(--ink-rgb,7,7,16),0)) !important;
+    z-index: 60 !important;
+  }
+  .hero-content{ bottom: 104px !important; }
+  .scroll-hint{ display: none !important; }
+  .stats-bar{ padding-bottom: 58px !important; }
+}
+@media (max-width: 560px){
+  .hero-content{ bottom: 98px !important; }
+  .filter-strip{ padding: 9px 12px 11px !important; }
+  .hero-actions{ flex-wrap: wrap; gap: 10px !important; }
+}
+
 </style>
   <script src="api.js"></script>
 <script src="https://global-bookshelf-production.up.railway.app/socket.io/socket.io.js" onerror="console.log('[GBS] Socket.io not available')"></script>

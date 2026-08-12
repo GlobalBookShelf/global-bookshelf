@@ -187,6 +187,47 @@ section{padding:60px 2.5rem;max-width:1100px;margin:0 auto}
   .hero-actions{ flex-wrap: wrap; gap: 10px !important; }
 }
 
+
+/* GBS-CHIPS-SLIDE — chips slide away instead of covering content */
+@media (max-width: 900px){
+  .filter-strip{
+    transition: transform .28s ease, opacity .28s ease !important;
+    will-change: transform;
+  }
+  .filter-strip.chips-hidden{
+    transform: translateY(115%) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  /* small pull tab so the strip can always be brought back */
+  .chips-tab{
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 61;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px 7px;
+    border-radius: 12px 12px 0 0;
+    border: 1px solid var(--goldb, rgba(201,168,76,.3));
+    border-bottom: none;
+    background: rgba(var(--ink-rgb,7,7,16), .92);
+    color: var(--gold, #c5a038);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-family: var(--sans, sans-serif);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+  .chips-tab.show{ display: inline-flex; }
+}
+@media (min-width: 901px){
+  .chips-tab{ display: none !important; }
+}
+
 </style>
 <script>
 // Reading light — applied before paint so there is no flash
@@ -457,6 +498,60 @@ updateNav();
 renderLangGrid(AFRICAN_LANGS, 'africanLangs', true);
 renderLangGrid(WORLD_LANGS, 'worldLangs', false);
 renderProjects();
+</script>
+
+<script>
+/* GBS-CHIPS-SLIDE */
+(function(){
+  function init(){
+    var strip = document.querySelector('.filter-strip');
+    if (!strip) return;
+
+    var tab = document.createElement('button');
+    tab.className = 'chips-tab';
+    tab.type = 'button';
+    tab.setAttribute('aria-label','Show genre filters');
+    tab.textContent = 'Genres';
+    document.body.appendChild(tab);
+
+    var lastY = window.pageYOffset || 0;
+    var hidden = false;
+    var ticking = false;
+
+    function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+    function setHidden(v){
+      if (v === hidden) return;
+      hidden = v;
+      strip.classList.toggle('chips-hidden', v);
+      tab.classList.toggle('show', v && isMobile());
+    }
+
+    function onScroll(){
+      if (!isMobile()) { setHidden(false); return; }
+      var y = window.pageYOffset || 0;
+      if (y < 40) { setHidden(false); }
+      else if (y > lastY + 6) { setHidden(true); }   // scrolling down -> get out of the way
+      else if (y < lastY - 6) { setHidden(false); }  // scrolling up   -> come back
+      lastY = y;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function(){
+      if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
+    }, { passive: true });
+
+    tab.addEventListener('click', function(){ setHidden(false); });
+
+    window.addEventListener('resize', function(){
+      if (!isMobile()) setHidden(false);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+})();
 </script>
 </body>
 </html>

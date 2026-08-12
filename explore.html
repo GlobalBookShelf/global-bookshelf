@@ -432,6 +432,20 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
   .hero-content{ bottom: 84px !important; }
 }
 
+
+/* GBS-NUDGE-BUTTONS — small lift so buttons clear the live stats bar */
+@media (max-width: 900px){
+  .hero-content{ bottom: 132px !important; }
+  .filter-strip{ bottom: 12px !important; }
+}
+@media (max-width: 560px){
+  .hero-content{ bottom: 124px !important; }
+  .filter-strip{ bottom: 10px !important; }
+}
+@media (max-width: 900px) and (max-height: 700px){
+  .hero-content{ bottom: 116px !important; }
+}
+
 </style>
 <script>
 // Reading light — applied before paint so there is no flash
